@@ -1,12 +1,12 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const homeScreen = () => {
+const searchScreen = () => {
   return (
     <SafeAreaView>
-      <Text>homddeScreen</Text>
+      <Text>searchScreen</Text>
     </SafeAreaView>
   );
 };
 
-export default homeScreen;
+export default searchScreen;

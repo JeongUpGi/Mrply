@@ -1,12 +1,12 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const homeScreen = () => {
+const allMenuScreen = () => {
   return (
     <SafeAreaView>
-      <Text>homddeScreen</Text>
+      <Text>allMenuScreen</Text>
     </SafeAreaView>
   );
 };
 
-export default homeScreen;
+export default allMenuScreen;
