@@ -3,7 +3,7 @@ import {Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import homeScreen from '../screen/home/homeScreen.tsx';
+import homeScreen from '../screen/home/homeScreen';
 import newMusicScreen from '../screen/newMusic/newMusicScreen';
 import searchScreen from '../screen/search/searchScreen';
 import storageScreen from '../screen/storage/storageScreen';
