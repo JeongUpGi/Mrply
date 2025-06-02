@@ -89,7 +89,7 @@ function BottomTabs() {
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
-              source={require('../asset/images/music_storage.png')}
+              source={require('../asset/images/electric_lightbulb.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
@@ -115,7 +115,7 @@ function BottomTabs() {
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
-              source={require('../asset/images/electric_lightbulb.png')}
+              source={require('../asset/images/music_storage.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
