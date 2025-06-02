@@ -3,11 +3,11 @@ import {Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import HomeScreen from '../screen/home/homeScreen.tsx';
-import NewMusicScreen from '../screen/newMusic/newMusicScreen';
-import SearchScreen from '../screen/search/searchScreen';
-import StorageScreen from '../screen/storage/storageScreen';
-import AllMenuScreen from '../screen/allMenu/allMenuScreen';
+import homeScreen from '../screen/home/homeScreen.tsx';
+import newMusicScreen from '../screen/newMusic/newMusicScreen';
+import searchScreen from '../screen/search/searchScreen';
+import storageScreen from '../screen/storage/storageScreen';
+import allMenuScreen from '../screen/allMenu/allMenuScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -17,7 +17,7 @@ function HomeStack() {
     <Stack.Navigator
       initialRouteName="homeScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="homeScreen" component={HomeScreen} />
+      <Stack.Screen name="homeScreen" component={homeScreen} />
     </Stack.Navigator>
   );
 }
@@ -27,7 +27,7 @@ function NewMusicStack() {
     <Stack.Navigator
       initialRouteName="newMusicScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="newMusicScreen" component={NewMusicScreen} />
+      <Stack.Screen name="newMusicScreen" component={newMusicScreen} />
     </Stack.Navigator>
   );
 }
@@ -37,7 +37,7 @@ function SearchStack() {
     <Stack.Navigator
       initialRouteName="searchScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="searchScreen" component={SearchScreen} />
+      <Stack.Screen name="searchScreen" component={searchScreen} />
     </Stack.Navigator>
   );
 }
@@ -47,7 +47,7 @@ function StorageStack() {
     <Stack.Navigator
       initialRouteName="storageScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="storageScreen" component={StorageScreen} />
+      <Stack.Screen name="storageScreen" component={storageScreen} />
     </Stack.Navigator>
   );
 }
@@ -57,7 +57,7 @@ function MenuStack() {
     <Stack.Navigator
       initialRouteName="allMenuScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="allMenuScreen" component={AllMenuScreen} />
+      <Stack.Screen name="allMenuScreen" component={allMenuScreen} />
     </Stack.Navigator>
   );
 }
