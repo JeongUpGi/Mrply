@@ -12,7 +12,7 @@ import {
 import {searchVideos} from '../../network/networkRequest';
 import {colors} from '../../asset/color/color';
 
-const searchScreen = () => {
+const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
 
@@ -103,4 +103,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default searchScreen;
+export default SearchScreen;

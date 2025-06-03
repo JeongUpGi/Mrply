@@ -1,7 +1,7 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const stroageScreen = () => {
+const StorageScreen = () => {
   return (
     <SafeAreaView>
       <Text>stroageScreen</Text>
@@ -9,4 +9,4 @@ const stroageScreen = () => {
   );
 };
 
-export default stroageScreen;
+export default StorageScreen;

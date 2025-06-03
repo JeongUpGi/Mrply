@@ -1,7 +1,7 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const newMusicScreen = () => {
+const NewMusicScreen = () => {
   return (
     <SafeAreaView>
       <Text>newMusicScreen</Text>
@@ -9,4 +9,4 @@ const newMusicScreen = () => {
   );
 };
 
-export default newMusicScreen;
+export default NewMusicScreen;

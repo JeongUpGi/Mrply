@@ -1,7 +1,7 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const allMenuScreen = () => {
+const AllMenuScreen = () => {
   return (
     <SafeAreaView>
       <Text>allMenuScreen</Text>
@@ -9,4 +9,4 @@ const allMenuScreen = () => {
   );
 };
 
-export default allMenuScreen;
+export default AllMenuScreen;
