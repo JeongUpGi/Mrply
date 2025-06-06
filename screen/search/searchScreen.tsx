@@ -1,5 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
+import {useSelector, useDispatch} from 'react-redux';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,22 +13,35 @@ import {
   Alert,
   ListRenderItem,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
 
-import {SearchResultItem} from '../../model/model';
+import {SearchResultMusicItem, RecentSearchItems} from '../../model/model';
 import {searchVideos} from '../../network/network';
 import {colors} from '../../asset/color/color';
+import {
+  addRecentSearch,
+  deleteRecentSearch,
+} from '../../store/slices/recentSearchSlice';
+import {RootState} from '../../store';
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [isOfficial, setIsOfficial] = useState(false);
-  const [totalMusic, setTotalMusic] = useState<SearchResultItem[]>([]);
-  const [officialMusic, setOfficialMusic] = useState<SearchResultItem[]>([]);
+  const [totalMusic, setTotalMusic] = useState<SearchResultMusicItem[]>([]);
+  const [officialMusic, setOfficialMusic] = useState<SearchResultMusicItem[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const inputRef = useRef<TextInput>(null);
+
+  const dispatch = useDispatch();
+  const recentSearches = useSelector(
+    (state: RootState) => state.recentSearches,
+  );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -63,23 +77,26 @@ const SearchScreen = () => {
     setIsOfficial(newValue);
   };
 
-  const handleSearch = async () => {
-    if (!searchText) {
+  const handleSearch = async (_textItem?: string) => {
+    console.log('textItem ===> ', _textItem);
+    if (!_textItem) {
       Alert.alert('검색어를 입력해주세요.');
       return;
     }
-
+    setSearchText(_textItem);
+    dispatch(addRecentSearch(_textItem));
     setLoading(true);
     setError(null);
+
     try {
-      const data = await searchVideos(searchText + ' official music video');
-      console.log('data ===>', data);
+      const data = await searchVideos(_textItem + ' official music video');
       if (data && data.items) {
         setTotalMusic(data.items);
         const officalItems = data.items.filter(item => {
           return item.snippet?.title?.toLowerCase().includes('official');
         });
         setOfficialMusic(officalItems);
+        handleInputBlur();
       } else {
         setError('검색 결과 구조가 예상과 다릅니다.');
         setTotalMusic([]);
@@ -98,8 +115,12 @@ const SearchScreen = () => {
     }
   };
 
-  const renderItem: ListRenderItem<SearchResultItem> = ({item}) => (
-    <View style={styles.resultItem}>
+  const deleteSearchItem = (_item: string) => {
+    dispatch(deleteRecentSearch(_item));
+  };
+
+  const renderMusicItem: ListRenderItem<SearchResultMusicItem> = ({item}) => (
+    <View style={styles.musicItemList}>
       <Image
         style={styles.thumbnail}
         source={{uri: item.snippet.thumbnails.medium.url}}
@@ -111,60 +132,107 @@ const SearchScreen = () => {
     </View>
   );
 
+  const RenderRecentSearchItems: React.FC<RecentSearchItems> = ({
+    item,
+    onPress,
+    onDelete,
+  }) => {
+    return (
+      <View style={styles.recentSearchesItemWrapper}>
+        <TouchableOpacity
+          onPress={() => onPress(item)}
+          style={styles.recentSearchTextWrapper}>
+          <Text style={styles.recentSearchItemText}>{item}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            padding: 5,
+          }}
+          onPress={() => onDelete(item)}>
+          <Image
+            source={require('../../asset/images/delete.png')}
+            style={{
+              width: 25,
+              height: 25,
+            }}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
-          <Image
-            source={require('../../asset/images/search.png')}
-            style={{width: 20, height: 20, tintColor: colors.gray_808080}}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="아티스트, 노래, 가사"
-            placeholderTextColor={colors.gray_808080}
-            value={searchText}
-            onChangeText={setSearchText}
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
-            onSubmitEditing={handleSearch}
-            ref={inputRef}
-          />
-        </View>
-        {inputFocused && (
-          <TouchableOpacity
-            style={styles.cancelButtonTextWrapper}
-            onPress={handleInputCancel}>
-            <Text style={styles.cancelButtonText}>취소</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <View style={styles.toggleContainer}>
-        <Text style={styles.toggleText}>official만 보기</Text>
-        <View style={{width: 5}} />
-        <Switch value={isOfficial} onValueChange={handleToggleChange} />
-      </View>
-
-      {loading && (
+      {loading ? (
         <View style={styles.loadingContainer}>
-          <Text style={styles.loading}>검색 중..</Text>
+          <ActivityIndicator size="large" color={colors.red} />
         </View>
-      )}
-      {error && <Text style={styles.error}>오류: {error}</Text>}
+      ) : (
+        <View style={{flex: 1}}>
+          <View style={styles.inputContainer}>
+            <View style={styles.inputWrapper}>
+              <Image
+                source={require('../../asset/images/search.png')}
+                style={{width: 20, height: 20, tintColor: colors.gray_808080}}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="아티스트, 노래, 가사"
+                placeholderTextColor={colors.gray_808080}
+                value={searchText}
+                onChangeText={setSearchText}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
+                onSubmitEditing={() => handleSearch(searchText)}
+                ref={inputRef}
+              />
+            </View>
+            {inputFocused && (
+              <TouchableOpacity
+                style={styles.cancelButtonTextWrapper}
+                onPress={handleInputCancel}>
+                <Text style={styles.cancelButtonText}>취소</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
-      {!loading && !inputFocused && (
-        <FlatList
-          data={isOfficial ? officialMusic : totalMusic}
-          style={styles.musicListContainer}
-          keyExtractor={(item, index) =>
-            item.id.videoId ||
-            item.id.channelId ||
-            item.id.playlistId ||
-            `fallback-${index}`
-          }
-          renderItem={renderItem}
-        />
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleText}>official만 보기</Text>
+            <View style={{width: 5}} />
+            <Switch value={isOfficial} onValueChange={handleToggleChange} />
+          </View>
+
+          {inputFocused && recentSearches.length > 0 && (
+            <View style={styles.recentSearchesContainer}>
+              <Text style={styles.recentSearchesTitle}>최근 검색어</Text>
+              <View>
+                {recentSearches.map((item, index) => (
+                  <RenderRecentSearchItems
+                    key={index}
+                    item={item}
+                    onPress={handleSearch}
+                    onDelete={deleteSearchItem}
+                  />
+                ))}
+              </View>
+            </View>
+          )}
+          {error && <Text style={styles.error}>오류: {error}</Text>}
+
+          {!inputFocused && (
+            <FlatList
+              data={isOfficial ? officialMusic : totalMusic}
+              style={styles.musicListContainer}
+              keyExtractor={(item, index) =>
+                item.id.videoId ||
+                item.id.channelId ||
+                item.id.playlistId ||
+                `fallback-${index}`
+              }
+              renderItem={renderMusicItem}
+            />
+          )}
+        </View>
       )}
     </SafeAreaView>
   );
@@ -207,9 +275,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   musicListContainer: {
-    marginTop: 50,
+    marginTop: 10,
   },
-  resultItem: {
+  musicItemList: {
     flexDirection: 'row',
     marginBottom: 10,
   },
@@ -234,9 +302,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loading: {
-    color: 'red',
-  },
   error: {
     color: colors.red,
   },
@@ -248,6 +313,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     marginTop: 10,
+    marginBottom: 10,
+  },
+  recentSearchesContainer: {
+    marginTop: 10,
+  },
+  recentSearchesItemWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  recentSearchTextWrapper: {
+    flex: 1,
+    marginRight: 10,
+  },
+  recentSearchesTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  recentSearchItemText: {
+    fontSize: 14,
+    paddingVertical: 5,
   },
 });
 

@@ -33,3 +33,9 @@ export interface SearchResultMusicItem {
     publishTime: string;
   };
 }
+
+export interface RecentSearchItems {
+  item: string; // 검색어
+  onPress: (item: string) => void; // 항목 클릭 시 호출될 함수
+  onDelete: (item: string) => void; // 삭제 버튼 클릭 시 호출될 함수
+}
