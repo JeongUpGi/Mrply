@@ -11,6 +11,7 @@ import {
   Image,
   Alert,
   ListRenderItem,
+  Switch,
 } from 'react-native';
 
 import {SearchResultItem} from '../../model/model';
@@ -20,7 +21,9 @@ import {colors} from '../../asset/color/color';
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
-  const [searchResult, setSearchResult] = useState<SearchResultItem[]>([]);
+  const [isOfficial, setIsOfficial] = useState(false);
+  const [totalMusic, setTotalMusic] = useState<SearchResultItem[]>([]);
+  const [officialMusic, setOfficialMusic] = useState<SearchResultItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,11 +31,17 @@ const SearchScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setSearchResult([]);
-      setSearchText('');
-      setInputFocused(false);
+      resetState();
     }, []),
   );
+
+  const resetState = () => {
+    setTotalMusic([]);
+    setOfficialMusic([]);
+    setSearchText('');
+    setInputFocused(false);
+    setIsOfficial(false);
+  };
 
   const handleInputFocus = () => {
     setInputFocused(true);
@@ -50,6 +59,10 @@ const SearchScreen = () => {
     }
   };
 
+  const handleToggleChange = (newValue: boolean) => {
+    setIsOfficial(newValue);
+  };
+
   const handleSearch = async () => {
     if (!searchText) {
       Alert.alert('검색어를 입력해주세요.');
@@ -62,10 +75,15 @@ const SearchScreen = () => {
       const data = await searchVideos(searchText + ' official music video');
       console.log('data ===>', data);
       if (data && data.items) {
-        setSearchResult(data.items);
+        setTotalMusic(data.items);
+        const officalItems = data.items.filter(item => {
+          return item.snippet?.title?.toLowerCase().includes('official');
+        });
+        setOfficialMusic(officalItems);
       } else {
         setError('검색 결과 구조가 예상과 다릅니다.');
-        setSearchResult([]);
+        setTotalMusic([]);
+        setOfficialMusic([]);
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -73,7 +91,8 @@ const SearchScreen = () => {
       } else {
         setError('알 수 없는 오류가 발생했습니다.');
       }
-      setSearchResult([]);
+      setTotalMusic([]);
+      setOfficialMusic([]);
     } finally {
       setLoading(false);
     }
@@ -121,6 +140,12 @@ const SearchScreen = () => {
         )}
       </View>
 
+      <View style={styles.toggleContainer}>
+        <Text style={styles.toggleText}>official만 보기</Text>
+        <View style={{width: 5}} />
+        <Switch value={isOfficial} onValueChange={handleToggleChange} />
+      </View>
+
       {loading && (
         <View style={styles.loadingContainer}>
           <Text style={styles.loading}>검색 중..</Text>
@@ -130,7 +155,7 @@ const SearchScreen = () => {
 
       {!loading && !inputFocused && (
         <FlatList
-          data={searchResult}
+          data={isOfficial ? officialMusic : totalMusic}
           style={styles.musicListContainer}
           keyExtractor={(item, index) =>
             item.id.videoId ||
@@ -214,6 +239,15 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.red,
+  },
+  toggleText: {
+    color: colors.black,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 10,
   },
 });
 
