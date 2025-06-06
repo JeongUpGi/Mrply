@@ -8,10 +8,10 @@ export interface SearchResponse {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: SearchResultItem[];
+  items: SearchResultMusicItem[];
 }
 
-export interface SearchResultItem {
+export interface SearchResultMusicItem {
   id: {
     kind: string;
     videoId?: string;
