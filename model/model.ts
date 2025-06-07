@@ -40,6 +40,12 @@ export interface RecentSearchItems {
   onDelete: (item: string) => void; // 삭제 버튼 클릭 시 호출될 함수
 }
 
+// 음악 진행중인 바 props인터페이스 정의
+export interface PlayingMusicBarProps {
+  imageUrl: string;
+  musicTitle: string;
+}
+
 export interface AudioPlaybackData {
   url: string;
   title: string;
