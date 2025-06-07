@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import {
@@ -25,6 +25,10 @@ import {
 } from '../../store/slices/recentSearchSlice';
 import {RootState} from '../../store';
 
+import PlayingMusicBar from '../../component/common/playingMusicBar';
+import {playMusicService} from '../../service/playMusicService';
+import TrackPlayer from 'react-native-track-player';
+
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
@@ -35,6 +39,8 @@ const SearchScreen = () => {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentlyPlayingMusic, setCurrentlyPlayingMusic] =
+    useState<SearchResultMusicItem | null>(null);
 
   const inputRef = useRef<TextInput>(null);
 
@@ -78,7 +84,6 @@ const SearchScreen = () => {
   };
 
   const handleSearch = async (_textItem?: string) => {
-    console.log('textItem ===> ', _textItem);
     if (!_textItem) {
       Alert.alert('검색어를 입력해주세요.');
       return;
@@ -119,8 +124,34 @@ const SearchScreen = () => {
     dispatch(deleteRecentSearch(_item));
   };
 
+  const startMusic = async (item: SearchResultMusicItem) => {
+    setCurrentlyPlayingMusic(item);
+
+    //음악 버퍼링 동안 loading 실행
+    setLoading(true);
+    setError(null);
+
+    try {
+      await playMusicService(item);
+    } catch (err: unknown) {
+      console.error('Error playing music from item selection:', err);
+      if (err instanceof Error) {
+        setError('재생 오류: ' + err.message);
+      } else {
+        setError('알 수 없는 재생 오류 발생했습니다.');
+      }
+      setCurrentlyPlayingMusic(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderMusicItem: ListRenderItem<SearchResultMusicItem> = ({item}) => (
-    <View style={styles.musicItemList}>
+    <TouchableOpacity
+      onPress={() => {
+        startMusic(item);
+      }}
+      style={styles.musicItemList}>
       <Image
         style={styles.thumbnail}
         source={{uri: item.snippet.thumbnails.medium.url}}
@@ -129,37 +160,35 @@ const SearchScreen = () => {
         <Text style={styles.title}>{item.snippet.title}</Text>
         <Text style={styles.channelTitle}>{item.snippet.channelTitle}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
-  const RenderRecentSearchItems: React.FC<RecentSearchItems> = ({
-    item,
-    onPress,
-    onDelete,
-  }) => {
-    return (
-      <View style={styles.recentSearchesItemWrapper}>
-        <TouchableOpacity
-          onPress={() => onPress(item)}
-          style={styles.recentSearchTextWrapper}>
-          <Text style={styles.recentSearchItemText}>{item}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            padding: 5,
-          }}
-          onPress={() => onDelete(item)}>
-          <Image
-            source={require('../../asset/images/delete.png')}
+  const RenderRecentSearchItems: React.FC<RecentSearchItems> = React.memo(
+    ({item, onPress, onDelete}) => {
+      return (
+        <View style={styles.recentSearchesItemWrapper}>
+          <TouchableOpacity
+            onPress={() => onPress(item)}
+            style={styles.recentSearchTextWrapper}>
+            <Text style={styles.recentSearchItemText}>{item}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={{
-              width: 25,
-              height: 25,
+              padding: 5,
             }}
-          />
-        </TouchableOpacity>
-      </View>
-    );
-  };
+            onPress={() => onDelete(item)}>
+            <Image
+              source={require('../../asset/images/delete.png')}
+              style={{
+                width: 25,
+                height: 25,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    },
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -168,7 +197,7 @@ const SearchScreen = () => {
           <ActivityIndicator size="large" color={colors.red} />
         </View>
       ) : (
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, marginHorizontal: 30}}>
           <View style={styles.inputContainer}>
             <View style={styles.inputWrapper}>
               <Image
@@ -230,8 +259,20 @@ const SearchScreen = () => {
                 `fallback-${index}`
               }
               renderItem={renderMusicItem}
+              contentContainerStyle={
+                currentlyPlayingMusic ? {paddingBottom: 60} : null
+              }
             />
           )}
+        </View>
+      )}
+
+      {currentlyPlayingMusic && (
+        <View style={styles.playerContainer}>
+          <PlayingMusicBar
+            imageUrl={currentlyPlayingMusic.snippet.thumbnails.medium.url}
+            musicTitle={currentlyPlayingMusic.snippet.title}
+          />
         </View>
       )}
     </SafeAreaView>
@@ -243,7 +284,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginTop: 50,
-    marginHorizontal: 30,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -335,6 +375,15 @@ const styles = StyleSheet.create({
   recentSearchItemText: {
     fontSize: 14,
     paddingVertical: 5,
+  },
+  playerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
   },
 });
 
