@@ -2,18 +2,47 @@ import React from 'react';
 import {View, Image, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {PlayingMusicBarProps} from '../../model/model';
 import {colors} from '../../asset/color/color';
+import Slider from '@react-native-community/slider';
+import TrackPlayer, {useProgress} from 'react-native-track-player';
 
 const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
   imageUrl,
   musicTitle,
 }) => {
+  const progress = useProgress();
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   return (
     <TouchableOpacity style={styles.container}>
       <View style={styles.thumbnailWrapper}>
         <Image style={styles.thumbnail} source={{uri: imageUrl}} />
       </View>
-      <View style={styles.musicTitleWrapper}>
-        <Text>{musicTitle}</Text>
+      <View style={styles.progressBarWrapper}>
+        <View style={styles.musicTitle}>
+          <Text>{musicTitle}</Text>
+        </View>
+        <Slider
+          style={styles.progressBarSlider}
+          minimumValue={0}
+          maximumValue={progress.duration > 0 ? progress.duration : 1}
+          value={progress.position || 0}
+          onSlidingComplete={async value => {
+            await TrackPlayer.seekTo(value); //track-player 선택값으로 설정
+          }}
+          minimumTrackTintColor={colors.gray_808080}
+          maximumTrackTintColor={colors.gray_c0c0c0}
+          thumbTintColor={colors.gray_808080}
+          //   thumbImage={require('../../asset/images/circle_gray.png')}
+        />
+        <View style={styles.timeWrapper}>
+          <Text style={styles.time}>{formatTime(progress.position)}</Text>
+          <Text style={styles.time}>{formatTime(progress.duration)}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -23,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     height: 70,
     flexDirection: 'row',
-    backgroundColor: colors.gray_d3d3d3,
+    backgroundColor: colors.gray_dcdcdc,
     borderRadius: 20,
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -34,7 +63,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: colors.gray_d3d3d3,
+    borderColor: colors.gray_dcdcdc,
     marginBottom: 10,
   },
   thumbnailWrapper: {
@@ -47,9 +76,25 @@ const styles = StyleSheet.create({
     width: 60,
     borderRadius: 10,
   },
-  musicTitleWrapper: {
+  musicTitle: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  progressBarWrapper: {
+    width: '80%',
+  },
+  progressBarSlider: {
+    width: '100%',
+    height: 20,
+  },
+  timeWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+    width: '100%',
+  },
+  time: {
+    color: colors.gray_808080,
+    fontSize: 15,
   },
 });
 
