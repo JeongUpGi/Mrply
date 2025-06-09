@@ -1,3 +1,12 @@
+export type RootStackParamList = {
+  playingMusicScreen: undefined;
+  homeScreen: undefined;
+  newMusicScreen: undefined;
+  allMenuScreen: undefined;
+  searchScreen: undefined;
+  storageScreen: undefined;
+};
+
 export interface SearchResponse {
   kind: string;
   etag: string;

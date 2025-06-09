@@ -3,15 +3,17 @@ import {Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import HomeScreen from '../screen/home/HomeScreen';
-import NewMusicScreen from '../screen/newMusic/NewMusicScreen';
-import SearchScreen from '../screen/search/SearchScreen';
-import StorageScreen from '../screen/storage/StorageScreen';
-import AllMenuScreen from '../screen/allMenu/AllMenuScreen';
+import {RootStackParamList} from '../model/model';
+
+import HomeScreen from '../screen/home/homeScreen';
+import NewMusicScreen from '../screen/newMusic/newMusicScreen';
+import SearchScreen from '../screen/search/searchScreen';
+import StorageScreen from '../screen/storage/storageScreen';
+import AllMenuScreen from '../screen/allMenu/allMenuScreen';
 import PlayingMusicScreen from '../screen/common/playingMusicScreen';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
 function HomeStack() {
   return (

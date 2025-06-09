@@ -4,14 +4,15 @@ import {PlayingMusicBarProps} from '../../model/model';
 import {colors} from '../../asset/color/color';
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {RootStackParamList} from '../../model/model';
 
 const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
   imageUrl,
   musicTitle,
 }) => {
   const progress = useProgress();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
