@@ -4,12 +4,14 @@ import {PlayingMusicBarProps} from '../../model/model';
 import {colors} from '../../asset/color/color';
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
+import {useNavigation} from '@react-navigation/native';
 
 const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
   imageUrl,
   musicTitle,
 }) => {
   const progress = useProgress();
+  const navigation = useNavigation();
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -17,8 +19,12 @@ const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const handleBarPress = () => {
+    navigation.navigate('playingMusicScreen');
+  };
+
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={handleBarPress}>
       <View style={styles.thumbnailWrapper}>
         <Image style={styles.thumbnail} source={{uri: imageUrl}} />
       </View>

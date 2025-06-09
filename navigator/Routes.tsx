@@ -8,6 +8,7 @@ import NewMusicScreen from '../screen/newMusic/NewMusicScreen';
 import SearchScreen from '../screen/search/SearchScreen';
 import StorageScreen from '../screen/storage/StorageScreen';
 import AllMenuScreen from '../screen/allMenu/AllMenuScreen';
+import PlayingMusicScreen from '../screen/common/playingMusicScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -18,6 +19,7 @@ function HomeStack() {
       initialRouteName="homeScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="homeScreen" component={HomeScreen} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
     </Stack.Navigator>
   );
 }
@@ -28,6 +30,7 @@ function NewMusicStack() {
       initialRouteName="newMusicScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="newMusicScreen" component={NewMusicScreen} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
     </Stack.Navigator>
   );
 }
@@ -38,6 +41,7 @@ function SearchStack() {
       initialRouteName="searchScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="searchScreen" component={SearchScreen} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
     </Stack.Navigator>
   );
 }
@@ -48,6 +52,7 @@ function StorageStack() {
       initialRouteName="storageScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="storageScreen" component={StorageScreen} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
     </Stack.Navigator>
   );
 }
@@ -58,11 +63,12 @@ function MenuStack() {
       initialRouteName="allMenuScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="allMenuScreen" component={AllMenuScreen} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
     </Stack.Navigator>
   );
 }
 
-function BottomTabs() {
+function MainBottomTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -139,4 +145,4 @@ function BottomTabs() {
   );
 }
 
-export default BottomTabs;
+export default MainBottomTabs;
