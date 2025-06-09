@@ -41,9 +41,9 @@ const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
           onSlidingComplete={async value => {
             await TrackPlayer.seekTo(value); //track-player 선택값으로 설정
           }}
-          minimumTrackTintColor={colors.gray_808080}
-          maximumTrackTintColor={colors.gray_c0c0c0}
-          thumbTintColor={colors.gray_808080}
+          minimumTrackTintColor={colors.green_1DB954}
+          maximumTrackTintColor={colors.gray_a9a9a9}
+          thumbTintColor={colors.white}
           //   thumbImage={require('../../asset/images/circle_gray.png')}
         />
         <View style={styles.timeWrapper}>
