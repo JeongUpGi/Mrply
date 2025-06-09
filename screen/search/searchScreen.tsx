@@ -125,22 +125,13 @@ const SearchScreen = () => {
   };
 
   const startMusic = async (item: SearchResultMusicItem) => {
-    setCurrentlyPlayingMusic(item);
-
-    //음악 버퍼링 동안 loading 실행
-    setLoading(true);
-    setError(null);
-
     try {
+      setLoading(true);
+      setError(null);
       await playMusicService(item);
-    } catch (err: unknown) {
-      console.error('Error playing music from item selection:', err);
-      if (err instanceof Error) {
-        setError('재생 오류: ' + err.message);
-      } else {
-        setError('알 수 없는 재생 오류 발생했습니다.');
-      }
-      setCurrentlyPlayingMusic(null);
+    } catch (err: any) {
+      console.error('음악 재생 오류:', err);
+      Alert.alert('음악 재생 오류', err.message);
     } finally {
       setLoading(false);
     }
@@ -266,15 +257,6 @@ const SearchScreen = () => {
           )}
         </View>
       )}
-
-      {currentlyPlayingMusic && (
-        <View style={styles.playerContainer}>
-          <PlayingMusicBar
-            imageUrl={currentlyPlayingMusic.snippet.thumbnails.medium.url}
-            musicTitle={currentlyPlayingMusic.snippet.title}
-          />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -375,15 +357,6 @@ const styles = StyleSheet.create({
   recentSearchItemText: {
     fontSize: 14,
     paddingVertical: 5,
-  },
-  playerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    paddingHorizontal: 10,
-    paddingBottom: 10,
   },
 });
 

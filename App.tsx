@@ -1,12 +1,13 @@
-import React, {useEffect} from 'react';
-import {Provider} from 'react-redux'; // react-redux의 Provider 임포트
-import {PersistGate} from 'redux-persist/integration/react'; // redux-persist의 PersistGate 임포트
-import {store, persistor} from './store';
+import React, {useState, useEffect} from 'react';
+import {Provider, useSelector} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
+import {store, persistor, RootState} from './store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
-import {View, ActivityIndicator} from 'react-native';
-import BottomTabs from './navigator/Routes';
+import {View, ActivityIndicator, StyleSheet} from 'react-native';
+import MainBottomTabs from './navigator/Routes';
 import TrackPlayer from 'react-native-track-player';
+import PlayingMusicBar from './component/common/playingMusicBar';
 
 // 앱 최초 업로드 시 TrackPlayer 초기 설정
 async function setupPlayer() {
@@ -32,29 +33,67 @@ async function setupPlayer() {
   }
 }
 
-function App(): React.JSX.Element {
+// Provider 마운트 후 reudx상태를 가져오기 위해 따로 구분해서 렌더링
+function AppContent(): React.JSX.Element {
+  const [isMusicPlayReady, setIsMusicPlayReady] = useState(false);
+
+  const currentMusic = useSelector(
+    (state: RootState) => state.playMusic.currentMusic,
+  );
+  const isPlaying = useSelector(
+    (state: RootState) => state.playMusic.isPlaying,
+  );
+
   useEffect(() => {
-    setupPlayer();
+    setupPlayer().then(() => {
+      setIsMusicPlayReady(true);
+    });
   }, []);
 
+  if (!isMusicPlayReady) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <MainBottomTabs />
+        {isPlaying && currentMusic && (
+          <View style={styles.playingMusicBarContainer}>
+            <PlayingMusicBar
+              imageUrl={currentMusic.snippet.thumbnails.medium.url}
+              musicTitle={currentMusic.snippet.title}
+            />
+          </View>
+        )}
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+}
+
+function App(): React.JSX.Element {
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-        }
-        persistor={persistor}>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <BottomTabs />
-          </NavigationContainer>
-        </SafeAreaProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContent />
       </PersistGate>
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  // 추후 동적으로 적용 필요
+  playingMusicBarContainer: {
+    position: 'absolute',
+    bottom: 100,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+});
 
 export default App;
