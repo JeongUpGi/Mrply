@@ -1,6 +1,8 @@
 import TrackPlayer from 'react-native-track-player';
-import {getAudioUrlAndData} from '../network/network'; // network.ts에서 가져옵니다.
-import {SearchResultMusicItem} from '../model/model'; // SearchResultMusicItem 타입 임포트
+import {getAudioUrlAndData} from '../network/network';
+import {SearchResultMusicItem} from '../model/model';
+import {store} from '../store';
+import {setCurrentMusic, setIsPlaying} from '../store/slices/playMusicSlice';
 
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
@@ -23,6 +25,9 @@ export async function playMusicService(
     // await TrackPlayer.reset(); // 이 부분은 주석 처리된 상태로 유지합니다.
     await TrackPlayer.add(audioPlaybackData);
     await TrackPlayer.play();
+
+    store.dispatch(setCurrentMusic(item));
+    store.dispatch(setIsPlaying(true));
   } catch (err: unknown) {
     console.error('Error in playbackService (startPlayback):', err);
     if (err instanceof Error) {

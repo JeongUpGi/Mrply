@@ -58,3 +58,8 @@ export interface AudioPlaybackData {
 export interface AudioServiceResponseData {
   audioPlaybackData: AudioPlaybackData;
 }
+
+export interface MusicPlayerState {
+  currentMusic: SearchResultMusicItem | null;
+  isPlaying: boolean;
+}
