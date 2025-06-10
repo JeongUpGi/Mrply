@@ -1,12 +1,206 @@
-import React from 'react';
-import {SafeAreaView, Text} from 'react-native';
+import React, {useCallback} from 'react';
+import {
+  SafeAreaView,
+  Text,
+  View,
+  StyleSheet,
+  Button,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../../store';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import Slider from '@react-native-community/slider';
+import TrackPlayer, {useProgress} from 'react-native-track-player';
+import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import {colors} from '../../asset/color/color';
 
-const playingMusicScreen = () => {
+const PlayingMusicScreen = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const progress = useProgress();
+
+  const currentMusic = useSelector(
+    (state: RootState) => state.playMusic.currentMusic,
+  );
+  const isPlaying = useSelector(
+    (state: RootState) => state.playMusic.isPlaying,
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(setIsPlayingMusicBarVisible(false));
+
+      return () => {
+        dispatch(setIsPlayingMusicBarVisible(true));
+      };
+    }, [dispatch]),
+  );
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const handlePlayPause = async () => {};
+
+  const handleNext = async () => {};
+
+  const handlePrevious = async () => {};
+
   return (
-    <SafeAreaView>
-      <Text> it is playingMusicScreen.tsx</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.contentContainer}>
+        {currentMusic?.snippet.thumbnails?.high?.url ? (
+          <Image
+            source={{uri: currentMusic?.snippet.thumbnails.high.url}}
+            style={styles.thumbnail}
+          />
+        ) : (
+          <View style={styles.thumbnailPlaceholder}>
+            <Text style={styles.placeholderText}>No Image</Text>
+          </View>
+        )}
+
+        <Text style={styles.titleText}>{currentMusic?.snippet.title}</Text>
+        <Text style={styles.artistText}>
+          {currentMusic?.snippet.channelTitle}
+        </Text>
+
+        <Slider
+          style={styles.progressBarSlider}
+          minimumValue={0}
+          maximumValue={progress.duration > 0 ? progress.duration : 1}
+          value={progress.position || 0}
+          onSlidingComplete={async value => {
+            await TrackPlayer.seekTo(value);
+          }}
+          minimumTrackTintColor={colors.green_1DB954}
+          maximumTrackTintColor={colors.gray_a9a9a9}
+          thumbTintColor={colors.white}
+        />
+        <View style={styles.timeWrapper}>
+          <Text style={styles.time}>{formatTime(progress.position)}</Text>
+          <Text style={styles.time}>{formatTime(progress.duration)}</Text>
+        </View>
+
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity
+            onPress={handlePrevious}
+            style={styles.controlButton}>
+            <Text style={styles.controlText}>{'<<'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handlePlayPause}
+            style={styles.playPauseButton}>
+            <Text style={styles.playPauseText}>{isPlaying ? '||' : '▶'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleNext} style={styles.controlButton}>
+            <Text style={styles.controlText}>{'>>'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 수정필요 */}
+        <Button title="뒤로가기" onPress={() => navigation.goBack()} />
+      </View>
     </SafeAreaView>
   );
 };
 
-export default playingMusicScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.black_1c1c1c,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginBottom: 30,
+  },
+  thumbnailPlaceholder: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginBottom: 30,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 18,
+  },
+  titleText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  artistText: {
+    color: colors.gray_c0c0c0,
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  progressBarSlider: {
+    width: '100%',
+    height: 40,
+  },
+  timeWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 5,
+    marginBottom: 20,
+  },
+  time: {
+    color: colors.gray_c0c0c0,
+    fontSize: 12,
+  },
+  controlsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '80%',
+    marginBottom: 30,
+  },
+  controlButton: {
+    padding: 15,
+  },
+  controlText: {
+    color: 'white',
+    fontSize: 24,
+  },
+  playPauseButton: {
+    backgroundColor: colors.green_1DB954,
+    borderRadius: 50,
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseText: {
+    color: colors.white,
+    fontSize: 32,
+    lineHeight: 32,
+  },
+  text: {
+    color: colors.white,
+    fontSize: 18,
+  },
+});
+
+export default PlayingMusicScreen;
