@@ -1,4 +1,4 @@
-import {TextStyle} from 'react-native';
+import {TextStyle, ImageStyle} from 'react-native';
 
 export type RootStackParamList = {
   mainBottomTabs: undefined;
@@ -12,14 +12,14 @@ export type RootStackParamList = {
 
 export interface HeaderProps {
   title: string;
-  leftIcon: string;
-  rightIcon: string;
+  leftIcon: undefined;
+  rightIcon: undefined;
   onPressLeft?: () => void;
   onPressRight?: () => void;
 
   titleStyle?: TextStyle;
-  leftIconTextStyle?: TextStyle;
-  rightIconTextStyle?: TextStyle;
+  leftIconStyle?: ImageStyle;
+  rightIconStyle?: ImageStyle;
 }
 
 export interface SearchResponse {

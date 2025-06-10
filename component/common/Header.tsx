@@ -1,6 +1,29 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Image, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {HeaderProps} from '../../model/model';
+
+// const Header: React.FC<HeaderProps> = ({
+//   title,
+//   leftIcon,
+//   rightIcon,
+//   onPressLeft,
+//   onPressRight,
+//   titleStyle,
+//   leftIconTextStyle,
+//   rightIconTextStyle,
+// }) => {
+//   return (
+//     <View style={styles.headerContainer}>
+//       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
+//         <Text style={leftIconTextStyle}> {leftIcon} </Text>
+//       </TouchableOpacity>
+//       <Text style={titleStyle}>{title}</Text>
+//       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
+//         <Text style={rightIconTextStyle}> {rightIcon} </Text>
+//       </TouchableOpacity>
+//     </View>
+//   );
+// };
 
 const Header: React.FC<HeaderProps> = ({
   title,
@@ -9,17 +32,17 @@ const Header: React.FC<HeaderProps> = ({
   onPressLeft,
   onPressRight,
   titleStyle,
-  leftIconTextStyle,
-  rightIconTextStyle,
+  leftIconStyle,
+  rightIconStyle,
 }) => {
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
-        <Text style={leftIconTextStyle}> {leftIcon} </Text>
+        <Image source={leftIcon} style={leftIconStyle} />
       </TouchableOpacity>
       <Text style={titleStyle}>{title}</Text>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
-        <Text style={rightIconTextStyle}> {rightIcon} </Text>
+        <Image source={rightIcon} style={rightIconStyle} />
       </TouchableOpacity>
     </View>
   );

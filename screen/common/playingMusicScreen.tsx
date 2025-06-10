@@ -55,19 +55,19 @@ const PlayingMusicScreen = () => {
     <SafeAreaView style={styles.container}>
       <Header
         title={''}
-        leftIcon="◀"
+        leftIcon={require('../../asset/images/previous_fill_white.png')}
         onPressLeft={() => navigation.goBack()}
-        leftIconTextStyle={{
-          color: colors.white,
-          fontSize: 20,
-          fontWeight: 'bold',
+        leftIconStyle={{
+          tintColor: colors.white,
+          width: 25,
+          height: 25,
         }}
-        rightIcon="☰"
+        rightIcon={require('../../asset/images/all_menu.png')}
         onPressRight={() => {}}
-        rightIconTextStyle={{
-          color: colors.white,
-          fontSize: 20,
-          fontWeight: 'bold',
+        rightIconStyle={{
+          tintColor: colors.white,
+          width: 30,
+          height: 30,
         }}
       />
       <View style={styles.contentContainer}>
@@ -108,15 +108,28 @@ const PlayingMusicScreen = () => {
           <TouchableOpacity
             onPress={handlePrevious}
             style={styles.controlButton}>
-            <Text style={styles.controlText}>{'<<'}</Text>
+            <Image
+              source={require('../../asset/images/previous_white.png')}
+              style={styles.controlButtonImage}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handlePlayPause}
             style={styles.playPauseButton}>
-            <Text style={styles.playPauseText}>{isPlaying ? '||' : '▶'}</Text>
+            <Image
+              source={
+                isPlaying
+                  ? require('../../asset/images/pause.png')
+                  : require('../../asset/images/next_fill_white.png')
+              }
+              style={styles.playPauseStyle}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleNext} style={styles.controlButton}>
-            <Text style={styles.controlText}>{'>>'}</Text>
+            <Image
+              source={require('../../asset/images/next_white.png')}
+              style={styles.controlButtonImage}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -195,9 +208,10 @@ const styles = StyleSheet.create({
   controlButton: {
     padding: 15,
   },
-  controlText: {
-    color: 'white',
-    fontSize: 24,
+  controlButtonImage: {
+    width: 24,
+    height: 24,
+    tintColor: colors.white,
   },
   playPauseButton: {
     backgroundColor: colors.green_1DB954,
@@ -207,10 +221,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  playPauseText: {
-    color: colors.white,
-    fontSize: 32,
-    lineHeight: 32,
+  playPauseStyle: {
+    width: 32,
+    height: 32,
+    tintColor: colors.white,
   },
   text: {
     color: colors.white,
