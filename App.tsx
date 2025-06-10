@@ -5,7 +5,7 @@ import {store, persistor, RootState} from './store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {View, ActivityIndicator, StyleSheet} from 'react-native';
-import MainBottomTabs from './navigator/Routes';
+import RootStackNavigator from './navigator/Routes';
 import TrackPlayer from 'react-native-track-player';
 import PlayingMusicBar from './component/common/PlayingMusicBar';
 
@@ -65,7 +65,7 @@ function AppContent(): React.JSX.Element {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <MainBottomTabs />
+        <RootStackNavigator />
         {isPlaying && currentMusic && isPlayingMusicBarVisible && (
           <View style={styles.playingMusicBarContainer}>
             <PlayingMusicBar

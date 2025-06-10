@@ -1,6 +1,7 @@
 import {TextStyle} from 'react-native';
 
 export type RootStackParamList = {
+  mainBottomTabs: undefined;
   playingMusicScreen: undefined;
   homeScreen: undefined;
   newMusicScreen: undefined;

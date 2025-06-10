@@ -21,7 +21,7 @@ function HomeStack() {
       initialRouteName="homeScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="homeScreen" component={HomeScreen} />
-      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+      {/* <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -32,7 +32,7 @@ function NewMusicStack() {
       initialRouteName="newMusicScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="newMusicScreen" component={NewMusicScreen} />
-      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+      {/* <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -43,7 +43,7 @@ function SearchStack() {
       initialRouteName="searchScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="searchScreen" component={SearchScreen} />
-      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+      {/* <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -54,7 +54,7 @@ function StorageStack() {
       initialRouteName="storageScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="storageScreen" component={StorageScreen} />
-      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+      {/* <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -65,7 +65,7 @@ function MenuStack() {
       initialRouteName="allMenuScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="allMenuScreen" component={AllMenuScreen} />
-      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+      {/* <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -147,4 +147,14 @@ function MainBottomTabs() {
   );
 }
 
-export default MainBottomTabs;
+// **루트 스택 네비게이터 정의**
+function RootStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="mainBottomTabs" component={MainBottomTabs} />
+      <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
+    </Stack.Navigator>
+  );
+}
+
+export default RootStackNavigator;
