@@ -53,6 +53,23 @@ const PlayingMusicScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header
+        title={''}
+        leftIcon="◀"
+        onPressLeft={() => navigation.goBack()}
+        leftIconTextStyle={{
+          color: colors.white,
+          fontSize: 20,
+          fontWeight: 'bold',
+        }}
+        rightIcon="☰"
+        onPressRight={() => {}}
+        rightIconTextStyle={{
+          color: colors.white,
+          fontSize: 20,
+          fontWeight: 'bold',
+        }}
+      />
       <View style={styles.contentContainer}>
         {currentMusic?.snippet.thumbnails?.high?.url ? (
           <Image
@@ -102,9 +119,6 @@ const PlayingMusicScreen = () => {
             <Text style={styles.controlText}>{'>>'}</Text>
           </TouchableOpacity>
         </View>
-
-        {/* 수정필요 */}
-        <Button title="뒤로가기" onPress={() => navigation.goBack()} />
       </View>
     </SafeAreaView>
   );

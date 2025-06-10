@@ -1,3 +1,5 @@
+import {TextStyle} from 'react-native';
+
 export type RootStackParamList = {
   playingMusicScreen: undefined;
   homeScreen: undefined;
@@ -6,6 +8,18 @@ export type RootStackParamList = {
   searchScreen: undefined;
   storageScreen: undefined;
 };
+
+export interface HeaderProps {
+  title: string;
+  leftIcon: string;
+  rightIcon: string;
+  onPressLeft?: () => void;
+  onPressRight?: () => void;
+
+  titleStyle?: TextStyle;
+  leftIconTextStyle?: TextStyle;
+  rightIconTextStyle?: TextStyle;
+}
 
 export interface SearchResponse {
   kind: string;
