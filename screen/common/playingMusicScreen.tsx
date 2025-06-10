@@ -13,7 +13,10 @@ import {RootState} from '../../store';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
-import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import {
+  setIsPlayingMusicBarVisible,
+  setIsPlaying,
+} from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
 
@@ -45,7 +48,17 @@ const PlayingMusicScreen = () => {
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handlePlayPause = async () => {};
+  const handlePlayPause = async () => {
+    if (isPlaying) {
+      //일시 중지
+      await TrackPlayer.pause();
+      dispatch(setIsPlaying(false));
+    } else {
+      //재생
+      await TrackPlayer.play();
+      dispatch(setIsPlaying(true));
+    }
+  };
 
   const handleNext = async () => {};
 
