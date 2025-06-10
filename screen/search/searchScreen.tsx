@@ -25,9 +25,8 @@ import {
 } from '../../store/slices/recentSearchSlice';
 import {RootState} from '../../store';
 
-import PlayingMusicBar from '../../component/common/playingMusicBar';
 import {playMusicService} from '../../service/playMusicService';
-import TrackPlayer from 'react-native-track-player';
+import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
@@ -50,7 +49,7 @@ const SearchScreen = () => {
   );
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       resetState();
     }, []),
   );
@@ -98,7 +97,7 @@ const SearchScreen = () => {
       if (data && data.items) {
         setTotalMusic(data.items);
         const officalItems = data.items.filter(item => {
-          return item.snippet?.title?.toLowerCase().includes('official');
+          return item.snippet.title.toLowerCase().includes('official');
         });
         setOfficialMusic(officalItems);
         handleInputBlur();
@@ -128,6 +127,7 @@ const SearchScreen = () => {
     try {
       setLoading(true);
       setError(null);
+      dispatch(setIsPlayingMusicBarVisible(true));
       await playMusicService(item);
     } catch (err: any) {
       console.error('음악 재생 오류:', err);

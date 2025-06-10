@@ -1,6 +1,7 @@
 type ColorPaletteType = {
   white: string;
   black: string;
+  black_1c1c1c: string;
   red: string;
   gray_808080: string;
   gray_a9a9a9: string;
@@ -13,6 +14,7 @@ type ColorPaletteType = {
 
 export const colors: ColorPaletteType = {
   white: '#FFFFFF',
+  black_1c1c1c: '#1c1c1c',
   black: '#000000',
   red: '#FF0000',
   gray_808080: '#808080',

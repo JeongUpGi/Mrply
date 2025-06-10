@@ -44,6 +44,10 @@ function AppContent(): React.JSX.Element {
     (state: RootState) => state.playMusic.isPlaying,
   );
 
+  const isPlayingMusicBarVisible = useSelector(
+    (state: RootState) => state.playMusic.isPlayingMusicBarVisible, // <-- 이 줄 추가
+  );
+
   useEffect(() => {
     setupPlayer().then(() => {
       setIsMusicPlayReady(true);
@@ -62,7 +66,7 @@ function AppContent(): React.JSX.Element {
     <SafeAreaProvider>
       <NavigationContainer>
         <MainBottomTabs />
-        {isPlaying && currentMusic && (
+        {isPlaying && currentMusic && isPlayingMusicBarVisible && (
           <View style={styles.playingMusicBarContainer}>
             <PlayingMusicBar
               imageUrl={currentMusic.snippet.thumbnails.medium.url}

@@ -4,6 +4,7 @@ import {SearchResultMusicItem, MusicPlayerState} from '../../model/model';
 const initialState: MusicPlayerState = {
   currentMusic: null,
   isPlaying: false,
+  isPlayingMusicBarVisible: false,
 };
 
 const playMusicSlice = createSlice({
@@ -16,8 +17,12 @@ const playMusicSlice = createSlice({
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
     },
+    setIsPlayingMusicBarVisible: (state, action: PayloadAction<boolean>) => {
+      state.isPlayingMusicBarVisible = action.payload;
+    },
   },
 });
 
-export const {setCurrentMusic, setIsPlaying} = playMusicSlice.actions;
+export const {setCurrentMusic, setIsPlaying, setIsPlayingMusicBarVisible} =
+  playMusicSlice.actions;
 export default playMusicSlice.reducer;

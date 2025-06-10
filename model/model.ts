@@ -71,4 +71,5 @@ export interface AudioServiceResponseData {
 export interface MusicPlayerState {
   currentMusic: SearchResultMusicItem | null;
   isPlaying: boolean;
+  isPlayingMusicBarVisible: boolean;
 }
