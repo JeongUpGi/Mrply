@@ -7,7 +7,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {View, ActivityIndicator, StyleSheet} from 'react-native';
 import MainBottomTabs from './navigator/Routes';
 import TrackPlayer from 'react-native-track-player';
-import PlayingMusicBar from './component/common/playingMusicBar';
+import PlayingMusicBar from './component/common/PlayingMusicBar';
 
 // 앱 최초 업로드 시 TrackPlayer 초기 설정
 async function setupPlayer() {

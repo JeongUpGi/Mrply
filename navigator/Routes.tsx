@@ -5,12 +5,12 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import {RootStackParamList} from '../model/model';
 
-import HomeScreen from '../screen/home/homeScreen';
-import NewMusicScreen from '../screen/newMusic/newMusicScreen';
-import SearchScreen from '../screen/search/searchScreen';
-import StorageScreen from '../screen/storage/storageScreen';
-import AllMenuScreen from '../screen/allMenu/allMenuScreen';
-import PlayingMusicScreen from '../screen/common/playingMusicScreen';
+import HomeScreen from '../screen/home/HomeScreen';
+import NewMusicScreen from '../screen/newMusic/NewMusicScreen';
+import SearchScreen from '../screen/search/SearchScreen';
+import StorageScreen from '../screen/storage/StorageScreen';
+import AllMenuScreen from '../screen/allMenu/AllMenuScreen';
+import PlayingMusicScreen from '../screen/common/PlayingMusicScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator<RootStackParamList>();

@@ -15,6 +15,7 @@ import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
 import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
+import Header from '../../component/common/Header';
 
 const PlayingMusicScreen = () => {
   const navigation = useNavigation();

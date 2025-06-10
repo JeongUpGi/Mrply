@@ -7,7 +7,7 @@ import TrackPlayer, {useProgress} from 'react-native-track-player';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
 
-const playingMusicBar: React.FC<PlayingMusicBarProps> = ({
+const PlayingMusicBar: React.FC<PlayingMusicBarProps> = ({
   imageUrl,
   musicTitle,
 }) => {
@@ -105,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default playingMusicBar;
+export default PlayingMusicBar;
