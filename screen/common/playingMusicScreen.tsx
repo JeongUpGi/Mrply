@@ -17,6 +17,9 @@ import TrackPlayer, {useProgress, Track} from 'react-native-track-player';
 import {
   setIsPlayingMusicBarVisible,
   setIsPlaying,
+  setMusicTrackQueue,
+  setCurrentMusicIndex,
+  setCurrentMusic,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
@@ -67,11 +70,32 @@ const PlayingMusicScreen = () => {
     }
   };
 
-  const handleNext = async () => {};
+  const updateTrackPlayerState = useCallback(async () => {
+    const updatedIndex = await TrackPlayer.getActiveTrackIndex();
+    const activeTrack = await TrackPlayer.getActiveTrack(); // 현재 활성화된 트랙 가져오기
 
-  const handlePrevious = async () => {};
+    dispatch(
+      setCurrentMusicIndex(updatedIndex !== undefined ? updatedIndex : null),
+    );
+    if (activeTrack) {
+      dispatch(setCurrentMusic(activeTrack)); // Redux 현재 음악 업데이트
+    }
+  }, [dispatch]);
 
-  const handleTrackPress = async () => {};
+  const handleNext = async () => {
+    await TrackPlayer.skipToNext();
+    await updateTrackPlayerState();
+  };
+
+  const handlePrevious = async () => {
+    await TrackPlayer.skipToPrevious();
+    await updateTrackPlayerState();
+  };
+
+  const handleMusicTrackPress = async (index: number) => {
+    await TrackPlayer.skip(index);
+    await updateTrackPlayerState();
+  };
 
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
     <TouchableOpacity
@@ -79,7 +103,7 @@ const PlayingMusicScreen = () => {
         styles.queueListItem,
         index === currentMusicIndex ? styles.currentPlayingItem : {},
       ]}
-      onPress={() => handleTrackPress()}>
+      onPress={() => handleMusicTrackPress(index)}>
       <Text style={styles.queueListItemIndex}>{index + 1}.</Text>
       <View style={styles.queueListItemInfo}>
         <Text
