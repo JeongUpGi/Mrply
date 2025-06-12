@@ -6,14 +6,16 @@ import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store';
 
-const PlayingMusicBar: React.FC<PlayingMusicBarProps> = ({
-  imageUrl,
-  musicTitle,
-}) => {
+const PlayingMusicBar: React.FC = ({}) => {
   const progress = useProgress();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const currentMusic = useSelector(
+    (state: RootState) => state.playMusic.currentMusic,
+  );
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -27,11 +29,11 @@ const PlayingMusicBar: React.FC<PlayingMusicBarProps> = ({
   return (
     <TouchableOpacity style={styles.container} onPress={handleBarPress}>
       <View style={styles.thumbnailWrapper}>
-        <Image style={styles.thumbnail} source={{uri: imageUrl}} />
+        <Image style={styles.thumbnail} source={{uri: currentMusic?.artwork}} />
       </View>
       <View style={styles.progressBarWrapper}>
         <View style={styles.musicTitle}>
-          <Text>{musicTitle}</Text>
+          <Text>{currentMusic?.title}</Text>
         </View>
         <Slider
           style={styles.progressBarSlider}

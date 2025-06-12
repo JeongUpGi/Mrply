@@ -1,17 +1,20 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {SearchResultMusicItem, MusicPlayerState} from '../../model/model';
+import {MusicPlayerState} from '../../model/model';
+import TrackPlayer, {Track} from 'react-native-track-player';
 
 const initialState: MusicPlayerState = {
   currentMusic: null,
   isPlaying: false,
   isPlayingMusicBarVisible: false,
+  musicTrackQueue: [],
+  currentMusicIndex: null,
 };
 
 const playMusicSlice = createSlice({
   name: 'playMusic',
   initialState,
   reducers: {
-    setCurrentMusic: (state, action: PayloadAction<SearchResultMusicItem>) => {
+    setCurrentMusic: (state, action: PayloadAction<Track>) => {
       state.currentMusic = action.payload;
     },
     setIsPlaying: (state, action: PayloadAction<boolean>) => {

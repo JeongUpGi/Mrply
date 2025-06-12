@@ -68,10 +68,7 @@ function AppContent(): React.JSX.Element {
         <RootStackNavigator />
         {isPlaying && currentMusic && isPlayingMusicBarVisible && (
           <View style={styles.playingMusicBarContainer}>
-            <PlayingMusicBar
-              imageUrl={currentMusic.snippet.thumbnails.medium.url}
-              musicTitle={currentMusic.snippet.title}
-            />
+            <PlayingMusicBar />
           </View>
         )}
       </NavigationContainer>

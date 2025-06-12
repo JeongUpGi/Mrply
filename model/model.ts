@@ -1,4 +1,5 @@
 import {TextStyle, ImageStyle} from 'react-native';
+import TrackPlayer, {Track} from 'react-native-track-player';
 
 export type RootStackParamList = {
   mainBottomTabs: undefined;
@@ -84,7 +85,9 @@ export interface AudioServiceResponseData {
 }
 
 export interface MusicPlayerState {
-  currentMusic: SearchResultMusicItem | null;
+  currentMusic: Track | null;
   isPlaying: boolean;
   isPlayingMusicBarVisible: boolean;
+  musicTrackQueue: Track[];
+  currentMusicIndex: number | null;
 }
