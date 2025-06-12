@@ -4,15 +4,16 @@ import {
   Text,
   View,
   StyleSheet,
-  Button,
+  FlatList,
   Image,
   TouchableOpacity,
+  ListRenderItem,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
-import TrackPlayer, {useProgress} from 'react-native-track-player';
+import TrackPlayer, {useProgress, Track} from 'react-native-track-player';
 import {
   setIsPlayingMusicBarVisible,
   setIsPlaying,
@@ -30,6 +31,12 @@ const PlayingMusicScreen = () => {
   );
   const isPlaying = useSelector(
     (state: RootState) => state.playMusic.isPlaying,
+  );
+  const musicTrackQueue = useSelector(
+    (state: RootState) => state.playMusic.musicTrackQueue,
+  );
+  const currentMusicIndex = useSelector(
+    (state: RootState) => state.playMusic.currentMusicIndex,
   );
 
   useFocusEffect(
@@ -64,6 +71,37 @@ const PlayingMusicScreen = () => {
 
   const handlePrevious = async () => {};
 
+  const handleTrackPress = async () => {};
+
+  const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
+    <TouchableOpacity
+      style={[
+        styles.queueListItem,
+        index === currentMusicIndex ? styles.currentPlayingItem : {},
+      ]}
+      onPress={() => handleTrackPress()}>
+      <Text style={styles.queueListItemIndex}>{index + 1}.</Text>
+      <View style={styles.queueListItemInfo}>
+        <Text
+          style={[
+            styles.queueListItemTitle,
+            index === currentMusicIndex ? styles.currentPlayingText : {},
+          ]}
+          numberOfLines={1}>
+          {item?.title}
+        </Text>
+        <Text
+          style={[
+            styles.queueListItemArtist,
+            index === currentMusicIndex ? styles.currentPlayingText : {},
+          ]}
+          numberOfLines={1}>
+          {item.artist}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <Header
@@ -84,9 +122,9 @@ const PlayingMusicScreen = () => {
         }}
       />
       <View style={styles.contentContainer}>
-        {currentMusic?.snippet.thumbnails?.high?.url ? (
+        {currentMusic?.artwork ? (
           <Image
-            source={{uri: currentMusic?.snippet.thumbnails.high.url}}
+            source={{uri: currentMusic?.artwork}}
             style={styles.thumbnail}
           />
         ) : (
@@ -95,10 +133,8 @@ const PlayingMusicScreen = () => {
           </View>
         )}
 
-        <Text style={styles.titleText}>{currentMusic?.snippet.title}</Text>
-        <Text style={styles.artistText}>
-          {currentMusic?.snippet.channelTitle}
-        </Text>
+        <Text style={styles.titleText}>{currentMusic?.title}</Text>
+        <Text style={styles.artistText}>{currentMusic?.artist}</Text>
 
         <Slider
           style={styles.progressBarSlider}
@@ -145,6 +181,18 @@ const PlayingMusicScreen = () => {
             />
           </TouchableOpacity>
         </View>
+
+        <View style={styles.queueListContainer}>
+          <Text style={styles.queueListTitle}>재생 목록</Text>
+          <FlatList
+            data={musicTrackQueue}
+            renderItem={renderMusicTrackQueue}
+            keyExtractor={(item, index) => item.id || `track-${index}`}
+            showsVerticalScrollIndicator={false}
+            style={styles.queueList}
+            contentContainerStyle={styles.queueListContent}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -165,27 +213,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   thumbnail: {
-    width: 250,
-    height: 250,
+    width: 150,
+    height: 150,
     borderRadius: 10,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   thumbnailPlaceholder: {
-    width: 250,
-    height: 250,
+    width: 150,
+    height: 150,
     borderRadius: 10,
-    marginBottom: 30,
+    marginBottom: 20,
     backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
-    color: '#888',
+    color: colors.gray_808080,
     fontSize: 18,
   },
   titleText: {
-    color: 'white',
-    fontSize: 24,
+    color: colors.white,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
@@ -194,7 +242,7 @@ const styles = StyleSheet.create({
     color: colors.gray_c0c0c0,
     fontSize: 18,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   progressBarSlider: {
     width: '100%',
@@ -205,7 +253,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 5,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   time: {
     color: colors.gray_c0c0c0,
@@ -216,7 +264,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     width: '80%',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   controlButton: {
     padding: 15,
@@ -242,6 +290,60 @@ const styles = StyleSheet.create({
   text: {
     color: colors.white,
     fontSize: 18,
+  },
+  queueListContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  queueListTitle: {
+    color: colors.white,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'left',
+    paddingHorizontal: 5,
+  },
+  queueList: {
+    flex: 1,
+    width: '100%',
+  },
+  queueListContent: {
+    paddingBottom: 20,
+  },
+  queueListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.gray_808080,
+  },
+  queueListItemIndex: {
+    color: colors.gray_a9a9a9,
+    fontSize: 16,
+    marginRight: 15,
+    width: 25,
+    textAlign: 'center',
+  },
+  queueListItemInfo: {
+    flex: 1,
+  },
+  queueListItemTitle: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  queueListItemArtist: {
+    color: colors.gray_c0c0c0,
+    fontSize: 14,
+    marginTop: 2,
+  },
+  currentPlayingItem: {
+    backgroundColor: colors.green_ffffff1a,
+    borderRadius: 5,
+  },
+  currentPlayingText: {
+    color: colors.green_1DB954,
   },
 });
 

@@ -16,6 +16,13 @@ const PlayingMusicBar: React.FC = ({}) => {
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
   );
+  const isPlayingMusicBarVisible = useSelector(
+    (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
+  );
+  const isPlaying = useSelector(
+    (state: RootState) => state.playMusic.isPlaying,
+  );
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);

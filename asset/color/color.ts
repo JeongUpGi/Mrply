@@ -10,6 +10,7 @@ type ColorPaletteType = {
   gray_dcdcdc: string;
   gray_f5f5f5: string;
   green_1DB954: string;
+  green_ffffff1a: string;
 };
 
 export const colors: ColorPaletteType = {
@@ -24,4 +25,5 @@ export const colors: ColorPaletteType = {
   gray_dcdcdc: '#dcdcdc',
   gray_f5f5f5: '#f5f5f5',
   green_1DB954: '#1DB954',
+  green_ffffff1a: '#ffffff1a',
 };
