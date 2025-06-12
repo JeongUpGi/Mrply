@@ -186,7 +186,7 @@ const SearchScreen = () => {
     <SafeAreaView style={styles.container}>
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.red} />
+          <ActivityIndicator size="large" color={colors.green_1DB954} />
         </View>
       ) : (
         <View style={{flex: 1, marginHorizontal: 30}}>

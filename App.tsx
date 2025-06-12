@@ -108,7 +108,7 @@ function AppContent(): React.JSX.Element {
 
   if (!isMusicPlayReady) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.green_1DB954} />
       </View>
     );
@@ -145,6 +145,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
