@@ -46,7 +46,7 @@ async function setupPlayer() {
 
 // Provider 마운트 후 redux상태를 가져오기 위해 따로 구분해서 렌더링
 function AppContent(): React.JSX.Element {
-  const [isMusicPlayReady, setIsMusicPlayReady] = useState(false);
+  const [isPlayerSetupDone, setIsPlayerSetupDone] = useState(false);
   const dispatch = useDispatch();
 
   const currentMusic = useSelector(
@@ -55,15 +55,46 @@ function AppContent(): React.JSX.Element {
   const isPlaying = useSelector(
     (state: RootState) => state.playMusic.isPlaying,
   );
-
+  const musicTrackQueue = useSelector(
+    (state: RootState) => state.playMusic.musicTrackQueue,
+  );
+  const currentMusicIndex = useSelector(
+    (state: RootState) => state.playMusic.currentMusicIndex,
+  );
   const isPlayingMusicBarVisible = useSelector(
     (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
   );
 
   useEffect(() => {
-    setupPlayer().then(() => {
-      setIsMusicPlayReady(true);
-    });
+    const initPlayer = async () => {
+      const setupDone = await setupPlayer();
+      setIsPlayerSetupDone(setupDone);
+    };
+    initPlayer();
+
+    if (musicTrackQueue.length > 0 && currentMusicIndex !== null) {
+      const syncTrackPlayerWithPersistedState = async () => {
+        try {
+          await TrackPlayer.reset();
+          // Redux에 있는 musicQueue를 TrackPlayer에 추가
+          await TrackPlayer.add(musicTrackQueue);
+          // Redux에서 기억하고 있는 인덱스로 이동
+          await TrackPlayer.skip(currentMusicIndex);
+
+          // 재생 중이었다면 재생
+          if (isPlaying) {
+            await TrackPlayer.play();
+          }
+        } catch (e) {
+          // 오류 발생
+          dispatch(setIsPlaying(false));
+          dispatch(setCurrentMusic(null));
+          dispatch(setMusicTrackQueue([]));
+          dispatch(setCurrentMusicIndex(null));
+        }
+      };
+      syncTrackPlayerWithPersistedState();
+    }
   }, []);
 
   // TrackPlayer 이벤트 리스너 (추후 반복재생, 랜덤셔플 등과 같은 기능 전체적으로 rootContainer에서 정의하기에 필요_ 그래야 편해,,,,)
@@ -106,7 +137,7 @@ function AppContent(): React.JSX.Element {
     },
   );
 
-  if (!isMusicPlayReady) {
+  if (!isPlayerSetupDone) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.green_1DB954} />
