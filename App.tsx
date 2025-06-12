@@ -118,7 +118,7 @@ function AppContent(): React.JSX.Element {
     <SafeAreaProvider>
       <NavigationContainer>
         <RootStackNavigator />
-        {isPlaying && currentMusic && isPlayingMusicBarVisible && (
+        {currentMusic && isPlayingMusicBarVisible && (
           <View style={styles.playingMusicBarContainer}>
             <PlayingMusicBar />
           </View>

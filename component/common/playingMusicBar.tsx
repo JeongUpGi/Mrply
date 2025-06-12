@@ -6,18 +6,17 @@ import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress} from 'react-native-track-player';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
+import {setIsPlaying} from '../../store/slices/playMusicSlice';
 
 const PlayingMusicBar: React.FC = ({}) => {
   const progress = useProgress();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch();
 
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
-  );
-  const isPlayingMusicBarVisible = useSelector(
-    (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
   );
   const isPlaying = useSelector(
     (state: RootState) => state.playMusic.isPlaying,
@@ -31,6 +30,18 @@ const PlayingMusicBar: React.FC = ({}) => {
 
   const handleBarPress = () => {
     navigation.navigate('playingMusicScreen');
+  };
+
+  const handlePlayPause = async () => {
+    if (isPlaying) {
+      //일시 중지
+      await TrackPlayer.pause();
+      dispatch(setIsPlaying(false));
+    } else {
+      //재생
+      await TrackPlayer.play();
+      dispatch(setIsPlaying(true));
+    }
   };
 
   return (
@@ -60,6 +71,20 @@ const PlayingMusicBar: React.FC = ({}) => {
           <Text style={styles.time}>{formatTime(progress.duration)}</Text>
         </View>
       </View>
+      <View style={styles.playPauseButtonWrapper}>
+        <TouchableOpacity
+          style={styles.playPauseButton}
+          onPress={handlePlayPause}>
+          <Image
+            source={
+              isPlaying
+                ? require('../../asset/images/pause.png')
+                : require('../../asset/images/next_fill_white.png')
+            }
+            style={styles.playPauseStyle}
+          />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -83,6 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   thumbnailWrapper: {
+    width: '15%',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -96,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   progressBarWrapper: {
-    width: '80%',
+    width: '70%',
   },
   progressBarSlider: {
     width: '100%',
@@ -111,6 +137,24 @@ const styles = StyleSheet.create({
   time: {
     color: colors.gray_808080,
     fontSize: 15,
+  },
+  playPauseButtonWrapper: {
+    width: '15%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseButton: {
+    backgroundColor: colors.green_1DB954,
+    borderRadius: 50,
+    width: 35,
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseStyle: {
+    width: 22,
+    height: 22,
+    tintColor: colors.white,
   },
 });
 
