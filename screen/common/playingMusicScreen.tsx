@@ -17,9 +17,6 @@ import TrackPlayer, {useProgress, Track} from 'react-native-track-player';
 import {
   setIsPlayingMusicBarVisible,
   setIsPlaying,
-  setMusicTrackQueue,
-  setCurrentMusicIndex,
-  setCurrentMusic,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
@@ -71,11 +68,21 @@ const PlayingMusicScreen = () => {
   };
 
   const handleNext = async () => {
-    await TrackPlayer.skipToNext();
+    if (currentMusicIndex === musicTrackQueue.length - 1) {
+      //마지막 곡일 경우 첫 곡으로 이동
+      await TrackPlayer.skip(0);
+    } else {
+      await TrackPlayer.skipToNext();
+    }
   };
 
   const handlePrevious = async () => {
-    await TrackPlayer.skipToPrevious();
+    if (currentMusicIndex === 0) {
+      //첫번째 곡일 경우 마지막 곡으로 이동
+      await TrackPlayer.skip(musicTrackQueue.length - 1);
+    } else {
+      await TrackPlayer.skipToPrevious();
+    }
   };
 
   const handleMusicTrackPress = async (index: number) => {
