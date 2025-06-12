@@ -70,31 +70,16 @@ const PlayingMusicScreen = () => {
     }
   };
 
-  const updateTrackPlayerState = useCallback(async () => {
-    const updatedIndex = await TrackPlayer.getActiveTrackIndex();
-    const activeTrack = await TrackPlayer.getActiveTrack(); // 현재 활성화된 트랙 가져오기
-
-    dispatch(
-      setCurrentMusicIndex(updatedIndex !== undefined ? updatedIndex : null),
-    );
-    if (activeTrack) {
-      dispatch(setCurrentMusic(activeTrack)); // Redux 현재 음악 업데이트
-    }
-  }, [dispatch]);
-
   const handleNext = async () => {
     await TrackPlayer.skipToNext();
-    await updateTrackPlayerState();
   };
 
   const handlePrevious = async () => {
     await TrackPlayer.skipToPrevious();
-    await updateTrackPlayerState();
   };
 
   const handleMusicTrackPress = async (index: number) => {
     await TrackPlayer.skip(index);
-    await updateTrackPlayerState();
   };
 
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
