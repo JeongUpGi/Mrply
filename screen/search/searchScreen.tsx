@@ -48,11 +48,12 @@ const SearchScreen = () => {
     (state: RootState) => state.recentSearches,
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      resetState();
-    }, []),
-  );
+  // mount시 기존 상태들 reset함수 주석 처리
+  // useFocusEffect(
+  //   useCallback(() => {
+  // resetState();
+  //   }, []),
+  // );
 
   const resetState = () => {
     setTotalMusic([]);
