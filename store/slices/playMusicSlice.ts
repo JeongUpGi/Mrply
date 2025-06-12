@@ -8,6 +8,7 @@ const initialState: MusicPlayerState = {
   isPlayingMusicBarVisible: false,
   musicTrackQueue: [],
   currentMusicIndex: null,
+  currentPlaybackPosition: 0,
 };
 
 const playMusicSlice = createSlice({
@@ -29,6 +30,9 @@ const playMusicSlice = createSlice({
     setCurrentMusicIndex: (state, action: PayloadAction<number | null>) => {
       state.currentMusicIndex = action.payload;
     },
+    setCurrentPlaybackPosition: (state, action: PayloadAction<number>) => {
+      state.currentPlaybackPosition = action.payload;
+    },
   },
 });
 
@@ -38,5 +42,6 @@ export const {
   setIsPlayingMusicBarVisible,
   setMusicTrackQueue,
   setCurrentMusicIndex,
+  setCurrentPlaybackPosition,
 } = playMusicSlice.actions;
 export default playMusicSlice.reducer;

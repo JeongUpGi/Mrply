@@ -4,7 +4,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor, RootState} from './store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
-import {View, ActivityIndicator, StyleSheet} from 'react-native';
+import {View, ActivityIndicator, StyleSheet, AppState} from 'react-native';
 import RootStackNavigator from './navigator/Routes';
 import TrackPlayer, {
   Event,
@@ -17,6 +17,7 @@ import {
   setMusicTrackQueue,
   setCurrentMusicIndex,
   setIsPlaying,
+  setCurrentPlaybackPosition,
 } from './store/slices/playMusicSlice';
 import {colors} from './asset/color/color';
 
@@ -64,6 +65,9 @@ function AppContent(): React.JSX.Element {
   const isPlayingMusicBarVisible = useSelector(
     (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
   );
+  const currentPlaybackPosition = useSelector(
+    (state: RootState) => state.playMusic.currentPlaybackPosition,
+  );
 
   useEffect(() => {
     const initPlayer = async () => {
@@ -78,8 +82,10 @@ function AppContent(): React.JSX.Element {
           await TrackPlayer.reset();
           // Redux에 있는 musicQueue를 TrackPlayer에 추가
           await TrackPlayer.add(musicTrackQueue);
-          // Redux에서 기억하고 있는 인덱스로 이동
+          // Redux에서 기억하고 있는 음악인덱스로 이동
           await TrackPlayer.skip(currentMusicIndex);
+          // Redux에서 기억하고 있는 재생구간으로 이동
+          await TrackPlayer.seekTo(currentPlaybackPosition);
 
           // 재생 중이었다면 재생
           if (isPlaying) {
@@ -91,6 +97,7 @@ function AppContent(): React.JSX.Element {
           dispatch(setCurrentMusic(null));
           dispatch(setMusicTrackQueue([]));
           dispatch(setCurrentMusicIndex(null));
+          dispatch(setCurrentPlaybackPosition(0));
         }
       };
       syncTrackPlayerWithPersistedState();
@@ -125,6 +132,9 @@ function AppContent(): React.JSX.Element {
           event.state === State.Stopped
         ) {
           dispatch(setIsPlaying(false));
+          // 백그라운드로 이동 시 일시정지 처리되기에 마지막 포지션 redux에 저장
+          const currentPlayPosition = await TrackPlayer.getPosition();
+          dispatch(setCurrentPlaybackPosition(currentPlayPosition));
         } else if (
           //음악 마지막 끝
           event.state === State.Ended

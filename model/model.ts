@@ -90,4 +90,5 @@ export interface MusicPlayerState {
   isPlayingMusicBarVisible: boolean;
   musicTrackQueue: Track[];
   currentMusicIndex: number | null;
+  currentPlaybackPosition: number; // 음악 재 실행시 구간 값
 }
