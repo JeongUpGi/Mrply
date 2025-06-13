@@ -77,7 +77,7 @@ function MainBottomTabs() {
         tabBarInactiveTintColor: '#8e8e93',
       }}>
       <Tab.Screen
-        name="홈"
+        name="homeStack"
         component={HomeStack}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -90,7 +90,7 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="새로운 음악"
+        name="newMusicStack"
         component={NewMusicStack}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -103,7 +103,7 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="검색"
+        name="searchStack"
         component={SearchStack}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -116,7 +116,7 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="보관함"
+        name="storageStack"
         component={StorageStack}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -127,9 +127,27 @@ function MainBottomTabs() {
           ),
           tabBarLabel: '보관함',
         }}
+        listeners={({navigation}) => ({
+          tabPress: e => {
+            if (navigation.isFocused()) {
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'storageStack',
+                    state: {
+                      routes: [{name: 'storageScreen'}],
+                      index: 0,
+                    },
+                  },
+                ],
+              });
+            }
+          },
+        })}
       />
       <Tab.Screen
-        name="전체 메뉴"
+        name="menuStack"
         component={MenuStack}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -151,7 +169,7 @@ function RootStackNavigator() {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="mainBottomTabs" component={MainBottomTabs} />
       <Stack.Screen name="playingMusicScreen" component={PlayingMusicScreen} />
-      <Stack.Screen name="playlistScreen" component={PlaylistScreen} />
+      {/* <Stack.Screen name="playlistScreen" component={PlaylistScreen} /> */}
     </Stack.Navigator>
   );
 }

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -8,6 +8,8 @@ import {
   Image,
   TouchableOpacity,
   ListRenderItem,
+  ActionSheetIOS,
+  Platform,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
@@ -23,11 +25,13 @@ import {
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
+import ActionSheet from 'react-native-actionsheet';
 
 const PlayingMusicScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const progress = useProgress();
+  const actionSheetRef = React.useRef<ActionSheet>(null);
 
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
@@ -142,6 +146,43 @@ const PlayingMusicScreen = () => {
     await TrackPlayer.skip(index);
   };
 
+  const showActionSheet = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '플레이리스트에 추가'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'mainBottomTabs',
+                  state: {
+                    routes: [
+                      {
+                        name: 'storageStack',
+                        state: {
+                          routes: [{name: 'playlistScreen'}],
+                          index: 0,
+                        },
+                      },
+                    ],
+                    index: 0,
+                  },
+                },
+              ],
+            });
+          }
+        },
+      );
+    } else {
+      actionSheetRef.current?.show();
+    }
+  };
+
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
     <View
       style={[
@@ -194,7 +235,7 @@ const PlayingMusicScreen = () => {
           height: 25,
         }}
         rightIcon={require('../../asset/images/all_menu.png')}
-        onPressRight={() => {}}
+        onPressRight={showActionSheet}
         rightIconStyle={{
           tintColor: colors.white,
           width: 30,
@@ -274,6 +315,39 @@ const PlayingMusicScreen = () => {
           />
         </View>
       </View>
+
+      {Platform.OS === 'android' && (
+        <ActionSheet
+          ref={actionSheetRef}
+          title="음악 추가"
+          options={['취소', '플레이리스트에 추가']}
+          cancelButtonIndex={0}
+          onPress={index => {
+            if (index === 1) {
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'mainBottomTabs',
+                    state: {
+                      routes: [
+                        {
+                          name: 'storageStack',
+                          state: {
+                            routes: [{name: 'playlistScreen'}],
+                            index: 0,
+                          },
+                        },
+                      ],
+                      index: 0,
+                    },
+                  },
+                ],
+              });
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -439,6 +513,18 @@ const styles = StyleSheet.create({
   },
   currentPlayingText: {
     color: colors.green_1DB954,
+  },
+  cancelButton: {
+    backgroundColor: colors.gray_dcdcdc,
+  },
+  addButton: {
+    backgroundColor: colors.green_1DB954,
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.white,
   },
 });
 
