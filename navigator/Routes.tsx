@@ -129,20 +129,18 @@ function MainBottomTabs() {
         }}
         listeners={({navigation}) => ({
           tabPress: e => {
-            if (navigation.isFocused()) {
-              navigation.reset({
-                index: 0,
-                routes: [
-                  {
-                    name: 'storageStack',
-                    state: {
-                      routes: [{name: 'storageScreen'}],
-                      index: 0,
-                    },
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'storageStack',
+                  state: {
+                    routes: [{name: 'storageScreen'}],
+                    index: 0,
                   },
-                ],
-              });
-            }
+                },
+              ],
+            });
           },
         })}
       />
