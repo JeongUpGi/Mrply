@@ -13,7 +13,11 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {
+  useNavigation,
+  useFocusEffect,
+  NavigationProp,
+} from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {useProgress, Track} from 'react-native-track-player';
 import {
@@ -26,9 +30,10 @@ import {
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
+import {RootStackParamList} from '../../model/model';
 
 const PlayingMusicScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
   const progress = useProgress();
   const actionSheetRef = React.useRef<ActionSheet>(null);

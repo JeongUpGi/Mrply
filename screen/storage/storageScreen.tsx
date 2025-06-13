@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {colors} from '../../asset/color/color';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../../model/model';
 
 const StorageScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const categoryData = [
     {
       imageUrl: require('../../asset/images/playlist_green.png'),
