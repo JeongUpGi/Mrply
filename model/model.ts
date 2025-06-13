@@ -92,3 +92,15 @@ export interface MusicPlayerState {
   currentMusicIndex: number | null;
   currentPlaybackPosition: number; // 음악 재 실행시 구간 값
 }
+
+export interface StoredPlaylist {
+  id: string;
+  title: string;
+  tracks: Track[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface StorageState {
+  storedPlaylists: StoredPlaylist[];
+}
