@@ -9,6 +9,7 @@ export type RootStackParamList = {
   allMenuScreen: undefined;
   searchScreen: undefined;
   storageScreen: undefined;
+  playlistScreen: undefined;
 };
 
 export interface HeaderProps {

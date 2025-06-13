@@ -11,10 +11,11 @@ const storageSlice = createSlice({
   initialState,
   reducers: {
     //플레이리스트 추가 액션
-    addPlaylist: (state, action: PayloadAction<string>) => {
+    addPlaylist: (state, action: PayloadAction<{playlistTitle: string}>) => {
+      const {playlistTitle} = action.payload;
       const newPlaylist: StoredPlaylist = {
         id: `playlist_${Date.now()}`,
-        title: action.payload,
+        title: playlistTitle,
         tracks: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
