@@ -11,6 +11,8 @@ import {colors} from '../../asset/color/color';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
 
+import {Header} from '../../component/common/Header';
+
 const StorageScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const categoryData = [
@@ -25,7 +27,7 @@ const StorageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>보관함</Text>
+      <Header.onlyLeftTitle title="보관함" titleStyle={styles.title} />
       <View style={styles.categoryListContainer}>
         {categoryData.map((item, index) => {
           return (
@@ -63,7 +65,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: colors.black,
-    padding: 20,
   },
   categoryListContainer: {
     paddingHorizontal: 20,

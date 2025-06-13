@@ -14,8 +14,8 @@ export type RootStackParamList = {
 
 export interface HeaderProps {
   title: string;
-  leftIcon: undefined;
-  rightIcon: undefined;
+  leftIcon?: undefined;
+  rightIcon?: undefined;
   onPressLeft?: () => void;
   onPressRight?: () => void;
 

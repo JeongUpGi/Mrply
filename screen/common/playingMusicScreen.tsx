@@ -28,7 +28,7 @@ import {
   setCurrentMusicIndex,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
-import Header from '../../component/common/Header';
+import {Header} from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList} from '../../model/model';
 
@@ -230,7 +230,7 @@ const PlayingMusicScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header
+      <Header.default
         title={''}
         leftIcon={require('../../asset/images/previous_fill_white.png')}
         onPressLeft={() => navigation.goBack()}

@@ -11,18 +11,21 @@ import {
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {colors} from '../../asset/color/color';
+import {Header} from '../../component/common/Header';
 
 const PlaylistScreen = () => {
   const storedPlaylists = useSelector(
     (state: RootState) => state.storage.storedPlaylists,
   );
 
-  const handlePlayTrack = async () => {};
+  const handlePressPlaylist = () => {};
+
+  const handleAddPlaylist = async () => {};
 
   const renderItem = ({item}: {item: any}) => (
     <TouchableOpacity
       style={styles.trackItem}
-      onPress={() => handlePlayTrack()}>
+      onPress={() => handlePressPlaylist()}>
       <Image source={{uri: item.artwork}} style={styles.thumbnail} />
       <View style={styles.trackInfo}>
         <Text style={styles.playlistTitle}>{item.title}</Text>
@@ -33,7 +36,17 @@ const PlaylistScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>플레이리스트</Text>
+      <Header.leftTitleRightIcon
+        title="플레이리스트"
+        titleStyle={styles.title}
+        rightIcon={require('../../asset/images/plus_green.png')}
+        onPressRight={handleAddPlaylist}
+        rightIconStyle={{
+          tintColor: colors.green_1DB954,
+          width: 30,
+          height: 30,
+        }}
+      />
       {storedPlaylists.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>플레이리스트가 비어있습니다</Text>
@@ -55,10 +68,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     color: colors.black,
-    padding: 20,
   },
   playlistContainer: {
     padding: 10,

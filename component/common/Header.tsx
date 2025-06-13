@@ -1,31 +1,10 @@
 import React from 'react';
 import {View, Image, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {HeaderProps} from '../../model/model';
+import {colors} from '../../asset/color/color';
 
-// const Header: React.FC<HeaderProps> = ({
-//   title,
-//   leftIcon,
-//   rightIcon,
-//   onPressLeft,
-//   onPressRight,
-//   titleStyle,
-//   leftIconTextStyle,
-//   rightIconTextStyle,
-// }) => {
-//   return (
-//     <View style={styles.headerContainer}>
-//       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
-//         <Text style={leftIconTextStyle}> {leftIcon} </Text>
-//       </TouchableOpacity>
-//       <Text style={titleStyle}>{title}</Text>
-//       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
-//         <Text style={rightIconTextStyle}> {rightIcon} </Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-const Header: React.FC<HeaderProps> = ({
+// 기본 헤더
+const DefaultHeader: React.FC<HeaderProps> = ({
   title,
   leftIcon,
   rightIcon,
@@ -36,11 +15,38 @@ const Header: React.FC<HeaderProps> = ({
   rightIconStyle,
 }) => {
   return (
-    <View style={styles.headerContainer}>
+    <View style={styles.blackHeaderContainer}>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
         <Image source={leftIcon} style={leftIconStyle} />
       </TouchableOpacity>
-      <Text style={titleStyle}>{title}</Text>
+      <Text style={[styles.title, titleStyle]}>{title}</Text>
+      <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
+        <Image source={rightIcon} style={rightIconStyle} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+//왼쪽 타이틀만 있는 헤더
+const OnlyLeftTitleHeader: React.FC<HeaderProps> = ({title, titleStyle}) => {
+  return (
+    <View style={styles.whiteHeaderContainer}>
+      <Text style={[styles.title, titleStyle]}>{title}</Text>
+    </View>
+  );
+};
+
+// 아이콘이 있는 헤더
+const LeftTitleRightIconHeader: React.FC<HeaderProps> = ({
+  title,
+  rightIcon,
+  onPressRight,
+  titleStyle,
+  rightIconStyle,
+}) => {
+  return (
+    <View style={styles.whiteHeaderContainer}>
+      <Text style={[styles.title, titleStyle]}>{title}</Text>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
         <Image source={rightIcon} style={rightIconStyle} />
       </TouchableOpacity>
@@ -49,7 +55,16 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
+  blackHeaderContainer: {
+    width: '100%',
+    height: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: colors.black_1c1c1c,
+  },
+  whiteHeaderContainer: {
     width: '100%',
     height: 60,
     flexDirection: 'row',
@@ -63,6 +78,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  title: {
+    color: colors.white,
+    fontSize: 17,
+    fontWeight: '600',
+  },
 });
 
-export default Header;
+export const Header = {
+  default: DefaultHeader,
+  onlyLeftTitle: OnlyLeftTitleHeader,
+  leftTitleRightIcon: LeftTitleRightIconHeader,
+};
