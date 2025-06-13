@@ -17,6 +17,9 @@ import TrackPlayer, {useProgress, Track} from 'react-native-track-player';
 import {
   setIsPlayingMusicBarVisible,
   setIsPlaying,
+  setCurrentMusic,
+  setMusicTrackQueue,
+  setCurrentMusicIndex,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import Header from '../../component/common/Header';
@@ -85,37 +88,98 @@ const PlayingMusicScreen = () => {
     }
   };
 
+  const deleteMusicTrackRedux = async (index: number) => {
+    //해당 곡 제거
+    await TrackPlayer.remove(index);
+
+    //Redux상태 업데이터
+    const updatedMusicTrackQueue = [...musicTrackQueue];
+    updatedMusicTrackQueue.splice(index, 1);
+    dispatch(setMusicTrackQueue(updatedMusicTrackQueue));
+  };
+
+  const handleMusicDelete = async (index: number) => {
+    try {
+      if (index === currentMusicIndex) {
+        // 현재 재생중인 곡을 삭제하는 경우
+        if (musicTrackQueue.length === 1) {
+          //곡이 하나일 경우
+          await TrackPlayer.reset();
+          dispatch(setIsPlaying(false));
+          dispatch(setCurrentMusic(null));
+          dispatch(setMusicTrackQueue([]));
+          dispatch(setCurrentMusicIndex(null));
+          navigation.goBack();
+        } else {
+          // 곡이 여러개일 경우
+          if (index === musicTrackQueue.length - 1) {
+            //삭제하려는 곡이 마지막일 경우
+            await TrackPlayer.skipToNext();
+            dispatch(setCurrentMusicIndex(0));
+            dispatch(setCurrentMusic(musicTrackQueue[0]));
+          } else {
+            await TrackPlayer.skipToPrevious();
+            if (currentMusicIndex !== null) {
+              dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
+              dispatch(setCurrentMusic(musicTrackQueue[currentMusicIndex - 1]));
+            }
+          }
+          await deleteMusicTrackRedux(index);
+        }
+      } else {
+        // 현재 재생중인 아닌 곡을 삭제하는 경우
+        if (currentMusicIndex !== null) {
+          dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
+        }
+        await deleteMusicTrackRedux(index);
+      }
+    } catch (error) {
+      console.error('삭제 도중 오류 발생', error);
+    }
+  };
+
   const handleMusicTrackPress = async (index: number) => {
     await TrackPlayer.skip(index);
   };
 
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
-    <TouchableOpacity
+    <View
       style={[
         styles.queueListItem,
         index === currentMusicIndex ? styles.currentPlayingItem : {},
-      ]}
-      onPress={() => handleMusicTrackPress(index)}>
-      <Text style={styles.queueListItemIndex}>{index + 1}.</Text>
-      <View style={styles.queueListItemInfo}>
-        <Text
-          style={[
-            styles.queueListItemTitle,
-            index === currentMusicIndex ? styles.currentPlayingText : {},
-          ]}
-          numberOfLines={1}>
-          {item?.title}
-        </Text>
-        <Text
-          style={[
-            styles.queueListItemArtist,
-            index === currentMusicIndex ? styles.currentPlayingText : {},
-          ]}
-          numberOfLines={1}>
-          {item.artist}
-        </Text>
-      </View>
-    </TouchableOpacity>
+      ]}>
+      <TouchableOpacity
+        style={styles.queueListItemWrapper}
+        onPress={() => handleMusicTrackPress(index)}>
+        <Text style={styles.queueListItemIndex}>{index + 1}.</Text>
+        <View style={styles.queueListItemInfo}>
+          <Text
+            style={[
+              styles.queueListItemTitle,
+              index === currentMusicIndex ? styles.currentPlayingText : {},
+            ]}
+            numberOfLines={1}>
+            {item?.title}
+          </Text>
+          <Text
+            style={[
+              styles.queueListItemArtist,
+              index === currentMusicIndex ? styles.currentPlayingText : {},
+            ]}
+            numberOfLines={1}>
+            {item.artist}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.deleteButtonWrapper}
+        onPress={() => handleMusicDelete(index)}>
+        <Image
+          source={require('../../asset/images/delete.png')}
+          style={styles.controlButtonImage}
+        />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -333,6 +397,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     borderBottomWidth: 0.5,
     borderBottomColor: colors.gray_808080,
+  },
+  queueListItemWrapper: {
+    width: '85%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButtonWrapper: {
+    width: '15%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButtonImage: {
+    width: 24,
+    height: 24,
+    tintColor: colors.white,
   },
   queueListItemIndex: {
     color: colors.gray_a9a9a9,
