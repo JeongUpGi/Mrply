@@ -13,6 +13,7 @@ import SearchScreen from '../screen/search/SearchScreen';
 
 import StorageScreen from '../screen/storage/StorageScreen';
 import PlaylistScreen from '../screen/storage/PlaylistScreen';
+import PlaylistDetailScreen from '../screen/storage/PlaylistDetailScreen';
 
 import AllMenuScreen from '../screen/allMenu/AllMenuScreen';
 
@@ -58,6 +59,10 @@ function StorageStack() {
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="storageScreen" component={StorageScreen} />
       <Stack.Screen name="playlistScreen" component={PlaylistScreen} />
+      <Stack.Screen
+        name="playlistDetailScreen"
+        component={PlaylistDetailScreen}
+      />
     </Stack.Navigator>
   );
 }

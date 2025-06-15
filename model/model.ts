@@ -10,6 +10,13 @@ export type RootStackParamList = {
   searchScreen: undefined;
   storageScreen: undefined;
   playlistScreen: undefined;
+  playlistDetailScreen: {
+    playlistId: string;
+  };
+};
+
+export type PlaylistTrackScreenParams = {
+  playlistId: string;
 };
 
 export interface HeaderProps {
@@ -20,7 +27,7 @@ export interface HeaderProps {
   onPressRight?: () => void;
 
   titleStyle?: TextStyle;
-  headerBackgroundColor?: string;
+  headerBackgroundColor?: TextStyle;
   leftIconStyle?: ImageStyle;
   rightIconStyle?: ImageStyle;
 }

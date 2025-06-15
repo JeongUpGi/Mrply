@@ -15,8 +15,12 @@ import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
 import TextInputModal from '../../component/common/TextInputModal';
 import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../../model/model';
 
 const PlaylistScreen = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [playlistTitle, setPlaylistTitle] = useState('');
   const storedPlaylists = useSelector(
@@ -25,8 +29,8 @@ const PlaylistScreen = () => {
 
   const dispatch = useDispatch();
 
-  const handlePressPlaylist = () => {
-    console.log('zzz');
+  const handlePressPlaylist = (playlistId: string) => {
+    navigation.navigate('playlistDetailScreen', {playlistId});
   };
 
   const handleCreatePlaylist = async () => {
@@ -53,7 +57,7 @@ const PlaylistScreen = () => {
   const renderItem = ({item}: {item: any}) => (
     <TouchableOpacity
       style={styles.trackItem}
-      onPress={() => handlePressPlaylist()}>
+      onPress={() => handlePressPlaylist(item.id)}>
       <Image source={{uri: item.artwork}} style={styles.thumbnail} />
       <View style={styles.trackInfo}>
         <Text style={styles.playlistTitle}>{item.title}</Text>
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
   playlistContainer: {
-    padding: 10,
+    paddingHorizontal: 20,
   },
   trackItem: {
     flexDirection: 'row',
