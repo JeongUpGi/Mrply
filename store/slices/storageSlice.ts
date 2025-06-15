@@ -21,6 +21,15 @@ const storageSlice = createSlice({
       };
       state.storedPlaylists.push(newPlaylist);
     },
+    //플레이리스트 삭제 액션
+    removePlaylist: (state, action: PayloadAction<string>) => {
+      const playlistId = action.payload;
+
+      // 해당 ID의 플레이리스트 제거
+      state.storedPlaylists = state.storedPlaylists.filter(
+        playlist => playlist.id !== playlistId,
+      );
+    },
     //플레이리스트에 곡 추가 액션
     addTrackToPlaylist: (
       state,
@@ -49,6 +58,7 @@ const storageSlice = createSlice({
   },
 });
 
-export const {addPlaylist, addTrackToPlaylist} = storageSlice.actions;
+export const {addPlaylist, addTrackToPlaylist, removePlaylist} =
+  storageSlice.actions;
 
 export default storageSlice.reducer;

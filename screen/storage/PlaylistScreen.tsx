@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
 import TextInputModal from '../../component/common/TextInputModal';
-import {addPlaylist} from '../../store/slices/storageSlice';
+import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
 
 const PlaylistScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -33,6 +34,22 @@ const PlaylistScreen = () => {
     setPlaylistTitle('');
   };
 
+  const handleDeletePlaylist = async (playlistId: string) => {
+    Alert.alert('플레이리스트 삭제', '이 플레이리스트를 삭제하시겠습니까?', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          dispatch(removePlaylist(playlistId));
+        },
+      },
+    ]);
+  };
+
   const renderItem = ({item}: {item: any}) => (
     <TouchableOpacity
       style={styles.trackItem}
@@ -42,6 +59,14 @@ const PlaylistScreen = () => {
         <Text style={styles.playlistTitle}>{item.title}</Text>
         <Text style={styles.artist}>{item.artist}</Text>
       </View>
+      <TouchableOpacity
+        style={styles.deleteImageWrapper}
+        onPress={() => handleDeletePlaylist(item.id)}>
+        <Image
+          source={require('../../asset/images/delete.png')}
+          style={styles.deleteImage}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -137,6 +162,17 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.gray_c0c0c0,
     fontSize: 20,
+  },
+  deleteImageWrapper: {
+    backgroundColor: 'red',
+    height: '100%',
+    width: '10%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteImage: {
+    width: 20,
+    height: 20,
   },
 });
 
