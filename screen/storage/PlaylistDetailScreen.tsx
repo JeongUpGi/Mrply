@@ -7,28 +7,28 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
-import {
-  NavigationProp,
-  RouteProp,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {RouteProp, useRoute} from '@react-navigation/native';
 import {PlaylistTrackScreenParams} from '../../model/model';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import TrackPlayer, {Track} from 'react-native-track-player';
 
 import {colors} from '../../asset/color/color';
 
 import {Header} from '../../component/common/Header';
+import {removeMusicFromPlaylist} from '../../store/slices/storageSlice';
 
 const PlaylistDetailScreen = () => {
+  const dispatch = useDispatch();
   const route =
     useRoute<RouteProp<{params: PlaylistTrackScreenParams}, 'params'>>();
 
+  const {playlistId} = route.params as {playlistId: string};
+
   const currentPlaylistTrack = useSelector((state: RootState) =>
-    state.storage.storedPlaylists.find(p => p.id === route.params.playlistId),
+    state.storage.storedPlaylists.find(p => p.id === playlistId),
   );
 
   if (!currentPlaylistTrack) {
@@ -41,20 +41,46 @@ const PlaylistDetailScreen = () => {
 
   const handleAddMusicToPlaylist = () => {};
 
+  const handleRemoveMusicFromPlaylist = (musciId: string) => {
+    Alert.alert('트랙 삭제', '이 트랙을 플레이리스트에서 삭제하시겠습니까?', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          dispatch(removeMusicFromPlaylist({playlistId, musciId}));
+        },
+      },
+    ]);
+  };
+
   const handlePlayPlaylist = () => {};
 
-  const renderPlaylistTrackItem = ({item}: {item: Track}) => (
-    console.log('item', item),
-    (
-      <TouchableOpacity style={styles.trackItem} onPress={handlePlayPlaylist}>
-        <Image style={styles.trackThumbnail} source={{uri: item.artwork}} />
-        <View style={styles.trackInfo}>
-          <Text style={styles.trackTitle}>{item.title}</Text>
-          <Text style={styles.trackArtist}>{item.artist}</Text>
+  const renderPlaylistMusicItem = ({item}: {item: Track}) => (
+    <View style={styles.playlistContainer}>
+      <TouchableOpacity
+        style={styles.playlistWrapper}
+        onPress={handlePlayPlaylist}>
+        <Image style={styles.musicThumbnail} source={{uri: item.artwork}} />
+        <View style={styles.musicInfoWrapper}>
+          <Text style={styles.musicTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <Text style={styles.musicArtist}>{item.artist}</Text>
         </View>
-        <Text style={styles.trackDuration}>{item.duration}</Text>
       </TouchableOpacity>
-    )
+      <TouchableOpacity
+        style={styles.deletePlaylistIconWrapper}
+        onPress={() => handleRemoveMusicFromPlaylist(item.id)}>
+        <Image
+          source={require('../../asset/images/delete.png')}
+          style={styles.deletePlaylistIcon}
+        />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -63,9 +89,9 @@ const PlaylistDetailScreen = () => {
         title={currentPlaylistTrack.title}
         titleStyle={styles.title}
       />
-      <FlatList<Track>
+      <FlatList
         data={currentPlaylistTrack.tracks}
-        renderItem={renderPlaylistTrackItem}
+        renderItem={renderPlaylistMusicItem}
         keyExtractor={item => item.id}
         style={styles.list}
         contentContainerStyle={styles.listContainer}
@@ -105,34 +131,43 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
-  trackItem: {
+  playlistContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray_dcdcdc,
+    paddingVertical: 12,
   },
-  trackInfo: {
+  playlistWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  musicInfoWrapper: {
     flex: 1,
   },
-  trackThumbnail: {
+  deletePlaylistIconWrapper: {
+    flex: 0.2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deletePlaylistIcon: {
+    width: 30,
+    height: 30,
+  },
+  musicThumbnail: {
     width: 95,
     height: 70,
     marginRight: 10,
   },
-  trackTitle: {
+  musicTitle: {
     color: colors.black,
     fontSize: 16,
     fontWeight: 'bold',
   },
-  trackArtist: {
+  musicArtist: {
     color: colors.gray_a9a9a9,
     fontSize: 14,
-  },
-  trackDuration: {
-    color: colors.black,
-    fontSize: 14,
-    marginLeft: 16,
   },
   addButton: {
     flexDirection: 'row',

@@ -56,10 +56,29 @@ const storageSlice = createSlice({
         }
       }
     },
+    // 플레이리스트 곡 삭제 액션
+    removeMusicFromPlaylist: (
+      state,
+      action: PayloadAction<{playlistId: string; musciId: string}>,
+    ) => {
+      const {playlistId, musciId} = action.payload;
+      const playlist = state.storedPlaylists.find(
+        item => item.id === playlistId,
+      );
+      if (playlist) {
+        // 해당 트랙 제거
+        playlist.tracks = playlist.tracks.filter(track => track.id !== musciId);
+        playlist.updatedAt = Date.now();
+      }
+    },
   },
 });
 
-export const {addPlaylist, addMusicToPlaylist, removePlaylist} =
-  storageSlice.actions;
+export const {
+  addPlaylist,
+  addMusicToPlaylist,
+  removePlaylist,
+  removeMusicFromPlaylist,
+} = storageSlice.actions;
 
 export default storageSlice.reducer;
