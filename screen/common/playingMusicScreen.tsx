@@ -232,7 +232,7 @@ const PlayingMusicScreen = () => {
     <SafeAreaView style={styles.container}>
       <Header.default
         title={''}
-        headerBackgroundColor={colors.black_1c1c1c}
+        headerBackgroundColor={{backgroundColor: colors.black_1c1c1c}}
         leftIcon={require('../../asset/images/previous_fill_white.png')}
         onPressLeft={() => navigation.goBack()}
         leftIconStyle={{
