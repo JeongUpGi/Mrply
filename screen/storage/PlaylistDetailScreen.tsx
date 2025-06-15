@@ -41,14 +41,20 @@ const PlaylistDetailScreen = () => {
 
   const handleAddPlaylistTrack = () => {};
 
+  const handlePlayPlaylist = () => {};
+
   const renderPlaylistTrackItem = ({item}: {item: Track}) => (
-    <TouchableOpacity style={styles.trackItem}>
-      <View style={styles.trackInfo}>
-        <Text style={styles.trackTitle}>{item.title}</Text>
-        <Text style={styles.trackArtist}>{item.artist}</Text>
-      </View>
-      <Text style={styles.trackDuration}>{item.duration}</Text>
-    </TouchableOpacity>
+    console.log('item', item),
+    (
+      <TouchableOpacity style={styles.trackItem} onPress={handlePlayPlaylist}>
+        <Image style={styles.trackThumbnail} source={{uri: item.artwork}} />
+        <View style={styles.trackInfo}>
+          <Text style={styles.trackTitle}>{item.title}</Text>
+          <Text style={styles.trackArtist}>{item.artist}</Text>
+        </View>
+        <Text style={styles.trackDuration}>{item.duration}</Text>
+      </TouchableOpacity>
+    )
   );
 
   return (
@@ -111,17 +117,22 @@ const styles = StyleSheet.create({
   trackInfo: {
     flex: 1,
   },
+  trackThumbnail: {
+    width: 95,
+    height: 70,
+    marginRight: 10,
+  },
   trackTitle: {
-    color: colors.white,
+    color: colors.black,
     fontSize: 16,
-    marginBottom: 4,
+    fontWeight: 'bold',
   },
   trackArtist: {
-    color: colors.gray_808080,
+    color: colors.gray_a9a9a9,
     fontSize: 14,
   },
   trackDuration: {
-    color: colors.gray_808080,
+    color: colors.black,
     fontSize: 14,
     marginLeft: 16,
   },
