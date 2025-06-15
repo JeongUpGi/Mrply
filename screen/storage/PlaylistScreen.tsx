@@ -24,7 +24,9 @@ const PlaylistScreen = () => {
 
   const dispatch = useDispatch();
 
-  const handlePressPlaylist = () => {};
+  const handlePressPlaylist = () => {
+    console.log('zzz');
+  };
 
   const handleCreatePlaylist = async () => {
     dispatch(addPlaylist(playlistTitle));
