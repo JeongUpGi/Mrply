@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,15 +12,24 @@ import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
+import TextInputModal from '../../component/common/TextInputModal';
+import {addPlaylist} from '../../store/slices/storageSlice';
 
 const PlaylistScreen = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [playlistTitle, setPlaylistTitle] = useState('');
   const storedPlaylists = useSelector(
     (state: RootState) => state.storage.storedPlaylists,
   );
 
+  const dispatch = useDispatch();
+
   const handlePressPlaylist = () => {};
 
-  const handleAddPlaylist = async () => {};
+  const handleCreatePlaylist = async () => {
+    dispatch(addPlaylist(playlistTitle));
+    setPlaylistTitle('');
+  };
 
   const renderItem = ({item}: {item: any}) => (
     <TouchableOpacity
@@ -40,7 +49,9 @@ const PlaylistScreen = () => {
         title="플레이리스트"
         titleStyle={styles.title}
         rightIcon={require('../../asset/images/plus_green.png')}
-        onPressRight={handleAddPlaylist}
+        onPressRight={() => {
+          setIsModalVisible(true);
+        }}
         rightIconStyle={{
           tintColor: colors.green_1DB954,
           width: 30,
@@ -59,6 +70,14 @@ const PlaylistScreen = () => {
           contentContainerStyle={styles.playlistContainer}
         />
       )}
+      <TextInputModal
+        title="새 플레이리스트"
+        visible={isModalVisible}
+        inputTitle={playlistTitle}
+        onClose={() => setIsModalVisible(false)}
+        onConfirm={handleCreatePlaylist}
+        onChangeTitle={setPlaylistTitle}
+      />
     </SafeAreaView>
   );
 };

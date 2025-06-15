@@ -105,3 +105,12 @@ export interface StoredPlaylist {
 export interface StorageState {
   storedPlaylists: StoredPlaylist[];
 }
+
+export interface TextInputModalProps {
+  title: string;
+  inputTitle: string;
+  visible: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  onChangeTitle: (text: string) => void;
+}
