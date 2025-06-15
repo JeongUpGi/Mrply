@@ -8,6 +8,7 @@ const DefaultHeader: React.FC<HeaderProps> = ({
   title,
   leftIcon,
   rightIcon,
+  headerBackgroundColor,
   onPressLeft,
   onPressRight,
   titleStyle,
@@ -15,7 +16,7 @@ const DefaultHeader: React.FC<HeaderProps> = ({
   rightIconStyle,
 }) => {
   return (
-    <View style={styles.blackHeaderContainer}>
+    <View style={[styles.headerContainer, headerBackgroundColor]}>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
         <Image source={leftIcon} style={leftIconStyle} />
       </TouchableOpacity>
@@ -55,14 +56,13 @@ const LeftTitleRightIconHeader: React.FC<HeaderProps> = ({
 };
 
 const styles = StyleSheet.create({
-  blackHeaderContainer: {
+  headerContainer: {
     width: '100%',
     height: 60,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: colors.black_1c1c1c,
   },
   whiteHeaderContainer: {
     width: '100%',

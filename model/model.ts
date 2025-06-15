@@ -20,6 +20,7 @@ export interface HeaderProps {
   onPressRight?: () => void;
 
   titleStyle?: TextStyle;
+  headerBackgroundColor?: string;
   leftIconStyle?: ImageStyle;
   rightIconStyle?: ImageStyle;
 }
