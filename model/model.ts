@@ -122,3 +122,12 @@ export interface TextInputModalProps {
   onConfirm: () => void;
   onChangeTitle: (text: string) => void;
 }
+
+export interface ListModalProps {
+  visible: boolean;
+  onClose: () => void;
+  title: string;
+  data: any[];
+  renderItem: ({item}: {item: any}) => React.ReactElement;
+  keyExtractor: (item: any) => string;
+}

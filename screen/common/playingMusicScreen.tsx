@@ -10,6 +10,7 @@ import {
   ListRenderItem,
   ActionSheetIOS,
   Platform,
+  Alert,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
@@ -30,13 +31,19 @@ import {
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
-import {RootStackParamList} from '../../model/model';
+import {RootStackParamList, StoredPlaylist} from '../../model/model';
+import ListModal from '../../component/common/ListModal';
 
 const PlayingMusicScreen = () => {
+  const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
   const progress = useProgress();
   const actionSheetRef = React.useRef<ActionSheet>(null);
+  const playlists = useSelector(
+    (state: RootState) => state.storage.storedPlaylists,
+  );
 
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
@@ -151,11 +158,24 @@ const PlayingMusicScreen = () => {
     await TrackPlayer.skip(index);
   };
 
+  const handleShowPlaylistModal = () => {
+    if (playlists.length === 0) {
+      Alert.alert(
+        '알림',
+        '플레이리스트가 없습니다. 플레이리스트를 먼저 생성해주세요.',
+      );
+      return;
+    }
+    setIsPlaylistModalVisible(true);
+  };
+
+  const handleAddToPlaylist = () => {};
+
   const showActionSheet = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '플레이리스트에 추가'],
+          options: ['취소', '플레이리스트 편집', '플레이리스트에 추가'],
           cancelButtonIndex: 0,
         },
         buttonIndex => {
@@ -180,6 +200,8 @@ const PlayingMusicScreen = () => {
                 },
               ],
             });
+          } else if (buttonIndex === 2) {
+            handleShowPlaylistModal();
           }
         },
       );
@@ -187,6 +209,18 @@ const PlayingMusicScreen = () => {
       actionSheetRef.current?.show();
     }
   };
+
+  const renderPlaylistItem = ({item}: {item: StoredPlaylist}) => (
+    console.log('item ===> ', item),
+    (
+      <TouchableOpacity
+        style={styles.playlistItem}
+        onPress={() => handleAddToPlaylist()}>
+        <Text style={styles.playlistTitle}>{item.title}</Text>
+        <Text style={styles.trackCount}>{item.tracks.length}곡</Text>
+      </TouchableOpacity>
+    )
+  );
 
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
     <View
@@ -322,11 +356,20 @@ const PlayingMusicScreen = () => {
         </View>
       </View>
 
+      <ListModal
+        visible={isPlaylistModalVisible}
+        onClose={() => setIsPlaylistModalVisible(false)}
+        title="플레이리스트 선택"
+        data={playlists}
+        renderItem={renderPlaylistItem}
+        keyExtractor={item => item.id}
+      />
+
       {Platform.OS === 'android' && (
         <ActionSheet
           ref={actionSheetRef}
           title="음악 추가"
-          options={['취소', '플레이리스트에 추가']}
+          options={['취소', '플레이리스트 편집', '플레이리스트에 추가']}
           cancelButtonIndex={0}
           onPress={index => {
             if (index === 1) {
@@ -350,6 +393,7 @@ const PlayingMusicScreen = () => {
                   },
                 ],
               });
+            } else if (index === 2) {
             }
           }}
         />
@@ -531,6 +575,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.white,
+  },
+  playlistItem: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  playlistTitle: {
+    color: colors.white,
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  trackCount: {
+    color: colors.gray_808080,
+    fontSize: 14,
   },
 });
 
