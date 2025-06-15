@@ -41,7 +41,7 @@ const storageSlice = createSlice({
         item => item.id === playlistId,
       );
       if (playlist) {
-        // 중복 체크만 수행
+        // 중복 체크
         const isAlreadyStored = playlist.tracks.some(
           storedTrack => storedTrack.id === track.id,
         );

@@ -18,7 +18,6 @@ const ListModal: React.FC<ListModalProps> = ({
   renderItem,
   keyExtractor,
 }) => {
-  console.log('data ===> ', data);
   return (
     <Modal
       visible={visible}

@@ -33,6 +33,7 @@ import {Header} from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/common/ListModal';
+import {addTrackToPlaylist} from '../../store/slices/storageSlice';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
@@ -169,7 +170,23 @@ const PlayingMusicScreen = () => {
     setIsPlaylistModalVisible(true);
   };
 
-  const handleAddToPlaylist = () => {};
+  const handleAddToPlaylist = async (playlistId: string) => {
+    if (!currentMusic) {
+      Alert.alert('알림', '현재 재생 중인 곡이 없습니다.');
+      return;
+    }
+
+    try {
+      await dispatch(addTrackToPlaylist({playlistId, track: currentMusic}));
+      setIsPlaylistModalVisible(false);
+      Alert.alert('알림', '플레이리스트에 추가되었습니다.');
+    } catch (error: any) {
+      Alert.alert(
+        '오류',
+        error.message || '플레이리스트에 곡을 추가하는 중 오류가 발생했습니다.',
+      );
+    }
+  };
 
   const showActionSheet = () => {
     if (Platform.OS === 'ios') {
@@ -211,15 +228,12 @@ const PlayingMusicScreen = () => {
   };
 
   const renderPlaylistItem = ({item}: {item: StoredPlaylist}) => (
-    console.log('item ===> ', item),
-    (
-      <TouchableOpacity
-        style={styles.playlistItem}
-        onPress={() => handleAddToPlaylist()}>
-        <Text style={styles.playlistTitle}>{item.title}</Text>
-        <Text style={styles.trackCount}>{item.tracks.length}곡</Text>
-      </TouchableOpacity>
-    )
+    <TouchableOpacity
+      style={styles.playlistItem}
+      onPress={() => handleAddToPlaylist(item.id)}>
+      <Text style={styles.playlistTitle}>{item.title}</Text>
+      <Text style={styles.trackCount}>{item.tracks.length}곡</Text>
+    </TouchableOpacity>
   );
 
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
