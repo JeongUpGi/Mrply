@@ -32,7 +32,7 @@ const storageSlice = createSlice({
       );
     },
     //플레이리스트에 곡 추가 액션
-    addTrackToPlaylist: (
+    addMusicToPlaylist: (
       state,
       action: PayloadAction<{playlistId: string; track: Track}>,
     ) => {
@@ -59,7 +59,7 @@ const storageSlice = createSlice({
   },
 });
 
-export const {addPlaylist, addTrackToPlaylist, removePlaylist} =
+export const {addPlaylist, addMusicToPlaylist, removePlaylist} =
   storageSlice.actions;
 
 export default storageSlice.reducer;

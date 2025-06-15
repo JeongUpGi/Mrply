@@ -33,7 +33,7 @@ import {Header} from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/common/ListModal';
-import {addTrackToPlaylist} from '../../store/slices/storageSlice';
+import {addMusicToPlaylist} from '../../store/slices/storageSlice';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
@@ -177,7 +177,7 @@ const PlayingMusicScreen = () => {
     }
 
     try {
-      await dispatch(addTrackToPlaylist({playlistId, track: currentMusic}));
+      await dispatch(addMusicToPlaylist({playlistId, track: currentMusic}));
       setIsPlaylistModalVisible(false);
       Alert.alert('알림', '플레이리스트에 추가되었습니다.');
     } catch (error: any) {

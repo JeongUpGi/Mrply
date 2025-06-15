@@ -39,7 +39,7 @@ const PlaylistDetailScreen = () => {
     );
   }
 
-  const handleAddPlaylistTrack = () => {};
+  const handleAddMusicToPlaylist = () => {};
 
   const handlePlayPlaylist = () => {};
 
@@ -77,9 +77,7 @@ const PlaylistDetailScreen = () => {
         ListFooterComponent={
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => {
-              handleAddPlaylistTrack;
-            }}>
+            onPress={handleAddMusicToPlaylist}>
             <Image
               source={require('../../asset/images/plus_green.png')}
               style={styles.addButtonIcon}
