@@ -1,10 +1,10 @@
 import {YOUTUBE_API_KEY} from '@env';
 import {
   SearchResponse,
-  SearchResultMusicItem,
   AudioPlaybackData,
   AudioServiceResponseData,
 } from '../model/model';
+import TrackPlayer, {Track} from 'react-native-track-player';
 
 const YOUTUBE_URL = 'https://www.googleapis.com/youtube/v3';
 const BASE_URL = 'http://172.30.1.93'; //url 추후 수정
@@ -33,6 +33,8 @@ export const searchVideos = async (
     }
 
     const data: SearchResponse = await response.json();
+
+    console.log('response ===> ', data);
     return data;
   } catch (error) {
     console.error('Error fetching YouTube search results:', error);
@@ -41,12 +43,11 @@ export const searchVideos = async (
 };
 
 export const getAudioUrlAndData = async (
-  searchResultMusicItem: SearchResultMusicItem,
+  musicItem: Track,
 ): Promise<AudioServiceResponseData> => {
   try {
     const url =
-      `${BASE_URL}:3000/api/get-youtube-audio?videoId=` +
-      searchResultMusicItem.id.videoId;
+      `${BASE_URL}:3000/api/get-youtube-audio?videoId=` + musicItem.id.videoId;
     const response = await fetch(url);
     console.log('Backend response status:', response.status);
 
@@ -66,19 +67,14 @@ export const getAudioUrlAndData = async (
 
     const audioPlaybackData: AudioPlaybackData = {
       url: audioData.audioUrl,
-      title:
-        audioData.title ||
-        searchResultMusicItem.snippet.title ||
-        'Unknown Title',
+      title: audioData.title || musicItem.snippet.title || 'Unknown Title',
       artist:
-        audioData.author ||
-        searchResultMusicItem.snippet.channelTitle ||
-        'Unknown Artist',
+        audioData.author || musicItem.snippet.channelTitle || 'Unknown Artist',
       artwork:
         audioData.thumbnailUrl ||
-        searchResultMusicItem.snippet.thumbnails.medium.url ||
+        musicItem.snippet.thumbnails.medium.url ||
         'fallback_image_url',
-      id: searchResultMusicItem.id.videoId!,
+      id: musicItem.id.videoId!,
     };
 
     return {

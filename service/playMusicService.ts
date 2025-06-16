@@ -1,6 +1,5 @@
-import TrackPlayer, {State} from 'react-native-track-player';
+import TrackPlayer, {State, Track} from 'react-native-track-player';
 import {getAudioUrlAndData} from '../network/network';
-import {SearchResultMusicItem} from '../model/model';
 import {store} from '../store';
 import {
   setCurrentMusic,
@@ -13,9 +12,7 @@ import {
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
  * @param item
  */
-export async function playMusicService(
-  item: SearchResultMusicItem,
-): Promise<void> {
+export async function playMusicService(item: Track): Promise<void> {
   const videoId = item.id.videoId;
 
   if (!videoId) {

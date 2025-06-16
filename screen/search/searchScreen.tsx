@@ -1,5 +1,4 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import {
   SafeAreaView,
@@ -16,7 +15,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import {SearchResultMusicItem, RecentSearchItems} from '../../model/model';
+import {RecentSearchItems} from '../../model/model';
 import {searchVideos} from '../../network/network';
 import {colors} from '../../asset/color/color';
 import {
@@ -27,25 +26,25 @@ import {RootState} from '../../store';
 
 import {playMusicService} from '../../service/playMusicService';
 import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import TrackPlayer, {Track} from 'react-native-track-player';
+import {convertToTrack} from '../../formatHelpers/formatHelpers';
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [isOfficial, setIsOfficial] = useState(false);
-  const [totalMusic, setTotalMusic] = useState<SearchResultMusicItem[]>([]);
-  const [officialMusic, setOfficialMusic] = useState<SearchResultMusicItem[]>(
-    [],
-  );
+  const [totalMusic, setTotalMusic] = useState<Track[]>([]);
+  const [officialMusic, setOfficialMusic] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentlyPlayingMusic, setCurrentlyPlayingMusic] =
-    useState<SearchResultMusicItem | null>(null);
-
   const inputRef = useRef<TextInput>(null);
 
   const dispatch = useDispatch();
   const recentSearches = useSelector(
     (state: RootState) => state.recentSearches,
+  );
+  const currentMusic = useSelector(
+    (state: RootState) => state.playMusic.currentMusic,
   );
 
   const handleInputFocus = () => {
@@ -81,11 +80,14 @@ const SearchScreen = () => {
     try {
       const data = await searchVideos(_textItem + ' official music video');
       if (data && data.items) {
-        setTotalMusic(data.items);
-        const officalItems = data.items.filter(item => {
-          return item.snippet.title.toLowerCase().includes('official');
-        });
-        setOfficialMusic(officalItems);
+        const tracks = data.items.map(convertToTrack);
+        setTotalMusic(tracks);
+
+        const officialTracks = data.items
+          .filter(item => item.snippet.title.toLowerCase().includes('official'))
+          .map(convertToTrack);
+        setOfficialMusic(officialTracks);
+
         handleInputBlur();
       } else {
         setError('검색 결과 구조가 예상과 다릅니다.');
@@ -109,7 +111,7 @@ const SearchScreen = () => {
     dispatch(deleteRecentSearch(_item));
   };
 
-  const startMusic = async (item: SearchResultMusicItem) => {
+  const startMusic = async (item: Track) => {
     try {
       setLoading(true);
       setError(null);
@@ -123,19 +125,16 @@ const SearchScreen = () => {
     }
   };
 
-  const renderMusicItem: ListRenderItem<SearchResultMusicItem> = ({item}) => (
+  const renderMusicItem: ListRenderItem<Track> = ({item}) => (
     <TouchableOpacity
       onPress={() => {
         startMusic(item);
       }}
       style={styles.musicItemList}>
-      <Image
-        style={styles.thumbnail}
-        source={{uri: item.snippet.thumbnails.medium.url}}
-      />
+      <Image style={styles.thumbnail} source={{uri: item.artwork}} />
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{item.snippet.title}</Text>
-        <Text style={styles.channelTitle}>{item.snippet.channelTitle}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.artist}>{item.artist}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -236,9 +235,7 @@ const SearchScreen = () => {
                 `fallback-${index}`
               }
               renderItem={renderMusicItem}
-              contentContainerStyle={
-                currentlyPlayingMusic ? {paddingBottom: 60} : null
-              }
+              contentContainerStyle={currentMusic ? {paddingBottom: 60} : null}
             />
           )}
         </View>
@@ -301,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  channelTitle: {
+  artist: {
     fontSize: 14,
     color: colors.gray_a9a9a9,
   },

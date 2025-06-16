@@ -18,6 +18,7 @@ export const formatTime = (seconds: number | undefined) => {
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
+// 유투브 api 통해서 받아온 data들 TrackPlayer에 맞게 데이터 변환하는 함수
 export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
   return {
     id: searchItem.id.videoId || '',
