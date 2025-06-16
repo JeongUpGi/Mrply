@@ -145,9 +145,9 @@ const PlayingMusicScreen = () => {
         }
       } else {
         // 현재 재생중인 아닌 곡을 삭제하는 경우
-        if (currentMusicIndex !== null) {
-          dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
-        }
+        // if (currentMusicIndex !== null) {
+        //   dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
+        // }
         await deleteMusicTrackRedux(index);
       }
     } catch (error) {
