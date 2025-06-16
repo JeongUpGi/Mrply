@@ -45,8 +45,9 @@ const storageSlice = createSlice({
         const isAlreadyStored = playlist.tracks.some(
           storedTrack => storedTrack.id === track.id,
         );
-
-        if (!isAlreadyStored) {
+        if (isAlreadyStored) {
+          throw new Error('이미 플레이리스트에 있는 곡입니다.'); // 중복일 때 에러 발생
+        } else {
           const storedTrack = {
             ...track,
             addedAt: Date.now(),
