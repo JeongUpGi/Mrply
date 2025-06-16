@@ -13,7 +13,7 @@ import {
  * @param item
  */
 export async function playMusicService(item: Track): Promise<void> {
-  const videoId = item.id.videoId;
+  const videoId = item.id;
 
   if (!videoId) {
     throw new Error('No videoId found for this item.');

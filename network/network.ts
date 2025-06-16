@@ -63,7 +63,7 @@ export const getAudioUrlAndData = async (
 ): Promise<AudioServiceResponseData> => {
   try {
     const url =
-      `${BASE_URL}:3000/api/get-youtube-audio?videoId=` + musicItem.id.videoId;
+      `${BASE_URL}:3000/api/get-youtube-audio?videoId=` + musicItem.id;
     const response = await fetch(url);
     console.log('Backend response status:', response.status);
 
@@ -90,7 +90,7 @@ export const getAudioUrlAndData = async (
         audioData.thumbnailUrl ||
         musicItem.snippet.thumbnails.medium.url ||
         'fallback_image_url',
-      id: musicItem.id.videoId!,
+      id: musicItem.id!,
     };
 
     return {
