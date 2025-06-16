@@ -17,7 +17,7 @@ import TextInputModal from '../../component/modal/TextInputModal';
 import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
-import {formatDate} from '../../\bformatHelpers/formatHelpers';
+import {formatDate} from '../../formatHelpers/formatHelpers';
 
 const PlaylistScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();

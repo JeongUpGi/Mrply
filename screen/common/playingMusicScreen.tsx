@@ -34,7 +34,7 @@ import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/modal/ListModal';
 import {addMusicToPlaylist} from '../../store/slices/storageSlice';
-import {formatTime} from '../../\bformatHelpers/formatHelpers';
+import {formatTime} from '../../formatHelpers/formatHelpers';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);

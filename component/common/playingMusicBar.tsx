@@ -9,7 +9,7 @@ import {RootStackParamList} from '../../model/model';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {setIsPlaying} from '../../store/slices/playMusicSlice';
-import {formatTime} from '../../\bformatHelpers/formatHelpers';
+import {formatTime} from '../../formatHelpers/formatHelpers';
 
 const PlayingMusicBar: React.FC = ({}) => {
   const progress = useProgress();
