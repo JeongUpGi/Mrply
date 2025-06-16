@@ -1,3 +1,6 @@
+import {SearchResultMusicItem} from '../model/model';
+import TrackPlayer, {Track} from 'react-native-track-player';
+
 export const formatDate = (timestamp: number) => {
   const date = new Date(timestamp);
   const year = date.getFullYear();
@@ -13,4 +16,14 @@ export const formatTime = (seconds: number | undefined) => {
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
+export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
+  return {
+    id: searchItem.id.videoId || '',
+    url: '', // URL은 나중에 설정
+    title: searchItem.snippet.title,
+    artist: searchItem.snippet.channelTitle,
+    artwork: searchItem.snippet.thumbnails.medium.url,
+  };
 };

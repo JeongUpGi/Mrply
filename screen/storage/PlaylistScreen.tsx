@@ -13,7 +13,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
-import TextInputModal from '../../component/common/TextInputModal';
+import TextInputModal from '../../component/modal/TextInputModal';
 import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
@@ -62,7 +62,7 @@ const PlaylistScreen = () => {
         style={styles.trackItem}
         onPress={() => handlePressPlaylist(item.id)}>
         <Image
-          source={{uri: item.tracks[0].artwork}}
+          source={{uri: item?.tracks[0]?.artwork}}
           style={styles.thumbnail}
         />
         <View style={styles.trackInfo}>

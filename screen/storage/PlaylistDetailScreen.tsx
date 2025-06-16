@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -18,9 +18,15 @@ import TrackPlayer, {Track} from 'react-native-track-player';
 import {colors} from '../../asset/color/color';
 
 import {Header} from '../../component/common/Header';
-import {removeMusicFromPlaylist} from '../../store/slices/storageSlice';
+import {
+  addMusicToPlaylist,
+  removeMusicFromPlaylist,
+} from '../../store/slices/storageSlice';
+import SearchMusicModal from '../../component/modal/SearchMusicModal';
 
 const PlaylistDetailScreen = () => {
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+
   const dispatch = useDispatch();
   const route =
     useRoute<RouteProp<{params: PlaylistTrackScreenParams}, 'params'>>();
@@ -39,7 +45,9 @@ const PlaylistDetailScreen = () => {
     );
   }
 
-  const handleAddMusicToPlaylist = () => {};
+  const handleAddMusicToPlaylist = () => {
+    setIsSearchModalVisible(true);
+  };
 
   const handleRemoveMusicFromPlaylist = (musciId: string) => {
     Alert.alert('트랙 삭제', '이 트랙을 플레이리스트에서 삭제하시겠습니까?', [
@@ -58,6 +66,24 @@ const PlaylistDetailScreen = () => {
   };
 
   const handlePlayPlaylist = () => {};
+
+  const handleTrackSelect = async (track: Track) => {
+    try {
+      await dispatch(
+        addMusicToPlaylist({
+          playlistId: route.params.playlistId,
+          track,
+        }),
+      );
+      Alert.alert('알림', '플레이리스트에 추가되었습니다.');
+      // setIsSearchModalVisible(false);
+    } catch (error: any) {
+      Alert.alert(
+        '오류',
+        error.message || '플레이리스트에 곡을 추가하는 중 오류가 발생했습니다.',
+      );
+    }
+  };
 
   const renderPlaylistMusicItem = ({item}: {item: Track}) => (
     <View style={styles.playlistContainer}>
@@ -88,6 +114,12 @@ const PlaylistDetailScreen = () => {
       <Header.leftTitleRightIcon
         title={currentPlaylistTrack.title}
         titleStyle={styles.title}
+      />
+      <SearchMusicModal
+        visible={isSearchModalVisible}
+        holderText="아티스트, 노래"
+        onClose={() => setIsSearchModalVisible(false)}
+        onTrackSelect={handleTrackSelect}
       />
       <FlatList
         data={currentPlaylistTrack.tracks}

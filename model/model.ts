@@ -131,3 +131,10 @@ export interface ListModalProps {
   renderItem: ({item}: {item: any}) => React.ReactElement;
   keyExtractor: (item: any) => string;
 }
+
+export interface SearchMusicModalProps {
+  visible: boolean;
+  holderText: string;
+  onClose: () => void;
+  onTrackSelect: (track: Track) => void;
+}

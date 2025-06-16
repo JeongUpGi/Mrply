@@ -48,21 +48,6 @@ const SearchScreen = () => {
     (state: RootState) => state.recentSearches,
   );
 
-  // mount시 기존 상태들 reset함수 주석 처리
-  // useFocusEffect(
-  //   useCallback(() => {
-  // resetState();
-  //   }, []),
-  // );
-
-  const resetState = () => {
-    setTotalMusic([]);
-    setOfficialMusic([]);
-    setSearchText('');
-    setInputFocused(false);
-    setIsOfficial(false);
-  };
-
   const handleInputFocus = () => {
     setInputFocused(true);
   };
@@ -198,7 +183,7 @@ const SearchScreen = () => {
               />
               <TextInput
                 style={styles.input}
-                placeholder="아티스트, 노래, 가사"
+                placeholder="아티스트, 노래 검색"
                 placeholderTextColor={colors.gray_808080}
                 value={searchText}
                 onChangeText={setSearchText}
