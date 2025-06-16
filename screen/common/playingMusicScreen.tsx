@@ -126,9 +126,9 @@ const PlayingMusicScreen = () => {
           // 곡이 여러개일 경우
           if (index === musicTrackQueue.length - 1) {
             //삭제하려는 곡이 마지막일 경우
-            await TrackPlayer.skipToNext();
-            dispatch(setCurrentMusicIndex(0));
-            dispatch(setCurrentMusic(musicTrackQueue[0]));
+            await TrackPlayer.skipToPrevious();
+            dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
+            dispatch(setCurrentMusic(musicTrackQueue[currentMusicIndex - 1]));
           } else {
             await TrackPlayer.skipToPrevious();
             if (currentMusicIndex !== null) {
@@ -140,9 +140,11 @@ const PlayingMusicScreen = () => {
         }
       } else {
         // 현재 재생중인 아닌 곡을 삭제하는 경우
-        // if (currentMusicIndex !== null) {
-        //   dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
-        // }
+        if (currentMusicIndex !== null) {
+          if (index !== musicTrackQueue.length - 1) {
+            dispatch(setCurrentMusicIndex(currentMusicIndex - 1));
+          }
+        }
         await deleteMusicTrackRedux(index);
       }
     } catch (error) {
