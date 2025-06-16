@@ -5,6 +5,7 @@ import {
   AudioServiceResponseData,
 } from '../model/model';
 import TrackPlayer, {Track} from 'react-native-track-player';
+import {decodeHtmlEntities} from '../formatHelpers/formatHelpers';
 
 const YOUTUBE_URL = 'https://www.googleapis.com/youtube/v3';
 const BASE_URL = 'http://172.30.1.93'; //url 추후 수정
@@ -33,9 +34,24 @@ export const searchVideos = async (
     }
 
     const data: SearchResponse = await response.json();
-
     console.log('response ===> ', data);
-    return data;
+
+    // HTML 엔티티 디코딩 처리
+    const processedData = {
+      ...data,
+      items: data.items.map(item => ({
+        ...item,
+        snippet: {
+          ...item.snippet,
+          title: decodeHtmlEntities(item.snippet.title),
+          description: decodeHtmlEntities(item.snippet.description),
+        },
+      })),
+    };
+
+    console.log('responseProcessedData ===> ', processedData);
+
+    return processedData;
   } catch (error) {
     console.error('Error fetching YouTube search results:', error);
     throw error;

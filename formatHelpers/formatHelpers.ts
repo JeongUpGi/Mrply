@@ -28,3 +28,25 @@ export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
     artwork: searchItem.snippet.thumbnails.medium.url,
   };
 };
+
+// HTML 엔티티를 디코딩하는 함수
+export const decodeHtmlEntities = (text: string): string => {
+  const entities: {[key: string]: string} = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+    '&nbsp;': ' ',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&trade;': '™',
+    '&euro;': '€',
+    '&pound;': '£',
+    '&yen;': '¥',
+    '&cent;': '¢',
+  };
+
+  return text.replace(/&[^;]+;/g, entity => entities[entity] || entity);
+};
