@@ -34,6 +34,7 @@ import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/common/ListModal';
 import {addMusicToPlaylist} from '../../store/slices/storageSlice';
+import {formatTime} from '../../\bformatHelpers/formatHelpers';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
@@ -68,12 +69,6 @@ const PlayingMusicScreen = () => {
       };
     }, [dispatch]),
   );
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  };
 
   const handlePlayPause = async () => {
     if (isPlaying) {

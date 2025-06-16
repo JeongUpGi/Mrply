@@ -9,6 +9,7 @@ import {RootStackParamList} from '../../model/model';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {setIsPlaying} from '../../store/slices/playMusicSlice';
+import {formatTime} from '../../\bformatHelpers/formatHelpers';
 
 const PlayingMusicBar: React.FC = ({}) => {
   const progress = useProgress();
@@ -21,12 +22,6 @@ const PlayingMusicBar: React.FC = ({}) => {
   const isPlaying = useSelector(
     (state: RootState) => state.playMusic.isPlaying,
   );
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  };
 
   const handleBarPress = () => {
     navigation.navigate('playingMusicScreen');
