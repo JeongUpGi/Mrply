@@ -38,7 +38,6 @@ import {formatTime} from '../../formatHelpers/formatHelpers';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
-  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();

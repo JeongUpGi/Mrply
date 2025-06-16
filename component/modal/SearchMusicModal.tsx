@@ -16,7 +16,7 @@ import {
 import {colors} from '../../asset/color/color';
 import {Header} from '../common/Header';
 import TrackPlayer, {Track} from 'react-native-track-player';
-import {SearchMusicModalProps, SearchResultMusicItem} from '../../model/model';
+import {SearchMusicModalProps} from '../../model/model';
 import {useDispatch} from 'react-redux';
 import {addRecentSearch} from '../../store/slices/recentSearchSlice';
 import {searchVideos} from '../../network/network';
