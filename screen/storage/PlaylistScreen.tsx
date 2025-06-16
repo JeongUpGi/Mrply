@@ -54,25 +54,42 @@ const PlaylistScreen = () => {
     ]);
   };
 
-  const renderItem = ({item}: {item: any}) => (
-    <TouchableOpacity
-      style={styles.trackItem}
-      onPress={() => handlePressPlaylist(item.id)}>
-      <Image source={{uri: item.artwork}} style={styles.thumbnail} />
-      <View style={styles.trackInfo}>
-        <Text style={styles.playlistTitle}>{item.title}</Text>
-        <Text style={styles.artist}>{item.artist}</Text>
-      </View>
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}년 ${month}월 ${day}일`;
+  };
+
+  // 플레이리스트 이미지 같은 경우 첫 번째 곡 썸네일로 대체
+  const renderPlaylisItem = ({item}: {item: any}) => {
+    return (
       <TouchableOpacity
-        style={styles.deleteImageWrapper}
-        onPress={() => handleDeletePlaylist(item.id)}>
+        style={styles.trackItem}
+        onPress={() => handlePressPlaylist(item.id)}>
         <Image
-          source={require('../../asset/images/delete.png')}
-          style={styles.deleteImage}
+          source={{uri: item.tracks[0].artwork}}
+          style={styles.thumbnail}
         />
+        <View style={styles.trackInfo}>
+          <Text style={styles.playlistTitle}>{item.title}</Text>
+          <Text style={styles.updatedAt}>
+            수정 날짜 : {formatDate(item.updatedAt)}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.deleteImageWrapper}
+          onPress={() => handleDeletePlaylist(item.id)}>
+          <Image
+            source={require('../../asset/images/delete.png')}
+            style={styles.deleteImage}
+          />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,7 +113,7 @@ const PlaylistScreen = () => {
       ) : (
         <FlatList
           data={storedPlaylists}
-          renderItem={renderItem}
+          renderItem={renderPlaylisItem}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.playlistContainer}
         />
@@ -139,16 +156,21 @@ const styles = StyleSheet.create({
   },
   trackInfo: {
     flex: 1,
+    height: '100%',
+    marginLeft: 10,
+    justifyContent: 'space-between',
+    paddingBottom: 10,
   },
   playlistTitle: {
     color: colors.black,
     fontSize: 16,
     fontWeight: 'bold',
   },
-  artist: {
-    color: colors.gray_c0c0c0,
-    fontSize: 14,
-    marginTop: 5,
+  updatedAt: {
+    color: colors.gray_a9a9a9,
+    fontSize: 12,
+    // alignSelf: 'flex-end',
+    // marginRight: 10,
   },
   removeButton: {
     padding: 10,
@@ -168,15 +190,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   deleteImageWrapper: {
-    backgroundColor: 'red',
     height: '100%',
     width: '10%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteImage: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
   },
 });
 
