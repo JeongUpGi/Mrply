@@ -6,8 +6,19 @@ const initialState: MusicPlayerState = {
   currentMusic: null,
   isPlaying: false,
   isPlayingMusicBarVisible: false,
-  musicTrackQueue: [],
-  currentMusicIndex: null,
+
+  // 검색 결과 관련 상태
+  searchTrackQueue: [],
+  currentSearchTrackIndex: null,
+
+  // 플레이리스트 관련 상태
+  playlistTrackQueue: [],
+  currentPlaylistTrackIndex: null,
+  currentPlaylistId: null,
+
+  // 현재 활성화된 소스
+  activeSource: 'search',
+
   currentPlaybackPosition: 0,
 };
 
@@ -24,12 +35,37 @@ const playMusicSlice = createSlice({
     setIsPlayingMusicBarVisible: (state, action: PayloadAction<boolean>) => {
       state.isPlayingMusicBarVisible = action.payload;
     },
-    setMusicTrackQueue: (state, action: PayloadAction<Track[]>) => {
-      state.musicTrackQueue = action.payload;
+
+    // 검색 결과 관련 액션들
+    setSearchTrackQueue: (state, action: PayloadAction<Track[]>) => {
+      state.searchTrackQueue = action.payload;
     },
-    setCurrentMusicIndex: (state, action: PayloadAction<number | null>) => {
-      state.currentMusicIndex = action.payload;
+    setcurrentSearchTrackIndex: (
+      state,
+      action: PayloadAction<number | null>,
+    ) => {
+      state.currentSearchTrackIndex = action.payload;
     },
+
+    // 플레이리스트 관련 액션들
+    setPlaylistTrackQueue: (state, action: PayloadAction<Track[]>) => {
+      state.playlistTrackQueue = action.payload;
+    },
+    setCureentPlaylistTrackIndex: (
+      state,
+      action: PayloadAction<number | null>,
+    ) => {
+      state.currentPlaylistTrackIndex = action.payload;
+    },
+    setCurrentPlaylistId: (state, action: PayloadAction<string | null>) => {
+      state.currentPlaylistId = action.payload;
+    },
+
+    // 활성 소스 변경
+    setActiveSource: (state, action: PayloadAction<'search' | 'playlist'>) => {
+      state.activeSource = action.payload;
+    },
+
     setCurrentPlaybackPosition: (state, action: PayloadAction<number>) => {
       state.currentPlaybackPosition = action.payload;
     },
@@ -40,8 +76,12 @@ export const {
   setCurrentMusic,
   setIsPlaying,
   setIsPlayingMusicBarVisible,
-  setMusicTrackQueue,
-  setCurrentMusicIndex,
+  setSearchTrackQueue,
+  setcurrentSearchTrackIndex,
+  setPlaylistTrackQueue,
+  setCureentPlaylistTrackIndex,
+  setCurrentPlaylistId,
+  setActiveSource,
   setCurrentPlaybackPosition,
 } = playMusicSlice.actions;
 export default playMusicSlice.reducer;

@@ -116,7 +116,7 @@ const SearchScreen = () => {
       setLoading(true);
       setError(null);
       dispatch(setIsPlayingMusicBarVisible(true));
-      await playMusicService(item);
+      await playMusicService(item, 'search', null);
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);

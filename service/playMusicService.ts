@@ -4,15 +4,25 @@ import {store} from '../store';
 import {
   setCurrentMusic,
   setIsPlaying,
-  setMusicTrackQueue,
-  setCurrentMusicIndex,
+  setSearchTrackQueue,
+  setcurrentSearchTrackIndex,
+  setPlaylistTrackQueue,
+  setCureentPlaylistTrackIndex,
+  setActiveSource,
+  setCurrentPlaylistId,
 } from '../store/slices/playMusicSlice';
 
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
  * @param item
+ * @param source 'search' | 'playlist' - 트랙의 출처
+ * @param playlistId
  */
-export async function playMusicService(item: Track): Promise<void> {
+export async function playMusicService(
+  item: Track,
+  source: 'search' | 'playlist' = 'search',
+  playlistId: string | null = null,
+): Promise<void> {
   const videoId = item.id;
 
   if (!videoId) {
@@ -60,16 +70,29 @@ export async function playMusicService(item: Track): Promise<void> {
 
     store.dispatch(setCurrentMusic(audioPlaybackData));
     store.dispatch(setIsPlaying(true));
+    store.dispatch(setActiveSource(source));
+    store.dispatch(setCurrentPlaylistId(playlistId));
 
     // redux 최신화
     const finalQueue = await TrackPlayer.getQueue();
     const finalCurrentTrackIndex = await TrackPlayer.getActiveTrackIndex();
-    store.dispatch(setMusicTrackQueue(finalQueue));
-    store.dispatch(
-      setCurrentMusicIndex(
-        finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
-      ),
-    );
+
+    // 현재 소스(검색 or 플레이리스트)에 따라 큐 업데이트
+    if (source === 'search') {
+      store.dispatch(setSearchTrackQueue(finalQueue));
+      store.dispatch(
+        setcurrentSearchTrackIndex(
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+        ),
+      );
+    } else {
+      store.dispatch(setPlaylistTrackQueue(finalQueue));
+      store.dispatch(
+        setCureentPlaylistTrackIndex(
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+        ),
+      );
+    }
   } catch (err: unknown) {
     console.error('Error in playbackService (startPlayback):', err);
     if (err instanceof Error) {

@@ -98,8 +98,12 @@ export interface MusicPlayerState {
   currentMusic: Track | null;
   isPlaying: boolean;
   isPlayingMusicBarVisible: boolean;
-  musicTrackQueue: Track[];
-  currentMusicIndex: number | null;
+  searchTrackQueue: Track[];
+  currentSearchTrackIndex: number | null;
+  playlistTrackQueue: Track[];
+  currentPlaylistTrackIndex: number | null;
+  currentPlaylistId: string | null;
+  activeSource: 'search' | 'playlist';
   currentPlaybackPosition: number; // 음악 재 실행시 구간 값
 }
 

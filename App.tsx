@@ -14,10 +14,12 @@ import TrackPlayer, {
 import PlayingMusicBar from './component/common/PlayingMusicBar';
 import {
   setCurrentMusic,
-  setMusicTrackQueue,
-  setCurrentMusicIndex,
   setIsPlaying,
   setCurrentPlaybackPosition,
+  setSearchTrackQueue,
+  setcurrentSearchTrackIndex,
+  setPlaylistTrackQueue,
+  setCureentPlaylistTrackIndex,
 } from './store/slices/playMusicSlice';
 import {colors} from './asset/color/color';
 
@@ -56,11 +58,20 @@ function AppContent(): React.JSX.Element {
   const isPlaying = useSelector(
     (state: RootState) => state.playMusic.isPlaying,
   );
-  const musicTrackQueue = useSelector(
-    (state: RootState) => state.playMusic.musicTrackQueue,
+  const searchTrackQueue = useSelector(
+    (state: RootState) => state.playMusic.searchTrackQueue,
   );
-  const currentMusicIndex = useSelector(
-    (state: RootState) => state.playMusic.currentMusicIndex,
+  const currentSearchTrackIndex = useSelector(
+    (state: RootState) => state.playMusic.currentSearchTrackIndex,
+  );
+  const playlistTrackQueue = useSelector(
+    (state: RootState) => state.playMusic.playlistTrackQueue,
+  );
+  const playlistCurrentIndex = useSelector(
+    (state: RootState) => state.playMusic.currentPlaylistTrackIndex,
+  );
+  const activeSource = useSelector(
+    (state: RootState) => state.playMusic.activeSource,
   );
   const isPlayingMusicBarVisible = useSelector(
     (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
@@ -69,34 +80,52 @@ function AppContent(): React.JSX.Element {
     (state: RootState) => state.playMusic.currentPlaybackPosition,
   );
 
+  // 현재 소스(검색 or 플레이리스트)에 따른 큐와 인덱스 선택
+  const currentQueue =
+    activeSource === 'search' ? searchTrackQueue : playlistTrackQueue;
+  const currentIndex =
+    activeSource === 'search' ? currentSearchTrackIndex : playlistCurrentIndex;
+
+  // 플레이어 셋업 함수
   useEffect(() => {
     const initPlayer = async () => {
-      const setupDone = await setupPlayer();
-      setIsPlayerSetupDone(setupDone);
+      try {
+        const setupDone = await setupPlayer();
+        setIsPlayerSetupDone(setupDone);
+      } catch (error) {
+        console.error('Player initialization error:', error);
+        setIsPlayerSetupDone(true);
+      }
     };
-    initPlayer();
 
-    if (musicTrackQueue.length > 0 && currentMusicIndex !== null) {
+    initPlayer();
+  }, []);
+
+  useEffect(() => {
+    if (!isPlayerSetupDone) return;
+
+    if (currentQueue && currentQueue.length > 0 && currentIndex !== null) {
       const syncTrackPlayerWithPersistedState = async () => {
         try {
           await TrackPlayer.reset();
-          // Redux에 있는 musicQueue를 TrackPlayer에 추가
-          await TrackPlayer.add(musicTrackQueue);
-          // Redux에서 기억하고 있는 음악인덱스로 이동
-          await TrackPlayer.skip(currentMusicIndex);
-          // Redux에서 기억하고 있는 재생구간으로 이동
+          await TrackPlayer.add(currentQueue);
+          await TrackPlayer.skip(currentIndex);
           await TrackPlayer.seekTo(currentPlaybackPosition);
 
-          // 재생 중이었다면 재생
           if (isPlaying) {
             await TrackPlayer.play();
           }
         } catch (e) {
-          // 오류 발생
+          console.error('TrackPlayer sync error:', e);
           dispatch(setIsPlaying(false));
           dispatch(setCurrentMusic(null));
-          dispatch(setMusicTrackQueue([]));
-          dispatch(setCurrentMusicIndex(null));
+          if (activeSource === 'search') {
+            dispatch(setSearchTrackQueue([]));
+            dispatch(setcurrentSearchTrackIndex(null));
+          } else {
+            dispatch(setPlaylistTrackQueue([]));
+            dispatch(setCureentPlaylistTrackIndex(null));
+          }
           dispatch(setCurrentPlaybackPosition(0));
         }
       };
@@ -104,20 +133,31 @@ function AppContent(): React.JSX.Element {
     }
   }, []);
 
-  // TrackPlayer 이벤트 리스너 (추후 반복재생, 랜덤셔플 등과 같은 기능 전체적으로 rootContainer에서 정의하기에 필요_ 그래야 편해,,,,)
   useTrackPlayerEvents(
     [Event.PlaybackTrackChanged, Event.PlaybackState],
     async event => {
       if (event.type === Event.PlaybackTrackChanged) {
-        // 현재 재생중인 곡 변경 시
         const newIndex = await TrackPlayer.getActiveTrackIndex();
         const newTrack = await TrackPlayer.getActiveTrack();
         const currentQueue = await TrackPlayer.getQueue();
 
-        dispatch(setMusicTrackQueue(currentQueue));
-        dispatch(
-          setCurrentMusicIndex(newIndex !== undefined ? newIndex : null),
-        );
+        // 현재 활성 소스(검색 or 플레이리스트) 에 따라 보여지는 재생목록 업데이트
+        if (activeSource === 'search') {
+          dispatch(setSearchTrackQueue(currentQueue));
+          dispatch(
+            setcurrentSearchTrackIndex(
+              newIndex !== undefined ? newIndex : null,
+            ),
+          );
+        } else {
+          dispatch(setPlaylistTrackQueue(currentQueue));
+          dispatch(
+            setCureentPlaylistTrackIndex(
+              newIndex !== undefined ? newIndex : null,
+            ),
+          );
+        }
+
         if (newTrack) {
           dispatch(setCurrentMusic(newTrack));
         }
