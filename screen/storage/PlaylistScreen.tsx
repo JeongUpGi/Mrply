@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
   },
   playlistContainer: {
     paddingHorizontal: 20,
+    marginTop: 20,
   },
   trackItem: {
     flexDirection: 'row',
@@ -140,6 +141,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray_d3d3d3,
+    // backgroundColor: 'red',
   },
   thumbnail: {
     width: 60,
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
   },
   trackInfo: {
     flex: 1,
-    height: '100%',
+    height: 60,
     marginLeft: 10,
     justifyContent: 'space-between',
     paddingBottom: 10,
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   deleteImageWrapper: {
-    height: '100%',
+    // height: '100%',
     width: '10%',
     alignItems: 'center',
     justifyContent: 'center',
