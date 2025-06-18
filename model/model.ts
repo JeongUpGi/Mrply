@@ -20,11 +20,12 @@ export type PlaylistTrackScreenParams = {
 };
 
 export interface HeaderProps {
-  title: string;
+  title?: string;
   leftIcon?: undefined;
   rightIcon?: undefined;
   onPressLeft?: () => void;
   onPressRight?: () => void;
+  centerComponent?: React.ReactNode;
 
   titleStyle?: TextStyle;
   headerBackgroundColor?: TextStyle;

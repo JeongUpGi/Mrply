@@ -55,6 +55,30 @@ const LeftTitleRightIconHeader: React.FC<HeaderProps> = ({
   );
 };
 
+// 중간에 컴포넌트가 있는 헤더
+const LeftRightIconCenterComponentHeader: React.FC<HeaderProps> = ({
+  leftIcon,
+  rightIcon,
+  headerBackgroundColor,
+  onPressLeft,
+  onPressRight,
+  leftIconStyle,
+  rightIconStyle,
+  centerComponent,
+}) => {
+  return (
+    <View style={[styles.headerContainer, headerBackgroundColor]}>
+      <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
+        <Image source={leftIcon} style={leftIconStyle} />
+      </TouchableOpacity>
+      <View style={styles.centerContainer}>{centerComponent}</View>
+      <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
+        <Image source={rightIcon} style={rightIconStyle} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
@@ -83,10 +107,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export const Header = {
   default: DefaultHeader,
   onlyLeftTitle: OnlyLeftTitleHeader,
   leftTitleRightIcon: LeftTitleRightIconHeader,
+  leftRightIconCenterComponent: LeftRightIconCenterComponentHeader,
 };
