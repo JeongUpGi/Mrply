@@ -9,7 +9,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {RouteProp, useRoute} from '@react-navigation/native';
+import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {PlaylistTrackScreenParams} from '../../model/model';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
@@ -23,11 +23,16 @@ import {
   removeMusicFromPlaylist,
 } from '../../store/slices/storageSlice';
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
+import {playMusicService} from '../../service/playMusicService';
+import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import {NavigationProp} from '@react-navigation/native';
+import {RootStackParamList} from '../../model/model';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
 
   const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route =
     useRoute<RouteProp<{params: PlaylistTrackScreenParams}, 'params'>>();
 
@@ -65,7 +70,20 @@ const PlaylistDetailScreen = () => {
     ]);
   };
 
-  const handlePlayPlaylist = () => {};
+  const handlePlayPlaylist = async (track: Track) => {
+    try {
+      dispatch(setIsPlayingMusicBarVisible(true));
+      await playMusicService(track, 'playlist', playlistId);
+      // 재생 화면으로 이동
+      navigation.navigate('playingMusicScreen');
+    } catch (error: any) {
+      console.error('플레이리스트 재생 오류:', error);
+      Alert.alert(
+        '재생 오류',
+        error.message || '음악 재생 중 오류가 발생했습니다.',
+      );
+    }
+  };
 
   const handleTrackSelect = async (track: Track) => {
     try {
@@ -89,7 +107,7 @@ const PlaylistDetailScreen = () => {
     <View style={styles.playlistContainer}>
       <TouchableOpacity
         style={styles.playlistWrapper}
-        onPress={handlePlayPlaylist}>
+        onPress={() => handlePlayPlaylist(item)}>
         <Image style={styles.musicThumbnail} source={{uri: item.artwork}} />
         <View style={styles.musicInfoWrapper}>
           <Text style={styles.musicTitle} numberOfLines={2}>
