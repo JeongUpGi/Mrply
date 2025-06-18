@@ -25,7 +25,11 @@ import {
 import {RootState} from '../../store';
 
 import {playMusicService} from '../../service/playMusicService';
-import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import {
+  setActiveSource,
+  setCurrentPlaylistId,
+  setIsPlayingMusicBarVisible,
+} from '../../store/slices/playMusicSlice';
 import TrackPlayer, {Track} from 'react-native-track-player';
 import {convertToTrack} from '../../formatHelpers/formatHelpers';
 
@@ -115,6 +119,8 @@ const SearchScreen = () => {
     try {
       setLoading(true);
       setError(null);
+      dispatch(setActiveSource('search'));
+      dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
       await playMusicService(item, 'search', null);
     } catch (err: any) {
