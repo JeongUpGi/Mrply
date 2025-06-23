@@ -24,9 +24,16 @@ import {
 } from '../../store/slices/storageSlice';
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
 import {playMusicService} from '../../service/playMusicService';
-import {setIsPlayingMusicBarVisible} from '../../store/slices/playMusicSlice';
+import {
+  setActiveSource,
+  setCureentPlaylistTrackIndex,
+  setCurrentPlaylistId,
+  setIsPlayingMusicBarVisible,
+  setPlaylistTrackQueue,
+} from '../../store/slices/playMusicSlice';
 import {NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
+import {getAudioUrlAndData} from '../../network/network';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -72,8 +79,21 @@ const PlaylistDetailScreen = () => {
 
   const handlePlayPlaylist = async (track: Track) => {
     try {
+      // 플레이리스트의 모든 트랙을 Redux에 설정
+      dispatch(setPlaylistTrackQueue(currentPlaylistTrack.tracks));
+
+      const selectedTrackIndex = currentPlaylistTrack.tracks.findIndex(
+        item => item.id === track.id,
+      );
+      dispatch(setCureentPlaylistTrackIndex(selectedTrackIndex));
+
+      dispatch(setActiveSource('playlist'));
+      dispatch(setCurrentPlaylistId(playlistId));
       dispatch(setIsPlayingMusicBarVisible(true));
+
+      // 선택된 트랙으로 재생 시작
       await playMusicService(track, 'playlist', playlistId);
+
       // 재생 화면으로 이동
       navigation.navigate('playingMusicScreen');
     } catch (error: any) {
@@ -87,10 +107,16 @@ const PlaylistDetailScreen = () => {
 
   const handleTrackSelect = async (track: Track) => {
     try {
+      let trackWithUrl = track;
+      if (!track.url) {
+        const {audioPlaybackData} = await getAudioUrlAndData(track);
+        trackWithUrl = {...track, url: audioPlaybackData.url};
+      }
+
       await dispatch(
         addMusicToPlaylist({
           playlistId: route.params.playlistId,
-          track,
+          track: trackWithUrl,
         }),
       );
       Alert.alert('알림', '플레이리스트에 추가되었습니다.');
