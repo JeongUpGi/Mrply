@@ -29,38 +29,50 @@ export async function playMusicService(
     throw new Error('No videoId found for this item.');
   }
 
-  console.log('Attempting to start playback for video ID:', videoId);
-
   try {
     const {audioPlaybackData} = await getAudioUrlAndData(item);
+    const currentState = store.getState();
+    // 기존 큐 초기화
+    await TrackPlayer.reset();
 
-    // 현재 track에 있는 music에 대한 index값
-    let currentQueue = await TrackPlayer.getQueue();
-    const existingTrackIndex = currentQueue.findIndex(
+    // source에 따른 queue구분
+    const targetQueue =
+      source === 'playlist'
+        ? currentState.playMusic.playlistTrackQueue
+        : currentState.playMusic.searchTrackQueue;
+
+    const targetIndex = targetQueue.findIndex(
       track => track.id === audioPlaybackData.id,
     );
 
-    let targetIndex: number;
+    await TrackPlayer.add(targetQueue);
 
-    if (existingTrackIndex !== -1) {
-      // 1. 트랙이 큐에 이미 있다면 해당 트랙으로
-      targetIndex = existingTrackIndex;
-      await TrackPlayer.skip(targetIndex);
+    if (source === 'playlist') {
+      if (targetIndex !== -1) {
+        await TrackPlayer.skip(targetIndex);
+      } else {
+        await TrackPlayer.skip(0);
+      }
     } else {
-      // 2. 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
-      await TrackPlayer.add([audioPlaybackData]);
-      currentQueue = await TrackPlayer.getQueue();
+      // 검색을 통한 ( 일반 )재생 목록 로직
 
-      const newTrackIndex = currentQueue.findIndex(
-        track => track.id === audioPlaybackData.id,
-      );
+      if (targetIndex !== -1) {
+        await TrackPlayer.skip(targetIndex);
+      } else {
+        // 2. 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
+        await TrackPlayer.add([audioPlaybackData]);
+        let currentQueue = await TrackPlayer.getQueue();
 
-      targetIndex = newTrackIndex;
-      await TrackPlayer.skip(targetIndex);
+        const newTrackIndex = currentQueue.findIndex(
+          track => track.id === audioPlaybackData.id,
+        );
+        await TrackPlayer.skip(newTrackIndex);
+      }
     }
 
     // 재생
     const playbackState = await TrackPlayer.getPlaybackState();
+
     if (
       playbackState.state !== State.Playing &&
       playbackState.state !== State.Buffering
