@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {PlaylistTrackScreenParams} from '../../model/model';
@@ -37,6 +38,7 @@ import {getAudioUrlAndData} from '../../network/network';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -79,6 +81,7 @@ const PlaylistDetailScreen = () => {
 
   const handlePlayPlaylist = async (track: Track) => {
     try {
+      setIsLoading(true);
       // 플레이리스트의 모든 트랙을 Redux에 설정
       dispatch(setPlaylistTrackQueue(currentPlaylistTrack.tracks));
 
@@ -102,6 +105,8 @@ const PlaylistDetailScreen = () => {
         '재생 오류',
         error.message || '음악 재생 중 오류가 발생했습니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -188,6 +193,11 @@ const PlaylistDetailScreen = () => {
           </TouchableOpacity>
         }
       />
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.green_1DB954} />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -282,6 +292,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20, // 상단 여백
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -39,7 +39,7 @@ const SearchScreen = () => {
   const [isOfficial, setIsOfficial] = useState(false);
   const [totalMusic, setTotalMusic] = useState<Track[]>([]);
   const [officialMusic, setOfficialMusic] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -78,7 +78,7 @@ const SearchScreen = () => {
     }
     setSearchText(_textItem);
     dispatch(addRecentSearch(_textItem));
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -107,7 +107,7 @@ const SearchScreen = () => {
       setTotalMusic([]);
       setOfficialMusic([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -117,7 +117,7 @@ const SearchScreen = () => {
 
   const startMusic = async (item: Track) => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       dispatch(setActiveSource('search'));
       dispatch(setCurrentPlaylistId(null));
@@ -127,7 +127,7 @@ const SearchScreen = () => {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -174,76 +174,75 @@ const SearchScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {loading ? (
+      <View style={{flex: 1, marginHorizontal: 30}}>
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <Image
+              source={require('../../asset/images/search.png')}
+              style={{width: 20, height: 20, tintColor: colors.gray_808080}}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="아티스트, 노래 검색"
+              placeholderTextColor={colors.gray_808080}
+              value={searchText}
+              onChangeText={setSearchText}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              onSubmitEditing={() => handleSearch(searchText)}
+              ref={inputRef}
+            />
+          </View>
+          {inputFocused && (
+            <TouchableOpacity
+              style={styles.cancelButtonTextWrapper}
+              onPress={handleInputCancel}>
+              <Text style={styles.cancelButtonText}>취소</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.toggleContainer}>
+          <Text style={styles.toggleText}>official만 보기</Text>
+          <View style={{width: 5}} />
+          <Switch value={isOfficial} onValueChange={handleToggleChange} />
+        </View>
+
+        {inputFocused && recentSearches.length > 0 && (
+          <View style={styles.recentSearchesContainer}>
+            <Text style={styles.recentSearchesTitle}>최근 검색어</Text>
+            <View>
+              {recentSearches.map((item, index) => (
+                <RenderRecentSearchItems
+                  key={index}
+                  item={item}
+                  onPress={handleSearch}
+                  onDelete={deleteSearchItem}
+                />
+              ))}
+            </View>
+          </View>
+        )}
+        {error && <Text style={styles.error}>오류: {error}</Text>}
+
+        {!inputFocused && (
+          <FlatList
+            data={isOfficial ? officialMusic : totalMusic}
+            style={styles.musicListContainer}
+            keyExtractor={(item, index) =>
+              item.id.videoId ||
+              item.id.channelId ||
+              item.id.playlistId ||
+              `fallback-${index}`
+            }
+            renderItem={renderMusicItem}
+            contentContainerStyle={currentMusic ? {paddingBottom: 60} : null}
+          />
+        )}
+      </View>
+      {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      ) : (
-        <View style={{flex: 1, marginHorizontal: 30}}>
-          <View style={styles.inputContainer}>
-            <View style={styles.inputWrapper}>
-              <Image
-                source={require('../../asset/images/search.png')}
-                style={{width: 20, height: 20, tintColor: colors.gray_808080}}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="아티스트, 노래 검색"
-                placeholderTextColor={colors.gray_808080}
-                value={searchText}
-                onChangeText={setSearchText}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-                onSubmitEditing={() => handleSearch(searchText)}
-                ref={inputRef}
-              />
-            </View>
-            {inputFocused && (
-              <TouchableOpacity
-                style={styles.cancelButtonTextWrapper}
-                onPress={handleInputCancel}>
-                <Text style={styles.cancelButtonText}>취소</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View style={styles.toggleContainer}>
-            <Text style={styles.toggleText}>official만 보기</Text>
-            <View style={{width: 5}} />
-            <Switch value={isOfficial} onValueChange={handleToggleChange} />
-          </View>
-
-          {inputFocused && recentSearches.length > 0 && (
-            <View style={styles.recentSearchesContainer}>
-              <Text style={styles.recentSearchesTitle}>최근 검색어</Text>
-              <View>
-                {recentSearches.map((item, index) => (
-                  <RenderRecentSearchItems
-                    key={index}
-                    item={item}
-                    onPress={handleSearch}
-                    onDelete={deleteSearchItem}
-                  />
-                ))}
-              </View>
-            </View>
-          )}
-          {error && <Text style={styles.error}>오류: {error}</Text>}
-
-          {!inputFocused && (
-            <FlatList
-              data={isOfficial ? officialMusic : totalMusic}
-              style={styles.musicListContainer}
-              keyExtractor={(item, index) =>
-                item.id.videoId ||
-                item.id.channelId ||
-                item.id.playlistId ||
-                `fallback-${index}`
-              }
-              renderItem={renderMusicItem}
-              contentContainerStyle={currentMusic ? {paddingBottom: 60} : null}
-            />
-          )}
         </View>
       )}
     </SafeAreaView>
@@ -309,7 +308,9 @@ const styles = StyleSheet.create({
     color: colors.gray_a9a9a9,
   },
   loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -32,7 +32,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
 }) => {
   const [searchText, setSearchText] = useState('');
   const [totalMusic, setTotalMusic] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
     }
     setSearchText(_textItem);
     dispatch(addRecentSearch(_textItem));
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -64,7 +64,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
       }
       setTotalMusic([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -111,7 +111,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
               onChangeText={setSearchText}
               onSubmitEditing={() => handleSearch(searchText)}
             />
-            {loading ? (
+            {isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.green_1DB954} />
               </View>
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },

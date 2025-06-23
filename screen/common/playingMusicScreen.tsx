@@ -11,6 +11,7 @@ import {
   ActionSheetIOS,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
@@ -30,7 +31,6 @@ import {
   setPlaylistTrackQueue,
   setCureentPlaylistTrackIndex,
   setActiveSource,
-  setCurrentPlaylistId,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
@@ -39,10 +39,10 @@ import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/modal/ListModal';
 import {addMusicToPlaylist} from '../../store/slices/storageSlice';
 import {formatTime} from '../../formatHelpers/formatHelpers';
-import {playMusicService} from '../../service/playMusicService';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
@@ -96,6 +96,7 @@ const PlayingMusicScreen = () => {
   // 탭 전환 핸들러 - 해당 큐의 현재 인덱스 음악으로 재생
   const handleTabChange = async (source: 'search' | 'playlist') => {
     try {
+      setIsLoading(true);
       dispatch(setActiveSource(source));
 
       // 해당 소스의 큐와 인덱스 가져오기
@@ -131,6 +132,8 @@ const PlayingMusicScreen = () => {
       }
     } catch (error) {
       console.error('탭 전환 중 오류 발생:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,11 +156,13 @@ const PlayingMusicScreen = () => {
   };
 
   const handlePrevious = async () => {
+    setIsLoading(true);
     if (currentQueue && currentIndex === 0) {
       await TrackPlayer.skip(currentQueue.length - 1);
     } else {
       await TrackPlayer.skipToPrevious();
     }
+    setIsLoading(false);
   };
 
   const deleteMusicTrackRedux = async (index: number) => {
@@ -184,6 +189,7 @@ const PlayingMusicScreen = () => {
 
   const handleMusicDelete = async (index: number) => {
     try {
+      setIsLoading(true);
       if (index === currentIndex) {
         if (currentQueue && currentQueue.length === 1) {
           await TrackPlayer.reset();
@@ -249,6 +255,8 @@ const PlayingMusicScreen = () => {
       }
     } catch (error) {
       console.error('삭제 도중 오류 발생', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -556,6 +564,12 @@ const PlayingMusicScreen = () => {
           }}
         />
       )}
+
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.green_1DB954} />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -773,6 +787,13 @@ const styles = StyleSheet.create({
   activeTabButtonText: {
     color: colors.white,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
