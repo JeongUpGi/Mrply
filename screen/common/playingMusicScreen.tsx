@@ -289,7 +289,10 @@ const PlayingMusicScreen = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '플레이리스트 편집', '플레이리스트에 추가'],
+          options:
+            activeSource == 'playlist'
+              ? ['취소', '플레이리스트 편집']
+              : ['취소', '플레이리스트 편집', '플레이리스트에 추가'],
           cancelButtonIndex: 0,
         },
         buttonIndex => {
@@ -362,14 +365,16 @@ const PlayingMusicScreen = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButtonWrapper}
-        onPress={() => handleMusicDelete(index)}>
-        <Image
-          source={require('../../asset/images/delete.png')}
-          style={styles.controlButtonImage}
-        />
-      </TouchableOpacity>
+      {activeSource === 'playlist' ? null : (
+        <TouchableOpacity
+          style={styles.deleteButtonWrapper}
+          onPress={() => handleMusicDelete(index)}>
+          <Image
+            source={require('../../asset/images/delete.png')}
+            style={styles.controlButtonImage}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -517,7 +522,11 @@ const PlayingMusicScreen = () => {
         <ActionSheet
           ref={actionSheetRef}
           title="음악 추가"
-          options={['취소', '플레이리스트 편집', '플레이리스트에 추가']}
+          options={
+            activeSource == 'playlist'
+              ? ['취소', '플레이리스트 편집']
+              : ['취소', '플레이리스트 편집', '플레이리스트에 추가']
+          }
           cancelButtonIndex={0}
           onPress={index => {
             if (index === 1) {
