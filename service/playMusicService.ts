@@ -54,8 +54,6 @@ export async function playMusicService(
         await TrackPlayer.skip(0);
       }
     } else {
-      // 검색을 통한 ( 일반 )재생 목록 로직
-
       if (targetIndex !== -1) {
         await TrackPlayer.skip(targetIndex);
       } else {

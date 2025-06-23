@@ -69,20 +69,17 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
   };
 
   const renderTrackItem: ListRenderItem<Track> = ({item}) => (
-    console.log('item ====> ', item),
-    (
-      <TouchableOpacity
-        style={styles.trackItem}
-        onPress={() => onTrackSelect(item)}>
-        <Image source={{uri: item.artwork}} style={styles.thumbnail} />
-        <View style={styles.trackInfo}>
-          <Text style={styles.title} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.artist}>{item.artist}</Text>
-        </View>
-      </TouchableOpacity>
-    )
+    <TouchableOpacity
+      style={styles.trackItem}
+      onPress={() => onTrackSelect(item)}>
+      <Image source={{uri: item.artwork}} style={styles.thumbnail} />
+      <View style={styles.trackInfo}>
+        <Text style={styles.title} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.artist}>{item.artist}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
