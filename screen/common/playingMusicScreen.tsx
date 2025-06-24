@@ -102,7 +102,38 @@ const PlayingMusicScreen = () => {
         source === 'playlist' &&
         (!currentPlaylistId || !playlists.some(p => p.id === currentPlaylistId))
       ) {
-        Alert.alert('알림', '재생중인 플레이리스트가 없습니다.');
+        Alert.alert(
+          '알림',
+          '재생중인 플레이리스트가 없습니다.\n플레이리스트 화면으로 이동하시겠습니까?',
+          [
+            {text: '취소', style: 'cancel'},
+            {
+              text: '이동',
+              onPress: () => {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'mainBottomTabs',
+                      state: {
+                        routes: [
+                          {
+                            name: 'storageStack',
+                            state: {
+                              routes: [{name: 'playlistScreen'}],
+                              index: 0,
+                            },
+                          },
+                        ],
+                        index: 0,
+                      },
+                    },
+                  ],
+                });
+              },
+            },
+          ],
+        );
         return;
       }
 
