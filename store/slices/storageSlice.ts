@@ -60,15 +60,15 @@ const storageSlice = createSlice({
     // 플레이리스트 곡 삭제 액션
     removeMusicFromPlaylist: (
       state,
-      action: PayloadAction<{playlistId: string; musciId: string}>,
+      action: PayloadAction<{playlistId: string; musicId: string}>,
     ) => {
-      const {playlistId, musciId} = action.payload;
+      const {playlistId, musicId} = action.payload;
       const playlist = state.storedPlaylists.find(
         item => item.id === playlistId,
       );
       if (playlist) {
         // 해당 트랙 제거
-        playlist.tracks = playlist.tracks.filter(track => track.id !== musciId);
+        playlist.tracks = playlist.tracks.filter(track => track.id !== musicId);
         playlist.updatedAt = Date.now();
       }
     },

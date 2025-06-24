@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../../store';
+import {RootState, store} from '../../store';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
 import TextInputModal from '../../component/modal/TextInputModal';
@@ -18,6 +18,15 @@ import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
 import {formatDate} from '../../formatHelpers/formatHelpers';
+import TrackPlayer from 'react-native-track-player';
+import {
+  setCureentPlaylistTrackIndex,
+  setCurrentMusic,
+  setCurrentPlaylistId,
+  setIsPlaying,
+  setIsPlayingMusicBarVisible,
+  setPlaylistTrackQueue,
+} from '../../store/slices/playMusicSlice';
 
 const PlaylistScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -48,7 +57,19 @@ const PlaylistScreen = () => {
       {
         text: '삭제',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
+          const state = store.getState();
+          const {currentPlaylistId, activeSource} = state.playMusic;
+          if (activeSource === 'playlist' && currentPlaylistId === playlistId) {
+            await TrackPlayer.reset();
+            dispatch(setCurrentMusic(null));
+            dispatch(setIsPlaying(false));
+            dispatch(setIsPlayingMusicBarVisible(false));
+            dispatch(setCurrentPlaylistId(null));
+            dispatch(setPlaylistTrackQueue([]));
+            dispatch(setCureentPlaylistTrackIndex(null));
+          }
+
           dispatch(removePlaylist(playlistId));
         },
       },

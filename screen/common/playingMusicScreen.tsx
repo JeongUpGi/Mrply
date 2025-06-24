@@ -31,6 +31,7 @@ import {
   setPlaylistTrackQueue,
   setCureentPlaylistTrackIndex,
   setActiveSource,
+  setCurrentPlaylistId,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
@@ -90,12 +91,21 @@ const PlayingMusicScreen = () => {
       return () => {
         dispatch(setIsPlayingMusicBarVisible(true));
       };
-    }, [dispatch]),
+    }, [activeSource, currentPlaylistId, dispatch]),
   );
 
   // 탭 전환 핸들러 - 해당 큐의 현재 인덱스 음악으로 재생
   const handleTabChange = async (source: 'search' | 'playlist') => {
     try {
+      if (
+        // 재생중이었던 플레이리스트가 없을 시
+        source === 'playlist' &&
+        (!currentPlaylistId || !playlists.some(p => p.id === currentPlaylistId))
+      ) {
+        Alert.alert('알림', '재생중인 플레이리스트가 없습니다.');
+        return;
+      }
+
       setIsLoading(true);
       dispatch(setActiveSource(source));
 
@@ -344,6 +354,14 @@ const PlayingMusicScreen = () => {
     </TouchableOpacity>
   );
 
+  const emptyListRenderItem = () => {
+    return (
+      <View style={styles.emptyListContainer}>
+        <Text style={styles.emptyListText}>플레이리스트가 비어있습니다</Text>
+      </View>
+    );
+  };
+
   const renderMusicTrackQueue: ListRenderItem<Track> = ({item, index}) => (
     <View
       style={[
@@ -513,6 +531,7 @@ const PlayingMusicScreen = () => {
             showsVerticalScrollIndicator={false}
             style={styles.queueList}
             contentContainerStyle={styles.queueListContent}
+            ListEmptyComponent={emptyListRenderItem}
           />
         </View>
       </View>
@@ -685,6 +704,7 @@ const styles = StyleSheet.create({
   },
   queueListContent: {
     paddingBottom: 20,
+    flexGrow: 1,
   },
   queueListItem: {
     flexDirection: 'row',
@@ -787,6 +807,14 @@ const styles = StyleSheet.create({
   activeTabButtonText: {
     color: colors.white,
     fontWeight: 'bold',
+  },
+  emptyListContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  emptyListText: {
+    color: colors.gray_c0c0c0,
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,

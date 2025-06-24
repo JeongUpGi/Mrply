@@ -13,7 +13,7 @@ import {
 import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {PlaylistTrackScreenParams} from '../../model/model';
 import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../../store';
+import {RootState, store} from '../../store';
 import TrackPlayer, {Track} from 'react-native-track-player';
 
 import {colors} from '../../asset/color/color';
@@ -28,7 +28,9 @@ import {playMusicService} from '../../service/playMusicService';
 import {
   setActiveSource,
   setCureentPlaylistTrackIndex,
+  setCurrentMusic,
   setCurrentPlaylistId,
+  setIsPlaying,
   setIsPlayingMusicBarVisible,
   setPlaylistTrackQueue,
 } from '../../store/slices/playMusicSlice';
@@ -63,7 +65,7 @@ const PlaylistDetailScreen = () => {
     setIsSearchModalVisible(true);
   };
 
-  const handleRemoveMusicFromPlaylist = (musciId: string) => {
+  const handleRemoveMusicFromPlaylist = (musicId: string) => {
     Alert.alert('트랙 삭제', '이 트랙을 플레이리스트에서 삭제하시겠습니까?', [
       {
         text: '취소',
@@ -72,8 +74,40 @@ const PlaylistDetailScreen = () => {
       {
         text: '삭제',
         style: 'destructive',
-        onPress: () => {
-          dispatch(removeMusicFromPlaylist({playlistId, musciId}));
+        onPress: async () => {
+          await dispatch(removeMusicFromPlaylist({playlistId, musicId}));
+
+          const updatedPlaylist = store
+            .getState()
+            .storage.storedPlaylists.find(p => p.id === playlistId);
+          const updatedTracks = updatedPlaylist ? updatedPlaylist.tracks : [];
+
+          const currentMusic = store.getState().playMusic.currentMusic;
+          if (currentMusic && currentMusic.id === musicId) {
+            if (updatedTracks.length > 0) {
+              // 남은 곡이 있으면 맨 앞 곡으로 재생 이동
+              const firstTrack = updatedTracks[0];
+              await TrackPlayer.reset();
+              await TrackPlayer.add(updatedTracks);
+              await TrackPlayer.skip(0);
+              await TrackPlayer.play();
+
+              dispatch(setCurrentMusic(firstTrack));
+              dispatch(setIsPlaying(true));
+              dispatch(setPlaylistTrackQueue(updatedTracks));
+              dispatch(setCureentPlaylistTrackIndex(0));
+            } else {
+              // 남은 곡이 없으면 재생 멈춤 및 상태 초기화
+              await TrackPlayer.reset();
+              dispatch(setCurrentMusic(null));
+              dispatch(setIsPlaying(false));
+              dispatch(setPlaylistTrackQueue([]));
+              dispatch(setCureentPlaylistTrackIndex(null));
+            }
+          } else {
+            // 재생 중인 곡이 삭제된 곡이 아니면, 큐만 갱신
+            dispatch(setPlaylistTrackQueue(updatedTracks));
+          }
         },
       },
     ]);
