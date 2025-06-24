@@ -146,6 +146,7 @@ const PlaylistDetailScreen = () => {
 
   const handleTrackSelect = async (track: Track) => {
     try {
+      setIsLoading(true);
       let trackWithUrl = track;
       if (!track.url) {
         const {audioPlaybackData} = await getAudioUrlAndData(track);
@@ -165,6 +166,8 @@ const PlaylistDetailScreen = () => {
         '오류',
         error.message || '플레이리스트에 곡을 추가하는 중 오류가 발생했습니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -201,6 +204,7 @@ const PlaylistDetailScreen = () => {
       <SearchMusicModal
         visible={isSearchModalVisible}
         holderText="아티스트, 노래"
+        isParentLoading={isLoading}
         onClose={() => setIsSearchModalVisible(false)}
         onTrackSelect={handleTrackSelect}
       />

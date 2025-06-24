@@ -27,6 +27,7 @@ const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
   visible,
   holderText,
+  isParentLoading,
   onClose,
   onTrackSelect,
 }) => {
@@ -111,7 +112,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
               onChangeText={setSearchText}
               onSubmitEditing={() => handleSearch(searchText)}
             />
-            {isLoading ? (
+            {isLoading || isParentLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.green_1DB954} />
               </View>
