@@ -78,14 +78,21 @@ const PlaylistScreen = () => {
 
   // 플레이리스트 이미지 같은 경우 첫 번째 곡 썸네일로 대체
   const renderPlaylisItem = ({item}: {item: any}) => {
+    const hasTracks = item.tracks && item.tracks.length > 0;
     return (
       <TouchableOpacity
         style={styles.trackItem}
         onPress={() => handlePressPlaylist(item.id)}>
-        <Image
-          source={{uri: item?.tracks[0]?.artwork}}
-          style={styles.thumbnail}
-        />
+        {hasTracks ? (
+          <Image
+            source={{uri: item.tracks[0].artwork}}
+            style={styles.thumbnail}
+          />
+        ) : (
+          <View style={[styles.thumbnail, styles.noImageContainer]}>
+            <Text style={styles.noImageText}>No Image</Text>
+          </View>
+        )}
         <View style={styles.trackInfo}>
           <Text style={styles.playlistTitle}>{item.title}</Text>
           <Text style={styles.updatedAt}>
@@ -194,6 +201,16 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     tintColor: colors.gray_c0c0c0,
+  },
+  noImageContainer: {
+    backgroundColor: colors.gray_c0c0c0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noImageText: {
+    color: colors.white,
+    fontSize: 14,
+    textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
