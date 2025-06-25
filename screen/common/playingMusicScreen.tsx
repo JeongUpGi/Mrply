@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useEffect, useRef} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -40,6 +40,7 @@ import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/modal/ListModal';
 import {addMusicToPlaylist} from '../../store/slices/storageSlice';
 import {formatTime} from '../../formatHelpers/formatHelpers';
+import {savePlayLog} from '../../network/network';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
@@ -93,6 +94,30 @@ const PlayingMusicScreen = () => {
       };
     }, [activeSource, currentPlaylistId, dispatch]),
   );
+
+  // 최초 렌더링 여부 체크용 ref
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    // 최초 진입 시에 로그 저장 X
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const saveLog = async () => {
+      if (currentMusic) {
+        const saveLogRes = await savePlayLog(currentMusic);
+        if (!saveLogRes) {
+          Alert.alert(
+            '재생 기록 저장 실패',
+            '음악 재생 로그 저장에 실패했습니다.',
+          );
+        }
+      }
+    };
+    saveLog();
+  }, [currentMusic]);
 
   // 탭 전환 핸들러 - 해당 큐의 현재 인덱스 음악으로 재생
   const handleTabChange = async (source: 'search' | 'playlist') => {

@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 
 import {RecentSearchItems} from '../../model/model';
-import {searchVideos} from '../../network/network';
+import {savePlayLog, searchVideos} from '../../network/network';
 import {colors} from '../../asset/color/color';
 import {
   addRecentSearch,
@@ -123,6 +123,15 @@ const SearchScreen = () => {
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
       await playMusicService(item, 'search', null);
+
+      // 음악 재생 로그 저장
+      const saveLogRes = await savePlayLog(item);
+      if (!saveLogRes) {
+        Alert.alert(
+          '재생 기록 저장 실패',
+          '음악 재생 로그 저장에 실패했습니다.',
+        );
+      }
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);

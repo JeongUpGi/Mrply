@@ -105,3 +105,28 @@ export const getAudioUrlAndData = async (
     }
   }
 };
+
+export const savePlayLog = async (track: Track): Promise<boolean> => {
+  try {
+    const response = await fetch(`${BASE_URL}:3000/api/save-play-log`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        videoId: track.id,
+        title: track.title,
+        artist: track.artist,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const result = await response.json();
+    console.log('Play log saved:', result);
+    return true;
+  } catch (err) {
+    console.error('Failed to log play:', err);
+    return false;
+  }
+};

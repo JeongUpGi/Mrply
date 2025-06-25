@@ -36,7 +36,7 @@ import {
 } from '../../store/slices/playMusicSlice';
 import {NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
-import {getAudioUrlAndData} from '../../network/network';
+import {getAudioUrlAndData, savePlayLog} from '../../network/network';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -130,6 +130,15 @@ const PlaylistDetailScreen = () => {
 
       // 선택된 트랙으로 재생 시작
       await playMusicService(track, 'playlist', playlistId);
+
+      // 음악 재생 로그 저장
+      const saveLogRes = await savePlayLog(track);
+      if (!saveLogRes) {
+        Alert.alert(
+          '재생 기록 저장 실패',
+          '음악 재생 로그 저장에 실패했습니다.',
+        );
+      }
 
       // 재생 화면으로 이동
       navigation.navigate('playingMusicScreen');
