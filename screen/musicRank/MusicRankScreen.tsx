@@ -1,12 +1,12 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
 
-const NewMusicScreen = () => {
+const MusicRankScreen = () => {
   return (
     <SafeAreaView>
-      <Text>newMusicScreen</Text>
+      <Text>MusicRankScreen</Text>
     </SafeAreaView>
   );
 };
 
-export default NewMusicScreen;
+export default MusicRankScreen;

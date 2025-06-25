@@ -7,7 +7,7 @@ import {RootStackParamList} from '../model/model';
 
 import HomeScreen from '../screen/home/HomeScreen';
 
-import NewMusicScreen from '../screen/newMusic/NewMusicScreen';
+import MusicRankScreen from '../screen/musicRank/MusicRankScreen';
 
 import SearchScreen from '../screen/search/SearchScreen';
 
@@ -32,12 +32,12 @@ function HomeStack() {
   );
 }
 
-function NewMusicStack() {
+function MusicRankStack() {
   return (
     <Stack.Navigator
-      initialRouteName="newMusicScreen"
+      initialRouteName="musicRankScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="newMusicScreen" component={NewMusicScreen} />
+      <Stack.Screen name="musicRankScreen" component={MusicRankScreen} />
     </Stack.Navigator>
   );
 }
@@ -99,16 +99,16 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="newMusicStack"
-        component={NewMusicStack}
+        name="musicRankStack"
+        component={MusicRankStack}
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
-              source={require('../asset/images/electric_lightbulb.png')}
+              source={require('../asset/images/ranking.png')}
               style={{width: size, height: size, tintColor: color}}
             />
           ),
-          tabBarLabel: '새로운 음악',
+          tabBarLabel: '음악 순위',
         }}
       />
       <Tab.Screen
