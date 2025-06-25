@@ -82,9 +82,9 @@ function AppContent(): React.JSX.Element {
 
   // 현재 소스(검색 or 플레이리스트)에 따른 큐와 인덱스 선택
   const currentQueue =
-    activeSource === 'search' ? searchTrackQueue : playlistTrackQueue;
+    activeSource === 'normal' ? searchTrackQueue : playlistTrackQueue;
   const currentIndex =
-    activeSource === 'search' ? currentSearchTrackIndex : playlistCurrentIndex;
+    activeSource === 'normal' ? currentSearchTrackIndex : playlistCurrentIndex;
 
   // 플레이어 셋업 함수
   useEffect(() => {
@@ -119,7 +119,7 @@ function AppContent(): React.JSX.Element {
           console.error('TrackPlayer sync error:', e);
           dispatch(setIsPlaying(false));
           dispatch(setCurrentMusic(null));
-          if (activeSource === 'search') {
+          if (activeSource === 'normal') {
             dispatch(setSearchTrackQueue([]));
             dispatch(setcurrentSearchTrackIndex(null));
           } else {
@@ -142,7 +142,7 @@ function AppContent(): React.JSX.Element {
         const currentQueue = await TrackPlayer.getQueue();
 
         // 현재 활성 소스(검색 or 플레이리스트) 에 따라 보여지는 재생목록 업데이트
-        if (activeSource === 'search') {
+        if (activeSource === 'normal') {
           dispatch(setSearchTrackQueue(currentQueue));
           dispatch(
             setcurrentSearchTrackIndex(

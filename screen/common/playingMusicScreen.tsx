@@ -81,9 +81,9 @@ const PlayingMusicScreen = () => {
 
   // 현재 활성 소스에 따른 큐와 인덱스 선택
   const currentQueue =
-    activeSource === 'search' ? searchTrackQueue : playlistTrackQueue;
+    activeSource === 'normal' ? searchTrackQueue : playlistTrackQueue;
   const currentIndex =
-    activeSource === 'search' ? currentSearchTrackIndex : playlistCurrentIndex;
+    activeSource === 'normal' ? currentSearchTrackIndex : playlistCurrentIndex;
 
   useFocusEffect(
     useCallback(() => {
@@ -120,7 +120,7 @@ const PlayingMusicScreen = () => {
   }, [currentMusic]);
 
   // 탭 전환 핸들러 - 해당 큐의 현재 인덱스 음악으로 재생
-  const handleTabChange = async (source: 'search' | 'playlist') => {
+  const handleTabChange = async (source: 'normal' | 'playlist') => {
     try {
       if (
         // 재생중이었던 플레이리스트가 없을 시
@@ -167,9 +167,9 @@ const PlayingMusicScreen = () => {
 
       // 해당 소스의 큐와 인덱스 가져오기
       const targetQueue =
-        source === 'search' ? searchTrackQueue : playlistTrackQueue;
+        source === 'normal' ? searchTrackQueue : playlistTrackQueue;
       const targetIndex =
-        source === 'search' ? currentSearchTrackIndex : playlistCurrentIndex;
+        source === 'normal' ? currentSearchTrackIndex : playlistCurrentIndex;
 
       // 큐가 있고 인덱스가 유효한 경우에만 재생
       if (
@@ -237,7 +237,7 @@ const PlayingMusicScreen = () => {
     const updatedQueue = [...currentQueue];
     updatedQueue.splice(index, 1);
 
-    if (activeSource === 'search') {
+    if (activeSource === 'normal') {
       dispatch(setSearchTrackQueue(updatedQueue));
       if (
         currentSearchTrackIndex !== null &&
@@ -261,7 +261,7 @@ const PlayingMusicScreen = () => {
           await TrackPlayer.reset();
           dispatch(setIsPlaying(false));
           dispatch(setCurrentMusic(null));
-          if (activeSource === 'search') {
+          if (activeSource === 'normal') {
             dispatch(setSearchTrackQueue([]));
             dispatch(setcurrentSearchTrackIndex(null));
           } else {
@@ -272,7 +272,7 @@ const PlayingMusicScreen = () => {
         } else {
           if (currentQueue && index === currentQueue.length - 1) {
             await TrackPlayer.skipToPrevious();
-            if (activeSource === 'search' && currentSearchTrackIndex !== null) {
+            if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
               const newIndex = currentSearchTrackIndex - 1;
               dispatch(setcurrentSearchTrackIndex(newIndex));
               if (
@@ -295,7 +295,7 @@ const PlayingMusicScreen = () => {
             }
           } else {
             await TrackPlayer.skipToPrevious();
-            if (activeSource === 'search' && currentSearchTrackIndex !== null) {
+            if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
               dispatch(setcurrentSearchTrackIndex(currentSearchTrackIndex - 1));
               dispatch(
                 setCurrentMusic(currentQueue[currentSearchTrackIndex - 1]),
@@ -308,7 +308,7 @@ const PlayingMusicScreen = () => {
           await deleteMusicTrackRedux(index);
         }
       } else {
-        if (activeSource === 'search' && currentSearchTrackIndex !== null) {
+        if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
           if (currentQueue && index !== currentQueue.length - 1) {
             dispatch(setcurrentSearchTrackIndex(currentSearchTrackIndex - 1));
           }
@@ -466,13 +466,13 @@ const PlayingMusicScreen = () => {
       <TouchableOpacity
         style={[
           styles.tabButton,
-          activeSource === 'search' && styles.activeTabButton,
+          activeSource === 'normal' && styles.activeTabButton,
         ]}
-        onPress={() => handleTabChange('search')}>
+        onPress={() => handleTabChange('normal')}>
         <Text
           style={[
             styles.tabButtonText,
-            activeSource === 'search' && styles.activeTabButtonText,
+            activeSource === 'normal' && styles.activeTabButtonText,
           ]}>
           재생목록
         </Text>
@@ -578,7 +578,7 @@ const PlayingMusicScreen = () => {
 
         <View style={styles.queueListContainer}>
           <Text style={styles.queueListTitle}>
-            {activeSource === 'search' ? '재생 목록' : '플레이리스트'}
+            {activeSource === 'normal' ? '재생 목록' : '플레이리스트'}
           </Text>
           <FlatList
             data={currentQueue}

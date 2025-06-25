@@ -17,7 +17,7 @@ const initialState: MusicPlayerState = {
   currentPlaylistId: null,
 
   // 현재 활성화된 소스
-  activeSource: 'search',
+  activeSource: 'normal',
 
   currentPlaybackPosition: 0,
 };
@@ -62,7 +62,7 @@ const playMusicSlice = createSlice({
     },
 
     // 활성 소스 변경
-    setActiveSource: (state, action: PayloadAction<'search' | 'playlist'>) => {
+    setActiveSource: (state, action: PayloadAction<'normal' | 'playlist'>) => {
       state.activeSource = action.payload;
     },
 

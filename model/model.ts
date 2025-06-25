@@ -103,7 +103,7 @@ export interface MusicPlayerState {
   playlistTrackQueue: Track[];
   currentPlaylistTrackIndex: number | null;
   currentPlaylistId: string | null;
-  activeSource: 'search' | 'playlist';
+  activeSource: 'normal' | 'playlist';
   currentPlaybackPosition: number; // 음악 재 실행시 구간 값
 }
 

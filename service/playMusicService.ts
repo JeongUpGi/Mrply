@@ -15,12 +15,12 @@ import {
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
  * @param item
- * @param source 'search' | 'playlist' - 트랙의 출처
+ * @param source 'normal' | 'playlist' - 트랙의 출처
  * @param playlistId
  */
 export async function playMusicService(
   item: Track,
-  source: 'search' | 'playlist' = 'search',
+  source: 'normal' | 'playlist' = 'normal',
   playlistId: string | null = null,
 ): Promise<void> {
   const videoId = item.id;
@@ -88,7 +88,7 @@ export async function playMusicService(
     const finalCurrentTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
     // 현재 소스(검색 or 플레이리스트)에 따라 큐 업데이트
-    if (source === 'search') {
+    if (source === 'normal') {
       store.dispatch(setSearchTrackQueue(finalQueue));
       store.dispatch(
         setcurrentSearchTrackIndex(

@@ -119,10 +119,10 @@ const SearchScreen = () => {
     try {
       setIsLoading(true);
       setError(null);
-      dispatch(setActiveSource('search'));
+      dispatch(setActiveSource('normal'));
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
-      await playMusicService(item, 'search', null);
+      await playMusicService(item, 'normal', null);
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(item);
