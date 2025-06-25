@@ -1,4 +1,4 @@
-import {SearchResultMusicItem} from '../model/model';
+import {MusicRankItem, SearchResultMusicItem} from '../model/model';
 import TrackPlayer, {Track} from 'react-native-track-player';
 
 export const formatDate = (timestamp: number) => {
@@ -22,12 +22,23 @@ export const formatTime = (seconds: number | undefined) => {
 export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
   return {
     id: searchItem.id.videoId || '',
-    url: '', // URL은 나중에 설정
+    url: '',
     title: searchItem.snippet.title,
     artist: searchItem.snippet.channelTitle,
     artwork: searchItem.snippet.thumbnails.medium.url,
   };
 };
+
+// 음악 순위 api 통해서 받아온 data들 TrackPlayer에 맞게 데이터 변환하는 함수
+export function convertMusicRankItemToTrack(item: MusicRankItem): Track {
+  return {
+    id: item.video_id,
+    url: '',
+    title: item.title,
+    artist: item.artist,
+    artwork: item.thumbnail_url,
+  };
+}
 
 // HTML 엔티티를 디코딩하는 함수
 export const decodeHtmlEntities = (text: string): string => {

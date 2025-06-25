@@ -8,36 +8,76 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import {getMusicRank} from '../../network/network';
-import {MusicRankItem} from '../../model/model';
+import {getMusicRank, savePlayLog} from '../../network/network';
+import {useDispatch} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
+import {MusicRankItem} from '../../model/model';
+
 import {colors} from '../../asset/color/color';
+import {convertMusicRankItemToTrack} from '../../formatHelpers/formatHelpers';
+import {
+  setActiveSource,
+  setCurrentPlaylistId,
+  setIsPlayingMusicBarVisible,
+} from '../../store/slices/playMusicSlice';
+import {playMusicService} from '../../service/playMusicService';
 
 const NewMusicScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch();
 
   const firstMusic = musicRank[0]; // 1등 음악
 
+  const fetchRank = useCallback(async () => {
+    try {
+      const resData = await getMusicRank();
+      setMusicRank(resData);
+    } catch (err) {
+      if (err instanceof Error) {
+        Alert.alert('순위 조회 실패', err.message);
+      } else {
+        Alert.alert('순위 조회 실패', '네트워크 오류');
+      }
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      const fetchRank = async () => {
-        try {
-          const resData = await getMusicRank();
-          setMusicRank(resData);
-        } catch (err) {
-          if (err instanceof Error) {
-            Alert.alert('순위 조회 실패', err.message);
-          } else {
-            Alert.alert('순위 조회 실패', '네트워크 오류');
-          }
-        }
-      };
       fetchRank();
-    }, []),
+    }, [fetchRank]),
   );
 
-  const handlePressMusic = (item: MusicRankItem) => {};
+  // 개별 음악 실행 함수
+  const handlePressMusic = async (item: MusicRankItem) => {
+    const track = convertMusicRankItemToTrack(item);
+    try {
+      setIsLoading(true);
+      dispatch(setActiveSource('normal'));
+      dispatch(setCurrentPlaylistId(null));
+      dispatch(setIsPlayingMusicBarVisible(true));
+      await playMusicService(track, 'normal', null);
+
+      // 음악 재생 로그 저장
+      const saveLogRes = await savePlayLog(track);
+      if (!saveLogRes) {
+        Alert.alert(
+          '재생 기록 저장 실패',
+          '음악 재생 로그 저장에 실패했습니다.',
+        );
+      } else {
+        await fetchRank();
+      }
+    } catch (err: any) {
+      console.error('음악 재생 오류:', err);
+      Alert.alert('음악 재생 오류', err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderRankItem = ({
     item,
@@ -83,12 +123,18 @@ const NewMusicScreen = () => {
           <Text style={styles.firstMusicArtist}>{firstMusic.artist}</Text>
         </TouchableOpacity>
       )}
-      <FlatList
-        data={musicRank.slice(1)}
-        keyExtractor={item => item.id?.toString() || item.video_id}
-        renderItem={renderRankItem}
-        contentContainerStyle={styles.rankList}
-      />
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.green_1DB954} />
+        </View>
+      ) : (
+        <FlatList
+          data={musicRank.slice(1)}
+          keyExtractor={item => item.id?.toString() || item.video_id}
+          renderItem={renderRankItem}
+          contentContainerStyle={styles.rankList}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -174,6 +220,12 @@ const styles = StyleSheet.create({
   musicArtist: {
     fontSize: 14,
     color: colors.gray_808080,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
