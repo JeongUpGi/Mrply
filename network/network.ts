@@ -115,6 +115,7 @@ export const savePlayLog = async (track: Track): Promise<boolean> => {
         videoId: track.id,
         title: track.title,
         artist: track.artist,
+        thumbnailUrl: track.artwork,
       }),
     });
 
