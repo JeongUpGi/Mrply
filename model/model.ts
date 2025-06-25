@@ -144,3 +144,12 @@ export interface SearchMusicModalProps {
   onClose: () => void;
   onTrackSelect: (track: Track) => void;
 }
+
+export type MusicRankItem = {
+  id: number;
+  video_id: string;
+  title: string;
+  artist: string;
+  thumbnail_url: string;
+  last_played_date: string;
+};

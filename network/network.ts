@@ -131,3 +131,15 @@ export const savePlayLog = async (track: Track): Promise<boolean> => {
     return false;
   }
 };
+
+export const getMusicRank = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}:3000/api/get-music-rank`);
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('Error fetching music rank:', err);
+    throw err;
+  }
+};
