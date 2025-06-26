@@ -61,3 +61,12 @@ export const decodeHtmlEntities = (text: string): string => {
 
   return text.replace(/&[^;]+;/g, entity => entities[entity] || entity);
 };
+
+export const getRoundFormatTitle = (
+  stage: number,
+  currentPairIndex: number,
+) => {
+  if (stage === 2) return '결승';
+  if (stage === 4) return `준결승 (${currentPairIndex + 1} / 2)`;
+  return `${stage}강 (${currentPairIndex + 1} / ${stage / 2})`;
+};
