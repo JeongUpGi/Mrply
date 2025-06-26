@@ -147,6 +147,41 @@ export const getMusicRank = async () => {
   }
 };
 
+export const saveWinLog = async (track: Track): Promise<boolean> => {
+  try {
+    const response = await fetch(`${BASE_URL}:3000/api/save-win-log`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        videoId: track.id,
+        title: track.snippet?.title,
+        artist: track.snippet?.channelTitle,
+        thumbnailUrl: track.snippet?.thumbnails?.medium?.url,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const result = await response.json();
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
+export const getTotalWinner = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}:3000/api/get-total-winner`);
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
 // 인기 음악 200개 중 count개 무작위로 가져오는 함수
 export const getRandomMusic = async (count: number) => {
   const API_KEY = YOUTUBE_API_KEY;
