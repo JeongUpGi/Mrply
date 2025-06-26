@@ -7,7 +7,7 @@ import {RootStackParamList} from '../model/model';
 
 import HomeScreen from '../screen/home/HomeScreen';
 
-import MusicRankScreen from '../screen/musicRank/MusicRankScreen';
+import MusicWorldCupScreen from '../screen/musicWorldCup/MusicWorldCupScreen';
 
 import SearchScreen from '../screen/search/SearchScreen';
 
@@ -32,12 +32,15 @@ function HomeStack() {
   );
 }
 
-function MusicRankStack() {
+function MusicWorldCupStack() {
   return (
     <Stack.Navigator
-      initialRouteName="musicRankScreen"
+      initialRouteName="musicWorldCupScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="musicRankScreen" component={MusicRankScreen} />
+      <Stack.Screen
+        name="musicWorldCupScreen"
+        component={MusicWorldCupScreen}
+      />
     </Stack.Navigator>
   );
 }
@@ -99,8 +102,8 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="musicRankStack"
-        component={MusicRankStack}
+        name="musicWorldCupStack"
+        component={MusicWorldCupStack}
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
@@ -108,7 +111,7 @@ function MainBottomTabs() {
               style={{width: size, height: size, tintColor: color}}
             />
           ),
-          tabBarLabel: '음악 순위',
+          tabBarLabel: '음악 월드컵',
         }}
       />
       <Tab.Screen

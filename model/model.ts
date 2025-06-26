@@ -5,7 +5,7 @@ export type RootStackParamList = {
   mainBottomTabs: undefined;
   playingMusicScreen: undefined;
   homeScreen: undefined;
-  musicRankScreen: undefined;
+  musicWorldCupScreen: undefined;
   allMenuScreen: undefined;
   searchScreen: undefined;
   storageScreen: undefined;
