@@ -27,7 +27,7 @@ export async function playMusicService(item: Track): Promise<void> {
     const {audioPlaybackData} = await getAudioUrlAndData(item);
     const currentState = store.getState();
     // 기존 큐 초기화
-    await TrackPlayer.reset();
+    // await TrackPlayer.reset();
 
     // source에 따른 queue구분
     const targetQueue = currentState.playMusic.searchTrackQueue;
@@ -36,7 +36,7 @@ export async function playMusicService(item: Track): Promise<void> {
       track => track.id === audioPlaybackData.id,
     );
 
-    await TrackPlayer.add(targetQueue);
+    // await TrackPlayer.add(targetQueue);
 
     if (targetIndex !== -1) {
       await TrackPlayer.skip(targetIndex);
@@ -120,27 +120,14 @@ export async function playAllMusicService(
       track => track.id === audioPlaybackData.id,
     );
 
+    console.log('targetQueue ===> ', targetQueue);
+
     await TrackPlayer.add(targetQueue);
 
-    if (source === 'playlist') {
-      if (targetIndex !== -1) {
-        await TrackPlayer.skip(targetIndex);
-      } else {
-        await TrackPlayer.skip(0);
-      }
+    if (targetIndex !== -1) {
+      await TrackPlayer.skip(targetIndex);
     } else {
-      if (targetIndex !== -1) {
-        await TrackPlayer.skip(targetIndex);
-      } else {
-        // 2. 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
-        await TrackPlayer.add([audioPlaybackData]);
-        let currentQueue = await TrackPlayer.getQueue();
-
-        const newTrackIndex = currentQueue.findIndex(
-          track => track.id === audioPlaybackData.id,
-        );
-        await TrackPlayer.skip(newTrackIndex);
-      }
+      await TrackPlayer.skip(0);
     }
 
     // 재생

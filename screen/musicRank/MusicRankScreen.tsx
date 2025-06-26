@@ -10,32 +10,48 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import {getMusicRank, savePlayLog} from '../../network/network';
+import {
+  getAudioUrlAndData,
+  getMusicRank,
+  savePlayLog,
+} from '../../network/network';
 import {useDispatch} from 'react-redux';
-import {useFocusEffect} from '@react-navigation/native';
-import {MusicRankItem} from '../../model/model';
+import {
+  NavigationProp,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
+import {MusicRankItem, RootStackParamList} from '../../model/model';
 
 import {colors} from '../../asset/color/color';
 import {convertMusicRankItemToTrack} from '../../formatHelpers/formatHelpers';
 import {
   setActiveSource,
   setCurrentPlaylistId,
+  setcurrentSearchTrackIndex,
   setIsPlayingMusicBarVisible,
+  setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
-import {playMusicService} from '../../service/musicService';
+import {
+  playAllMusicService,
+  playMusicService,
+} from '../../service/musicService';
 import {Header} from '../../component/common/Header';
+import {Track} from 'react-native-track-player';
 
 const NewMusicScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const firstMusic = musicRank[0]; // 1등 음악
 
   const fetchRank = useCallback(async () => {
     try {
       const resData = await getMusicRank();
+      console.log('resData ===> ', resData);
       setMusicRank(resData);
     } catch (err) {
       if (err instanceof Error) {
@@ -80,7 +96,42 @@ const NewMusicScreen = () => {
     }
   };
 
-  const handlePressAllPlayMusic = () => {};
+  const handlePressAllPlayMusic = async () => {
+    try {
+      setIsLoading(true);
+      const tracksWithUrl: Track[] = await Promise.all(
+        musicRank.map(async item => {
+          const {audioPlaybackData} = await getAudioUrlAndData({
+            id: item.video_id,
+            title: item.title,
+            artist: item.artist,
+            artwork: item.thumbnail_url,
+            url: '',
+          });
+          return {
+            id: item.video_id,
+            title: item.title,
+            artist: item.artist,
+            artwork: item.thumbnail_url,
+            url: audioPlaybackData.url,
+          };
+        }),
+      );
+      dispatch(setSearchTrackQueue(tracksWithUrl));
+      dispatch(setcurrentSearchTrackIndex(0));
+      dispatch(setActiveSource('normal'));
+      dispatch(setCurrentPlaylistId(null));
+
+      await playAllMusicService(tracksWithUrl[0], 'normal', null);
+
+      navigation.navigate('playingMusicScreen');
+    } catch (err: any) {
+      console.error('음악 재생 오류:', err);
+      Alert.alert('음악 재생 오류', err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderRankItem = ({
     item,
