@@ -24,7 +24,7 @@ import {
 } from '../../store/slices/recentSearchSlice';
 import {RootState} from '../../store';
 
-import {playMusicService} from '../../service/playMusicService';
+import {playMusicService} from '../../service/musicService';
 import {
   setActiveSource,
   setCurrentPlaylistId,
@@ -122,7 +122,7 @@ const SearchScreen = () => {
       dispatch(setActiveSource('normal'));
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
-      await playMusicService(item, 'normal', null);
+      await playMusicService(item);
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(item);

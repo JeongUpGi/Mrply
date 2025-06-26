@@ -22,7 +22,7 @@ import {
   setCurrentPlaylistId,
   setIsPlayingMusicBarVisible,
 } from '../../store/slices/playMusicSlice';
-import {playMusicService} from '../../service/playMusicService';
+import {playMusicService} from '../../service/musicService';
 import {Header} from '../../component/common/Header';
 
 const NewMusicScreen = () => {
@@ -60,7 +60,7 @@ const NewMusicScreen = () => {
       dispatch(setActiveSource('normal'));
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
-      await playMusicService(track, 'normal', null);
+      await playMusicService(track);
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(track);

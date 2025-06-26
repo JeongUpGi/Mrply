@@ -24,7 +24,7 @@ import {
   removeMusicFromPlaylist,
 } from '../../store/slices/storageSlice';
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
-import {playMusicService} from '../../service/playMusicService';
+import {playAllMusicService} from '../../service/musicService';
 import {
   setActiveSource,
   setCureentPlaylistTrackIndex,
@@ -129,7 +129,7 @@ const PlaylistDetailScreen = () => {
       dispatch(setIsPlayingMusicBarVisible(true));
 
       // 선택된 트랙으로 재생 시작
-      await playMusicService(track, 'playlist', playlistId);
+      await playAllMusicService(track, 'playlist', playlistId);
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(track);
