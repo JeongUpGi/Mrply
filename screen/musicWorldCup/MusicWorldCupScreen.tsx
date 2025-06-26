@@ -9,9 +9,12 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
-import {getRandomMusic} from '../../network/network';
+import {getRandomMusic, getAudioUrlAndData} from '../../network/network';
+import TrackPlayer, {Track} from 'react-native-track-player';
 import {colors} from '../../asset/color/color';
 import {getRoundFormatTitle} from '../../formatHelpers/formatHelpers';
+import {useDispatch} from 'react-redux';
+import {playMusicService} from '../../service/musicService';
 
 const MusicWorldCupScreen = () => {
   const [musicList, setMusicList] = useState<any[]>([]);
@@ -19,12 +22,15 @@ const MusicWorldCupScreen = () => {
   const [winners, setWinners] = useState<any[]>([]);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [stage, setStage] = useState(16);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchRandomMusic = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const data = await getRandomMusic(16);
         setMusicList(data);
@@ -36,7 +42,7 @@ const MusicWorldCupScreen = () => {
       } catch (err) {
         Alert.alert('에러', '랜덤 음악을 불러오지 못했습니다.');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     fetchRandomMusic();
@@ -64,7 +70,7 @@ const MusicWorldCupScreen = () => {
           text: '확인',
           style: 'destructive',
           onPress: async () => {
-            setLoading(true);
+            setIsLoading(true);
             try {
               const data = await getRandomMusic(16);
               setMusicList(data);
@@ -76,7 +82,7 @@ const MusicWorldCupScreen = () => {
             } catch (err) {
               Alert.alert('에러', '랜덤 음악을 불러오지 못했습니다.');
             } finally {
-              setLoading(false);
+              setIsLoading(false);
             }
           },
         },
@@ -86,7 +92,7 @@ const MusicWorldCupScreen = () => {
   };
 
   // 카드 선택 핸들러
-  const handleSelect = (track: any, idx: number) => {
+  const handleSelect = (track: Track, idx: number) => {
     setSelectedIdx(idx);
     setTimeout(() => {
       setWinners(prev => [...prev, track]);
@@ -96,15 +102,27 @@ const MusicWorldCupScreen = () => {
   };
 
   // 곡 재생 핸들러
-  const handlePlay = async (track: any) => {};
+  const handlePlay = async (track: Track) => {
+    try {
+      setIsLoading(true);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
-  }
+      // 이미 재생 중인 곡을 다시 누르면 "정지"
+      if (playingId === track.id) {
+        await TrackPlayer.pause();
+        setPlayingId(null);
+        return;
+      }
+
+      setPlayingId(track.id);
+
+      await playMusicService(track);
+      await TrackPlayer.play();
+    } catch (err) {
+      Alert.alert('재생 오류', '음악을 재생할 수 없습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // 월드컵 종료시 렌더링 화면
   if (stage == 1) {
@@ -203,14 +221,27 @@ const MusicWorldCupScreen = () => {
               {track.snippet?.channelTitle}
             </Text>
             <TouchableOpacity
-              style={styles.playButton}
+              style={[
+                styles.playButton,
+                playingId === (track.id?.videoId || track.id) &&
+                  styles.playingButton,
+              ]}
               onPress={() => handlePlay(track)}
               activeOpacity={0.7}>
-              <Text style={styles.playButtonText}>재생</Text>
+              <Text style={styles.playButtonText}>
+                {playingId === (track.id?.videoId || track.id)
+                  ? '정지'
+                  : '재생'}
+              </Text>
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
       </View>
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.green_1DB954} />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -348,6 +379,13 @@ const styles = StyleSheet.create({
     color: colors.gray_a9a9a9,
     fontSize: 18,
     fontWeight: 'normal',
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
   },
 });
 
