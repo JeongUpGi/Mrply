@@ -10,11 +10,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import {getRandomMusic, getAudioUrlAndData} from '../../network/network';
-import TrackPlayer, {Track} from 'react-native-track-player';
+import TrackPlayer, {
+  Track,
+  usePlaybackState,
+  State,
+} from 'react-native-track-player';
 import {colors} from '../../asset/color/color';
 import {getRoundFormatTitle} from '../../formatHelpers/formatHelpers';
 import {useDispatch} from 'react-redux';
 import {playMusicService} from '../../service/musicService';
+import {setIsPlaying} from '../../store/slices/playMusicSlice';
 
 const MusicWorldCupScreen = () => {
   const [musicList, setMusicList] = useState<any[]>([]);
@@ -27,6 +32,8 @@ const MusicWorldCupScreen = () => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   const dispatch = useDispatch();
+
+  const playbackState = usePlaybackState();
 
   useEffect(() => {
     const fetchRandomMusic = async () => {
@@ -106,17 +113,30 @@ const MusicWorldCupScreen = () => {
     try {
       setIsLoading(true);
 
+      const trackId = track.id?.videoId || track.id;
+
       // 이미 재생 중인 곡을 다시 누르면 "정지"
-      if (playingId === track.id) {
+      if (playingId === trackId && playbackState.state === State.Playing) {
         await TrackPlayer.pause();
-        setPlayingId(null);
+        dispatch(setIsPlaying(false));
+        setIsLoading(false);
         return;
       }
 
-      setPlayingId(track.id);
+      // TrackPlayer에 곡이 있다면 바로 재생
+      if (playingId === trackId && playbackState.state === State.Paused) {
+        await TrackPlayer.play();
+        dispatch(setIsPlaying(true));
+        setIsLoading(false);
+        return;
+      }
+
+      // 새로운 곡을 재생하거나, 정지 상태에서 재생
+      setPlayingId(trackId);
 
       await playMusicService(track);
       await TrackPlayer.play();
+      dispatch(setIsPlaying(true));
     } catch (err) {
       Alert.alert('재생 오류', '음악을 재생할 수 없습니다.');
     } finally {
@@ -224,12 +244,15 @@ const MusicWorldCupScreen = () => {
               style={[
                 styles.playButton,
                 playingId === (track.id?.videoId || track.id) &&
-                  styles.playingButton,
+                playbackState.state === State.Playing
+                  ? styles.playingButton
+                  : null,
               ]}
               onPress={() => handlePlay(track)}
               activeOpacity={0.7}>
               <Text style={styles.playButtonText}>
-                {playingId === (track.id?.videoId || track.id)
+                {playingId === (track.id?.videoId || track.id) &&
+                playbackState.state === State.Playing
                   ? '정지'
                   : '재생'}
               </Text>
