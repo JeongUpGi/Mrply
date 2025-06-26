@@ -8,7 +8,9 @@ import TrackPlayer, {Track} from 'react-native-track-player';
 import {decodeHtmlEntities} from '../formatHelpers/formatHelpers';
 
 const YOUTUBE_URL = 'https://www.googleapis.com/youtube/v3';
-const BASE_URL = 'http://172.30.1.93'; //url 추후 수정
+const BASE_URL = 'http://172.30.1.59'; //url 추후 수정
+
+const BACKSERVER_URL = 'http://3.137.72.97'; //url 추후 수정
 
 /**
  * YouTube 동영상 음악을 검색하는 함수
@@ -64,6 +66,7 @@ export const getAudioUrlAndData = async (
   try {
     const url =
       `${BASE_URL}:3000/api/get-youtube-audio?videoId=` + musicItem.id;
+
     const response = await fetch(url);
     console.log('Backend response status:', response.status);
 
@@ -142,4 +145,38 @@ export const getMusicRank = async () => {
     console.error('Error fetching music rank:', err);
     throw err;
   }
+};
+
+// 인기 음악 200개 중 count개 무작위로 가져오는 함수
+export const getRandomMusic = async (count: number) => {
+  const API_KEY = YOUTUBE_API_KEY;
+  const regionCode = 'KR';
+  let allItems: any[] = [];
+  let nextPageToken = '';
+  let fetchCount = 0;
+
+  while (fetchCount < 4) {
+    const params = new URLSearchParams({
+      part: 'snippet,contentDetails',
+      chart: 'mostPopular',
+      videoCategoryId: '10',
+      maxResults: '50',
+      regionCode,
+      key: API_KEY,
+      ...(nextPageToken ? {pageToken: nextPageToken} : {}),
+    });
+
+    const response = await fetch(`${YOUTUBE_URL}/videos?${params.toString()}`);
+    if (!response.ok)
+      throw new Error('YouTube API 요청 실패: ' + response.status);
+
+    const data = await response.json();
+    allItems = allItems.concat(data.items);
+    if (!data.nextPageToken) break;
+    nextPageToken = data.nextPageToken;
+    fetchCount++;
+  }
+
+  const randomData = allItems.sort(() => 0.5 - Math.random());
+  return randomData.slice(0, count);
 };
