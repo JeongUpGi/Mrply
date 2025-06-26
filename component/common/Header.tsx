@@ -71,10 +71,25 @@ const LeftRightIconCenterComponentHeader: React.FC<HeaderProps> = ({
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressLeft}>
         <Image source={leftIcon} style={leftIconStyle} />
       </TouchableOpacity>
-      <View style={styles.centerContainer}>{centerComponent}</View>
+      <View style={styles.centerComponentContainer}>{centerComponent}</View>
       <TouchableOpacity style={styles.buttonWrapper} onPress={onPressRight}>
         <Image source={rightIcon} style={rightIconStyle} />
       </TouchableOpacity>
+    </View>
+  );
+};
+
+// 오른쪽 컴포넌트, 중앙 텍스트가 있는 헤더
+const LeftTitleRightComponentHeader: React.FC<HeaderProps> = ({
+  title,
+  titleStyle,
+  headerBackgroundColor,
+  centerComponent,
+}) => {
+  return (
+    <View style={[styles.headerContainer, headerBackgroundColor]}>
+      <Text style={[styles.title, titleStyle]}>{title}</Text>
+      <View style={styles.rightComponentContainer}>{centerComponent}</View>
     </View>
   );
 };
@@ -107,9 +122,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
-  centerContainer: {
+  centerComponentContainer: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rightComponentContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
 });
@@ -119,4 +139,5 @@ export const Header = {
   onlyLeftTitle: OnlyLeftTitleHeader,
   leftTitleRightIcon: LeftTitleRightIconHeader,
   leftRightIconCenterComponent: LeftRightIconCenterComponentHeader,
+  leftTitleRightComponentHeader: LeftTitleRightComponentHeader,
 };

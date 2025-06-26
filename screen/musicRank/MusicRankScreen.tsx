@@ -23,6 +23,7 @@ import {
   setIsPlayingMusicBarVisible,
 } from '../../store/slices/playMusicSlice';
 import {playMusicService} from '../../service/playMusicService';
+import {Header} from '../../component/common/Header';
 
 const NewMusicScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
@@ -79,6 +80,8 @@ const NewMusicScreen = () => {
     }
   };
 
+  const handlePressAllPlayMusic = () => {};
+
   const renderRankItem = ({
     item,
     index,
@@ -106,7 +109,22 @@ const NewMusicScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>MrPly 탑 100</Text>
+      <Header.leftTitleRightComponentHeader
+        title="MrPly 탑 100"
+        titleStyle={styles.header}
+        headerBackgroundColor={{backgroundColor: colors.gray_f5f5f5}}
+        centerComponent={
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center'}}
+            onPress={handlePressAllPlayMusic}>
+            <Image
+              style={styles.allPlayImage}
+              source={require('../../asset/images/all_play_green.png')}
+            />
+            <Text style={styles.allPlayText}>전체재생</Text>
+          </TouchableOpacity>
+        }
+      />
       {firstMusic && (
         <TouchableOpacity
           onPress={() => handlePressMusic(firstMusic)}
@@ -147,7 +165,16 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 20,
+    color: colors.black_1c1c1c,
+  },
+  allPlayImage: {
+    width: 27,
+    height: 27,
+    marginRight: 5,
+  },
+  allPlayText: {
+    fontSize: 18,
+    color: colors.green_1DB954,
   },
   firstMusicContainer: {
     alignItems: 'center',
