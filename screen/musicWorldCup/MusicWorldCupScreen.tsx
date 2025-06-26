@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,21 +9,45 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
-import {getRandomMusic, getAudioUrlAndData} from '../../network/network';
+import {
+  getRandomMusic,
+  saveWinLog,
+  getTotalWinner,
+  savePlayLog,
+} from '../../network/network';
 import TrackPlayer, {
   Track,
   usePlaybackState,
   State,
 } from 'react-native-track-player';
 import {colors} from '../../asset/color/color';
-import {getRoundFormatTitle} from '../../formatHelpers/formatHelpers';
+import {
+  convertMusicRankItemToTrack,
+  formatDateTime,
+  getRoundFormatTitle,
+} from '../../formatHelpers/formatHelpers';
 import {useDispatch} from 'react-redux';
 import {playMusicService} from '../../service/musicService';
-import {setIsPlaying} from '../../store/slices/playMusicSlice';
+import {
+  setCurrentPlaylistId,
+  setIsPlaying,
+  setIsPlayingMusicBarVisible,
+} from '../../store/slices/playMusicSlice';
+import {useFocusEffect} from '@react-navigation/native';
+import {totalWinnerItem} from '../../model/model';
+
+const dummyTopWinner = {
+  title: '아이유 (IU) - Blueming',
+  artist: '아이유 (IU)',
+  artwork: 'https://i.ytimg.com/vi/D1PvIWdJ8xo/hqdefault.jpg',
+  winCount: 3,
+  lastWin: '2024-06-28',
+};
 
 const MusicWorldCupScreen = () => {
   const [musicList, setMusicList] = useState<any[]>([]);
   const [roundTracks, setRoundTracks] = useState<any[]>([]);
+  const [totalWinner, setTotalWinner] = useState<totalWinnerItem>();
   const [winners, setWinners] = useState<any[]>([]);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [stage, setStage] = useState(16);
@@ -34,6 +58,25 @@ const MusicWorldCupScreen = () => {
   const dispatch = useDispatch();
 
   const playbackState = usePlaybackState();
+
+  const fetchTotalWinner = useCallback(async () => {
+    try {
+      const resData = await getTotalWinner();
+      setTotalWinner(resData);
+    } catch (err) {
+      if (err instanceof Error) {
+        Alert.alert('순위 조회 실패', err.message);
+      } else {
+        Alert.alert('순위 조회 실패', '네트워크 오류');
+      }
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTotalWinner();
+    }, [fetchTotalWinner]),
+  );
 
   useEffect(() => {
     const fetchRandomMusic = async () => {
@@ -65,6 +108,16 @@ const MusicWorldCupScreen = () => {
       setSelectedIdx(null);
     }
   }, [winners]);
+
+  useEffect(() => {
+    const saveWinMusicItem = async () => {
+      await saveWinLog(roundTracks[0]);
+      await fetchTotalWinner();
+    };
+    if (stage === 1) {
+      saveWinMusicItem();
+    }
+  }, [stage]);
 
   //월드컵 새로고침
   const handleRefresh = () => {
@@ -108,6 +161,32 @@ const MusicWorldCupScreen = () => {
     }, 300);
   };
 
+  // 상단 우승 곡 선택 핸들러 ( =곡 재생 )
+  const handlePressTopWinnerCard = async () => {
+    if (!totalWinner) return;
+    const track = convertMusicRankItemToTrack(totalWinner);
+    try {
+      setIsLoading(true);
+      dispatch(setCurrentPlaylistId(null));
+      dispatch(setIsPlayingMusicBarVisible(true));
+
+      await playMusicService(track);
+
+      const saveLogRes = await savePlayLog(track);
+      if (!saveLogRes) {
+        Alert.alert(
+          '재생 기록 저장 실패',
+          '음악 재생 로그 저장에 실패했습니다.',
+        );
+      }
+    } catch (err: any) {
+      console.error('음악 재생 오류:', err);
+      Alert.alert('음악 재생 오류', err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // 곡 재생 핸들러
   const handlePlay = async (track: Track) => {
     try {
@@ -144,39 +223,83 @@ const MusicWorldCupScreen = () => {
     }
   };
 
+  const TopWinnerMusicCard = () =>
+    totalWinner && totalWinner.id ? (
+      <TouchableOpacity
+        style={styles.topWinnerCard}
+        onPress={handlePressTopWinnerCard}>
+        <View style={styles.topWinnerLeft}>
+          <Image
+            source={{uri: totalWinner.thumbnail_url}}
+            style={styles.topWinnerImage}
+          />
+          <View style={styles.topWinnerInfo}>
+            <Text style={styles.topWinnerTitle} numberOfLines={1}>
+              {totalWinner.title}
+            </Text>
+            <Text style={styles.topWinnerArtist} numberOfLines={1}>
+              {totalWinner.artist}
+            </Text>
+            <Text style={styles.topWinnerCount}>
+              🏆 {totalWinner.win_count}회 우승
+            </Text>
+            <Text style={styles.topWinnerDate}>
+              최근 우승: {formatDateTime(totalWinner.last_win_date)}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.trophyWrapper}>
+          <Text style={styles.trophyIcon}>🏆</Text>
+        </View>
+      </TouchableOpacity>
+    ) : (
+      <View
+        style={[
+          styles.topWinnerCard,
+          {justifyContent: 'center', alignItems: 'center'},
+        ]}>
+        <Text style={{fontSize: 16, color: '#888'}}>
+          역대 우승곡이 없습니다
+        </Text>
+      </View>
+    );
+
   // 월드컵 종료시 렌더링 화면
-  if (stage == 1) {
+  if (stage === 1) {
     const winner = roundTracks[0];
     return (
-      <SafeAreaView style={[styles.container, styles.center]}>
-        <View style={styles.headerContainer}>
-          <View style={{flex: 1}} />
-          <Text style={[styles.finalText, {flex: 2}]}>우승곡!</Text>
-          <TouchableOpacity
-            onPress={handleRefresh}
-            style={{flex: 1, alignItems: 'center'}}>
+      <SafeAreaView style={styles.container}>
+        <TopWinnerMusicCard />
+        <View style={styles.center}>
+          <View style={styles.headerContainer}>
+            <View style={{flex: 1}} />
+            <Text style={[styles.finalText, {flex: 2}]}>우승곡!</Text>
+            <TouchableOpacity
+              onPress={handleRefresh}
+              style={{flex: 1, alignItems: 'center'}}>
+              <Image
+                source={require('../../asset/images/refresh.png')}
+                style={styles.refreshImage}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.finalMusicCard}>
             <Image
-              source={require('../../asset/images/refresh.png')}
-              style={styles.refreshImage}
+              source={{uri: winner.snippet?.thumbnails?.medium?.url}}
+              style={styles.finalImage}
             />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.finalMusicCard}>
-          <Image
-            source={{uri: winner.snippet?.thumbnails?.medium?.url}}
-            style={styles.finalImage}
-          />
-          <Text style={styles.finalMusicTitle} numberOfLines={2}>
-            {winner.snippet?.title}
-          </Text>
-          <Text style={styles.finalMusicArtist}>
-            {winner.snippet?.channelTitle}
-          </Text>
-          <TouchableOpacity
-            style={styles.playButton}
-            onPress={() => handlePlay(winner)}>
-            <Text style={styles.playButtonText}>재생</Text>
-          </TouchableOpacity>
+            <Text style={styles.finalMusicTitle} numberOfLines={2}>
+              {winner.snippet?.title}
+            </Text>
+            <Text style={styles.finalMusicArtist}>
+              {winner.snippet?.channelTitle}
+            </Text>
+            <TouchableOpacity
+              style={styles.playButton}
+              onPress={() => handlePlay(winner)}>
+              <Text style={styles.playButtonText}>재생</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -190,6 +313,7 @@ const MusicWorldCupScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopWinnerMusicCard />
       <View style={styles.headerContainer}>
         <View style={{flex: 1}} />
         <Text style={[styles.roundTitle, {flex: 2}]}>
@@ -273,7 +397,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   center: {
     alignItems: 'center',
@@ -409,6 +533,65 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
+  },
+  topWinnerCard: {
+    padding: 16,
+    marginTop: 10,
+    marginBottom: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fffbe6',
+    borderRadius: 18,
+    shadowColor: '#FFD700',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  topWinnerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  topWinnerImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginRight: 14,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+  },
+  topWinnerInfo: {
+    flex: 1,
+  },
+  topWinnerTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+  },
+  topWinnerArtist: {
+    fontSize: 15,
+    color: '#888',
+    marginBottom: 2,
+  },
+  topWinnerCount: {
+    fontSize: 14,
+    color: '#B8860B',
+    fontWeight: 'bold',
+  },
+  topWinnerDate: {
+    fontSize: 13,
+    color: '#888',
+  },
+  trophyWrapper: {
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trophyIcon: {
+    fontSize: 32,
+    color: '#FFD700',
   },
 });
 

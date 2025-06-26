@@ -151,5 +151,15 @@ export type MusicRankItem = {
   title: string;
   artist: string;
   thumbnail_url: string;
-  last_played_date: string;
+  last_played_date?: string;
+};
+
+export type totalWinnerItem = {
+  id: number;
+  video_id: string;
+  title: string;
+  artist: string;
+  win_count: number;
+  thumbnail_url: string;
+  last_win_date: string;
 };
