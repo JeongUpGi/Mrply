@@ -29,9 +29,10 @@ import {playMusicService} from '../../service/musicService';
 import {
   setActiveSource,
   setCurrentPlaylistId,
+  setIsPlaying,
   setIsPlayingMusicBarVisible,
 } from '../../store/slices/playMusicSlice';
-import TrackPlayer, {Track} from 'react-native-track-player';
+import TrackPlayer, {State, Track} from 'react-native-track-player';
 import {convertToTrack} from '../../formatHelpers/formatHelpers';
 
 const SearchScreen = () => {
@@ -77,6 +78,7 @@ const SearchScreen = () => {
       Alert.alert('검색어를 입력해주세요.');
       return;
     }
+
     setSearchText(_textItem);
     dispatch(addRecentSearch(_textItem));
     setIsLoading(true);
@@ -121,6 +123,19 @@ const SearchScreen = () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // TrackPlayer 큐에서 해당 곡이 있는지 확인
+      const trackQueue = await TrackPlayer.getQueue();
+      const hasTrackIndex = trackQueue.findIndex(track => track.id === item.id);
+
+      if (hasTrackIndex !== -1) {
+        await TrackPlayer.skip(hasTrackIndex);
+        await TrackPlayer.play();
+        dispatch(setIsPlaying(true));
+        setIsLoading(false);
+        return;
+      }
+
       dispatch(setActiveSource('normal'));
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));

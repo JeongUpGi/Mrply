@@ -170,6 +170,19 @@ const MusicWorldCupScreen = () => {
       dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
 
+      // TrackPlayer 큐에서 해당 곡이 있는지 확인
+      const trackQueue = await TrackPlayer.getQueue();
+      const hasTrackIndex = trackQueue.findIndex(item => item.id === track.id);
+
+      if (hasTrackIndex !== -1) {
+        await TrackPlayer.skip(hasTrackIndex);
+        await TrackPlayer.play();
+        dispatch(setIsPlaying(true));
+        setPlayingId(track.id);
+        setIsLoading(false);
+        return;
+      }
+
       await playMusicService(track);
 
       const saveLogRes = await savePlayLog(track);
@@ -202,7 +215,7 @@ const MusicWorldCupScreen = () => {
         return;
       }
 
-      // TrackPlayer에 곡이 있다면 바로 재생
+      // 바로 재생
       if (playingId === trackId && playbackState.state === State.Paused) {
         await TrackPlayer.play();
         dispatch(setIsPlaying(true));
