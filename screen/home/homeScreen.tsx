@@ -192,17 +192,16 @@ const HomeScreen = () => {
           <Text style={styles.firstMusicArtist}>{firstMusic.artist}</Text>
         </TouchableOpacity>
       )}
-      {isLoading ? (
+      <FlatList
+        data={musicRank.slice(1)}
+        keyExtractor={item => item.id?.toString() || item.video_id}
+        renderItem={renderRankItem}
+        contentContainerStyle={styles.rankList}
+      />
+      {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.green_1DB954} />
         </View>
-      ) : (
-        <FlatList
-          data={musicRank.slice(1)}
-          keyExtractor={item => item.id?.toString() || item.video_id}
-          renderItem={renderRankItem}
-          contentContainerStyle={styles.rankList}
-        />
       )}
     </SafeAreaView>
   );
@@ -300,8 +299,8 @@ const styles = StyleSheet.create({
     color: colors.gray_808080,
   },
   loadingContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
