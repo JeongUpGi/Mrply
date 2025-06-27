@@ -5,7 +5,7 @@ import {
   AudioServiceResponseData,
 } from '../model/model';
 import TrackPlayer, {Track} from 'react-native-track-player';
-import {decodeHtmlEntities} from '../formatHelpers/formatHelpers';
+import {decodeHtmlEntities} from '../utils/formatHelpers';
 
 const YOUTUBE_URL = 'https://www.googleapis.com/youtube/v3';
 const BASE_URL = 'http://172.30.1.59'; //url 추후 수정

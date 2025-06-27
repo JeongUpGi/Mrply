@@ -20,7 +20,7 @@ import {SearchMusicModalProps} from '../../model/model';
 import {useDispatch} from 'react-redux';
 import {addRecentSearch} from '../../store/slices/recentSearchSlice';
 import {searchVideos} from '../../network/network';
-import {convertToTrack} from '../../formatHelpers/formatHelpers';
+import {convertToTrack} from '../../utils/formatHelpers';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 

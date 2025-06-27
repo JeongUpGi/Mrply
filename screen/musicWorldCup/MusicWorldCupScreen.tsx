@@ -25,7 +25,7 @@ import {
   convertMusicRankItemToTrack,
   formatDateTime,
   getRoundFormatTitle,
-} from '../../formatHelpers/formatHelpers';
+} from '../../utils/formatHelpers';
 import {useDispatch} from 'react-redux';
 import {playMusicService} from '../../service/musicService';
 import {

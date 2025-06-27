@@ -30,7 +30,7 @@ export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
 };
 
 // 음악 순위 api 통해서 받아온 data들 TrackPlayer에 맞게 데이터 변환하는 함수
-export function convertMusicRankItemToTrack(item: MusicRankItem): Track {
+export const convertMusicRankItemToTrack = (item: MusicRankItem): Track => {
   return {
     id: item.video_id,
     url: '',
@@ -38,7 +38,7 @@ export function convertMusicRankItemToTrack(item: MusicRankItem): Track {
     artist: item.artist,
     artwork: item.thumbnail_url,
   };
-}
+};
 
 // HTML 엔티티를 디코딩하는 함수
 export const decodeHtmlEntities = (text: string): string => {

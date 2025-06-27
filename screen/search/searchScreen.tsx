@@ -33,7 +33,7 @@ import {
   setIsPlayingMusicBarVisible,
 } from '../../store/slices/playMusicSlice';
 import TrackPlayer, {State, Track} from 'react-native-track-player';
-import {convertToTrack} from '../../formatHelpers/formatHelpers';
+import {convertToTrack} from '../../utils/formatHelpers';
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('');

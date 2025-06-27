@@ -17,7 +17,7 @@ import TextInputModal from '../../component/modal/TextInputModal';
 import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
-import {formatDate} from '../../formatHelpers/formatHelpers';
+import {formatDate} from '../../utils/formatHelpers';
 import TrackPlayer from 'react-native-track-player';
 import {
   setCureentPlaylistTrackIndex,

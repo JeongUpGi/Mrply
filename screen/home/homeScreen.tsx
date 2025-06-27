@@ -24,7 +24,7 @@ import {
 import {MusicRankItem, RootStackParamList} from '../../model/model';
 
 import {colors} from '../../asset/color/color';
-import {convertMusicRankItemToTrack} from '../../formatHelpers/formatHelpers';
+import {convertMusicRankItemToTrack} from '../../utils/formatHelpers';
 import {
   setActiveSource,
   setCurrentPlaylistId,
