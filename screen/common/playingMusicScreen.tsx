@@ -180,6 +180,10 @@ const PlayingMusicScreen = () => {
         targetIndex >= 0 &&
         targetIndex < targetQueue.length
       ) {
+        // TrackPlayer 큐 동기화
+        await TrackPlayer.reset();
+        await TrackPlayer.add(targetQueue);
+
         const targetTrack = targetQueue[targetIndex];
         if (targetTrack) {
           await playMusicService(targetTrack);
@@ -206,6 +210,7 @@ const PlayingMusicScreen = () => {
   };
 
   const handleNext = async () => {
+    setIsLoading(true);
     if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
       return;
 
@@ -219,9 +224,11 @@ const PlayingMusicScreen = () => {
     if (nextTrack) {
       await playMusicService(nextTrack);
     }
+    setIsLoading(false);
   };
 
   const handlePrevious = async () => {
+    setIsLoading(true);
     if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
       return;
 
@@ -235,6 +242,7 @@ const PlayingMusicScreen = () => {
     if (prevTrack) {
       await playMusicService(prevTrack);
     }
+    setIsLoading(false);
   };
 
   const deleteMusicTrackRedux = async (index: number) => {
@@ -265,6 +273,7 @@ const PlayingMusicScreen = () => {
 
       let nextTrackToPlay: Track | null = null;
 
+      await TrackPlayer.pause();
       // 현재 곡을 삭제하는 경우
       if (index === currentIndex) {
         if (currentQueue && currentQueue.length === 1) {
@@ -304,11 +313,13 @@ const PlayingMusicScreen = () => {
   };
 
   const handleMusicTrackPress = async (index: number) => {
+    setIsLoading(true);
     if (!currentQueue || currentQueue.length === 0) return;
     const selectedTrack = currentQueue[index];
     if (selectedTrack) {
       await playMusicService(selectedTrack);
     }
+    setIsLoading(false);
   };
 
   const handleShowPlaylistModal = () => {

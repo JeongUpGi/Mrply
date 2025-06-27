@@ -1,5 +1,4 @@
 import TrackPlayer, {State, Track} from 'react-native-track-player';
-import {getAudioUrlAndData} from '../network/network';
 import {store} from '../store';
 import {
   setCurrentMusic,
@@ -11,7 +10,6 @@ import {
   setActiveSource,
   setCurrentPlaylistId,
 } from '../store/slices/playMusicSlice';
-import {useDispatch} from 'react-redux';
 import {getValidAudioUrl} from '../utils/validateAudioUrl';
 
 /**
@@ -41,18 +39,28 @@ export async function playMusicService(item: Track): Promise<void> {
     const hasTrackIndex = trackQueue.findIndex(track => track.id === item.id);
 
     if (hasTrackIndex !== -1) {
+      const existingTrack = trackQueue[hasTrackIndex];
+      // TrackPlayer의 해당 트랙에 url이 없거나 빈 값이면 갱신
+      if (!existingTrack.url || existingTrack.url === '') {
+        const newQueue = [...trackQueue];
+        newQueue[hasTrackIndex] = itemWithAudioUrl;
+        await TrackPlayer.reset();
+        await TrackPlayer.add(newQueue);
+      }
       await TrackPlayer.skip(hasTrackIndex);
       await TrackPlayer.play();
       store.dispatch(setIsPlaying(true));
+      store.dispatch(setCurrentMusic(existingTrack));
       return;
     }
 
     const currentState = store.getState();
-    // 기존 큐 초기화
-    // await TrackPlayer.reset();
 
     // source에 따른 queue구분
-    const targetQueue = currentState.playMusic.searchTrackQueue;
+    const targetQueue =
+      currentState.playMusic.activeSource === 'playlist'
+        ? currentState.playMusic.playlistTrackQueue
+        : currentState.playMusic.searchTrackQueue;
 
     const targetIndex = targetQueue.findIndex(
       track => track.id === itemWithAudioUrl.id,
@@ -108,12 +116,10 @@ export async function playMusicService(item: Track): Promise<void> {
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
  * @param item
- * @param source 'normal' | 'playlist' - 트랙의 출처
  * @param playlistId
  */
 export async function playAllMusicService(
   item: Track,
-  source: 'normal' | 'playlist' = 'normal',
   playlistId: string | null = null,
 ): Promise<void> {
   const videoId = item.id;
@@ -123,10 +129,8 @@ export async function playAllMusicService(
   }
 
   try {
-    const {audioPlaybackData} = await getAudioUrlAndData(item);
     const currentState = store.getState();
-    // 기존 큐 초기화
-    await TrackPlayer.reset();
+    const source = currentState.playMusic.activeSource;
 
     // source에 따른 queue구분
     const targetQueue =
@@ -134,13 +138,29 @@ export async function playAllMusicService(
         ? currentState.playMusic.playlistTrackQueue
         : currentState.playMusic.searchTrackQueue;
 
-    const targetIndex = targetQueue.findIndex(
-      track => track.id === audioPlaybackData.id,
+    const audioUrl = await getValidAudioUrl(item);
+
+    const itemWithAudioUrl: Track = {
+      id: item.id,
+      url: audioUrl,
+      title: item.title || item.snippet?.title,
+      artist: item.artist || item.snippet?.channelTitle,
+      artwork: item.artwork || item.snippet?.thumbnails?.medium?.url,
+    };
+
+    // 전달한 item만 url 채우기
+    const updatedQueue = targetQueue.map(track =>
+      track.id === itemWithAudioUrl.id
+        ? {...track, url: itemWithAudioUrl.url}
+        : track,
     );
 
-    console.log('targetQueue ===> ', targetQueue);
+    await TrackPlayer.reset();
+    await TrackPlayer.add(updatedQueue);
 
-    await TrackPlayer.add(targetQueue);
+    const targetIndex = updatedQueue.findIndex(
+      track => track.id === itemWithAudioUrl.id,
+    );
 
     if (targetIndex !== -1) {
       await TrackPlayer.skip(targetIndex);
@@ -158,7 +178,7 @@ export async function playAllMusicService(
       await TrackPlayer.play();
     }
 
-    store.dispatch(setCurrentMusic(audioPlaybackData));
+    store.dispatch(setCurrentMusic(itemWithAudioUrl));
     store.dispatch(setIsPlaying(true));
     store.dispatch(setActiveSource(source));
     store.dispatch(setCurrentPlaylistId(playlistId));

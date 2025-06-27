@@ -98,30 +98,19 @@ const HomeScreen = () => {
   const handlePressAllPlayMusic = async () => {
     try {
       setIsLoading(true);
-      const tracksWithUrl: Track[] = await Promise.all(
-        musicRank.map(async item => {
-          const {audioPlaybackData} = await getAudioUrlAndData({
-            id: item.video_id,
-            title: item.title,
-            artist: item.artist,
-            artwork: item.thumbnail_url,
-            url: '',
-          });
-          return {
-            id: item.video_id,
-            title: item.title,
-            artist: item.artist,
-            artwork: item.thumbnail_url,
-            url: audioPlaybackData.url,
-          };
-        }),
-      );
-      dispatch(setSearchTrackQueue(tracksWithUrl));
+      const tracks: Track[] = musicRank.map(item => ({
+        id: item.video_id,
+        title: item.title,
+        artist: item.artist,
+        artwork: item.thumbnail_url,
+        url: '',
+      }));
+
+      dispatch(setSearchTrackQueue(tracks));
       dispatch(setcurrentSearchTrackIndex(0));
       dispatch(setActiveSource('normal'));
-      dispatch(setCurrentPlaylistId(null));
 
-      await playAllMusicService(tracksWithUrl[0], 'normal', null);
+      await playAllMusicService(tracks[0], null);
 
       navigation.navigate('playingMusicScreen');
     } catch (err: any) {

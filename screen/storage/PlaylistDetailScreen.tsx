@@ -129,7 +129,7 @@ const PlaylistDetailScreen = () => {
       dispatch(setIsPlayingMusicBarVisible(true));
 
       // 선택된 트랙으로 재생 시작
-      await playAllMusicService(track, 'playlist', playlistId);
+      await playAllMusicService(track, playlistId);
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(track);
