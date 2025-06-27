@@ -73,8 +73,6 @@ const HomeScreen = () => {
     const track = convertMusicRankItemToTrack(item);
     try {
       setIsLoading(true);
-      dispatch(setActiveSource('normal'));
-      dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
       await playMusicService(track);
 

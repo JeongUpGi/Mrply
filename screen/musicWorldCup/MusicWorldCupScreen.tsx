@@ -167,21 +167,7 @@ const MusicWorldCupScreen = () => {
     const track = convertMusicRankItemToTrack(totalWinner);
     try {
       setIsLoading(true);
-      dispatch(setCurrentPlaylistId(null));
       dispatch(setIsPlayingMusicBarVisible(true));
-
-      // TrackPlayer 큐에서 해당 곡이 있는지 확인
-      const trackQueue = await TrackPlayer.getQueue();
-      const hasTrackIndex = trackQueue.findIndex(item => item.id === track.id);
-
-      if (hasTrackIndex !== -1) {
-        await TrackPlayer.skip(hasTrackIndex);
-        await TrackPlayer.play();
-        dispatch(setIsPlaying(true));
-        setPlayingId(track.id);
-        setIsLoading(false);
-        return;
-      }
 
       await playMusicService(track);
 
@@ -207,6 +193,10 @@ const MusicWorldCupScreen = () => {
 
       const trackId = track.id?.videoId || track.id;
 
+      setPlayingId(trackId);
+
+      await playMusicService(track);
+
       // 이미 재생 중인 곡을 다시 누르면 "정지"
       if (playingId === trackId && playbackState.state === State.Playing) {
         await TrackPlayer.pause();
@@ -214,21 +204,6 @@ const MusicWorldCupScreen = () => {
         setIsLoading(false);
         return;
       }
-
-      // 바로 재생
-      if (playingId === trackId && playbackState.state === State.Paused) {
-        await TrackPlayer.play();
-        dispatch(setIsPlaying(true));
-        setIsLoading(false);
-        return;
-      }
-
-      // 새로운 곡을 재생하거나, 정지 상태에서 재생
-      setPlayingId(trackId);
-
-      await playMusicService(track);
-      await TrackPlayer.play();
-      dispatch(setIsPlaying(true));
     } catch (err) {
       Alert.alert('재생 오류', '음악을 재생할 수 없습니다.');
     } finally {
