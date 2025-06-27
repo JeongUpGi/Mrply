@@ -83,8 +83,6 @@ export async function playMusicService(item: Track): Promise<void> {
 
     store.dispatch(setCurrentMusic(itemWithAudioUrl));
     store.dispatch(setIsPlaying(true));
-    store.dispatch(setActiveSource('normal'));
-    store.dispatch(setCurrentPlaylistId(null));
 
     // redux 최신화
     const finalQueue = await TrackPlayer.getQueue();

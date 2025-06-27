@@ -122,6 +122,7 @@ const SearchScreen = () => {
       setIsLoading(true);
       setError(null);
       dispatch(setIsPlayingMusicBarVisible(true));
+      dispatch(setActiveSource('normal'));
       await playMusicService(item);
 
       // 음악 재생 로그 저장

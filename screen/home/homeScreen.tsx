@@ -74,6 +74,7 @@ const HomeScreen = () => {
     try {
       setIsLoading(true);
       dispatch(setIsPlayingMusicBarVisible(true));
+      dispatch(setActiveSource('normal'));
       await playMusicService(track);
 
       // 음악 재생 로그 저장

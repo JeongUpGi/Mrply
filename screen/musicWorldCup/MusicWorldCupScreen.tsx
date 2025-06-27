@@ -29,7 +29,7 @@ import {
 import {useDispatch} from 'react-redux';
 import {playMusicService} from '../../service/musicService';
 import {
-  setCurrentPlaylistId,
+  setActiveSource,
   setIsPlaying,
   setIsPlayingMusicBarVisible,
 } from '../../store/slices/playMusicSlice';
@@ -168,7 +168,7 @@ const MusicWorldCupScreen = () => {
     try {
       setIsLoading(true);
       dispatch(setIsPlayingMusicBarVisible(true));
-
+      dispatch(setActiveSource('normal'));
       await playMusicService(track);
 
       const saveLogRes = await savePlayLog(track);
@@ -195,6 +195,7 @@ const MusicWorldCupScreen = () => {
 
       setPlayingId(trackId);
 
+      dispatch(setActiveSource('normal'));
       await playMusicService(track);
 
       // 이미 재생 중인 곡을 다시 누르면 "정지"
