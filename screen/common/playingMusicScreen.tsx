@@ -41,6 +41,7 @@ import ListModal from '../../component/modal/ListModal';
 import {addMusicToPlaylist} from '../../store/slices/storageSlice';
 import {formatTime} from '../../utils/formatHelpers';
 import {savePlayLog} from '../../network/network';
+import {playMusicService} from '../../service/musicService';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
@@ -179,21 +180,11 @@ const PlayingMusicScreen = () => {
         targetIndex >= 0 &&
         targetIndex < targetQueue.length
       ) {
-        // TrackPlayer 큐를 해당 소스의 큐로 교체
-        await TrackPlayer.reset();
-        await TrackPlayer.add(targetQueue);
-        await TrackPlayer.skip(targetIndex);
-
-        // 현재 음악 정보 업데이트
         const targetTrack = targetQueue[targetIndex];
-        dispatch(setCurrentMusic(targetTrack));
-
-        // 재생 중이었다면 계속 재생
-        if (isPlaying) {
-          await TrackPlayer.play();
+        if (targetTrack) {
+          await playMusicService(targetTrack);
         }
       } else {
-        // 큐가 비어있거나 인덱스가 유효하지 않은 경우
         console.log(`${source} 큐가 비어있거나 인덱스가 유효하지 않습니다.`);
       }
     } catch (error) {
@@ -208,27 +199,42 @@ const PlayingMusicScreen = () => {
       await TrackPlayer.pause();
       dispatch(setIsPlaying(false));
     } else {
-      await TrackPlayer.play();
-      dispatch(setIsPlaying(true));
+      if (currentMusic) {
+        await playMusicService(currentMusic);
+      }
     }
   };
 
   const handleNext = async () => {
-    if (currentQueue && currentIndex === currentQueue.length - 1) {
-      await TrackPlayer.skip(0);
+    if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
+      return;
+
+    let nextIndex = 0;
+    if (currentIndex === currentQueue.length - 1) {
+      nextIndex = 0;
     } else {
-      await TrackPlayer.skipToNext();
+      nextIndex = currentIndex + 1;
+    }
+    const nextTrack = currentQueue[nextIndex];
+    if (nextTrack) {
+      await playMusicService(nextTrack);
     }
   };
 
   const handlePrevious = async () => {
-    setIsLoading(true);
-    if (currentQueue && currentIndex === 0) {
-      await TrackPlayer.skip(currentQueue.length - 1);
+    if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
+      return;
+
+    let prevIndex = 0;
+    if (currentIndex === 0) {
+      prevIndex = currentQueue.length - 1;
     } else {
-      await TrackPlayer.skipToPrevious();
+      prevIndex = currentIndex - 1;
     }
-    setIsLoading(false);
+    const prevTrack = currentQueue[prevIndex];
+    if (prevTrack) {
+      await playMusicService(prevTrack);
+    }
   };
 
   const deleteMusicTrackRedux = async (index: number) => {
@@ -256,8 +262,13 @@ const PlayingMusicScreen = () => {
   const handleMusicDelete = async (index: number) => {
     try {
       setIsLoading(true);
+
+      let nextTrackToPlay: Track | null = null;
+
+      // 현재 곡을 삭제하는 경우
       if (index === currentIndex) {
         if (currentQueue && currentQueue.length === 1) {
+          // 마지막 곡 삭제
           await TrackPlayer.reset();
           dispatch(setIsPlaying(false));
           dispatch(setCurrentMusic(null));
@@ -269,55 +280,21 @@ const PlayingMusicScreen = () => {
             dispatch(setCureentPlaylistTrackIndex(null));
           }
           navigation.goBack();
+          setIsLoading(false);
+          return;
         } else {
-          if (currentQueue && index === currentQueue.length - 1) {
-            await TrackPlayer.skipToPrevious();
-            if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
-              const newIndex = currentSearchTrackIndex - 1;
-              dispatch(setcurrentSearchTrackIndex(newIndex));
-              if (
-                currentQueue &&
-                newIndex >= 0 &&
-                newIndex < currentQueue.length
-              ) {
-                dispatch(setCurrentMusic(currentQueue[newIndex]));
-              }
-            } else if (playlistCurrentIndex !== null) {
-              const newIndex = playlistCurrentIndex - 1;
-              dispatch(setCureentPlaylistTrackIndex(newIndex));
-              if (
-                currentQueue &&
-                newIndex >= 0 &&
-                newIndex < currentQueue.length
-              ) {
-                dispatch(setCurrentMusic(currentQueue[newIndex]));
-              }
-            }
-          } else {
-            await TrackPlayer.skipToPrevious();
-            if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
-              dispatch(setcurrentSearchTrackIndex(currentSearchTrackIndex - 1));
-              dispatch(
-                setCurrentMusic(currentQueue[currentSearchTrackIndex - 1]),
-              );
-            } else if (playlistCurrentIndex !== null) {
-              dispatch(setCureentPlaylistTrackIndex(playlistCurrentIndex - 1));
-              dispatch(setCurrentMusic(currentQueue[playlistCurrentIndex - 1]));
-            }
-          }
-          await deleteMusicTrackRedux(index);
+          // 삭제 후 재생할 트랙 결정 (이전 곡 또는 첫 곡)
+          const prevIndex = index === 0 ? currentQueue.length - 1 : index - 1;
+          nextTrackToPlay = currentQueue[prevIndex];
         }
-      } else {
-        if (activeSource === 'normal' && currentSearchTrackIndex !== null) {
-          if (currentQueue && index !== currentQueue.length - 1) {
-            dispatch(setcurrentSearchTrackIndex(currentSearchTrackIndex - 1));
-          }
-        } else if (playlistCurrentIndex !== null) {
-          if (currentQueue && index !== currentQueue.length - 1) {
-            dispatch(setCureentPlaylistTrackIndex(playlistCurrentIndex - 1));
-          }
-        }
-        await deleteMusicTrackRedux(index);
+      }
+
+      // Redux에서 트랙 삭제
+      await deleteMusicTrackRedux(index);
+
+      // 삭제 후 재생할 트랙이 있다면 playMusicService로 재생
+      if (nextTrackToPlay) {
+        await playMusicService(nextTrackToPlay);
       }
     } catch (error) {
       console.error('삭제 도중 오류 발생', error);
@@ -327,7 +304,11 @@ const PlayingMusicScreen = () => {
   };
 
   const handleMusicTrackPress = async (index: number) => {
-    await TrackPlayer.skip(index);
+    if (!currentQueue || currentQueue.length === 0) return;
+    const selectedTrack = currentQueue[index];
+    if (selectedTrack) {
+      await playMusicService(selectedTrack);
+    }
   };
 
   const handleShowPlaylistModal = () => {
