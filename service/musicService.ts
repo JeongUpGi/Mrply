@@ -11,6 +11,8 @@ import {
   setActiveSource,
   setCurrentPlaylistId,
 } from '../store/slices/playMusicSlice';
+import {useDispatch} from 'react-redux';
+import {getValidAudioUrl} from '../utils/validateAudioUrl';
 
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
@@ -24,7 +26,27 @@ export async function playMusicService(item: Track): Promise<void> {
   }
 
   try {
-    const {audioPlaybackData} = await getAudioUrlAndData(item);
+    const audioUrl = await getValidAudioUrl(item);
+
+    const itemWithAudioUrl: Track = {
+      id: item.id,
+      url: audioUrl,
+      title: item.title || item.snippet.title,
+      artist: item.artist || item.snippet.channelTitle,
+      artwork: item.artwork || item.snippet.thumbnails.medium.url,
+    };
+
+    // TrackPlayer 큐에서 해당 곡이 있는지 확인
+    const trackQueue = await TrackPlayer.getQueue();
+    const hasTrackIndex = trackQueue.findIndex(track => track.id === item.id);
+
+    if (hasTrackIndex !== -1) {
+      await TrackPlayer.skip(hasTrackIndex);
+      await TrackPlayer.play();
+      store.dispatch(setIsPlaying(true));
+      return;
+    }
+
     const currentState = store.getState();
     // 기존 큐 초기화
     // await TrackPlayer.reset();
@@ -33,20 +55,18 @@ export async function playMusicService(item: Track): Promise<void> {
     const targetQueue = currentState.playMusic.searchTrackQueue;
 
     const targetIndex = targetQueue.findIndex(
-      track => track.id === audioPlaybackData.id,
+      track => track.id === itemWithAudioUrl.id,
     );
-
-    // await TrackPlayer.add(targetQueue);
 
     if (targetIndex !== -1) {
       await TrackPlayer.skip(targetIndex);
     } else {
       // 2. 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
-      await TrackPlayer.add([audioPlaybackData]);
+      await TrackPlayer.add([itemWithAudioUrl]);
       let currentQueue = await TrackPlayer.getQueue();
 
       const newTrackIndex = currentQueue.findIndex(
-        track => track.id === audioPlaybackData.id,
+        track => track.id === itemWithAudioUrl.id,
       );
       await TrackPlayer.skip(newTrackIndex);
     }
@@ -61,7 +81,7 @@ export async function playMusicService(item: Track): Promise<void> {
       await TrackPlayer.play();
     }
 
-    store.dispatch(setCurrentMusic(audioPlaybackData));
+    store.dispatch(setCurrentMusic(itemWithAudioUrl));
     store.dispatch(setIsPlaying(true));
     store.dispatch(setActiveSource('normal'));
     store.dispatch(setCurrentPlaylistId(null));
