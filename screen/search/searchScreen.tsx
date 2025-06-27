@@ -13,6 +13,7 @@ import {
   ListRenderItem,
   Switch,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 
 import {RecentSearchItems} from '../../model/model';
@@ -107,6 +108,7 @@ const SearchScreen = () => {
       setTotalMusic([]);
       setOfficialMusic([]);
     } finally {
+      Keyboard.dismiss();
       setIsLoading(false);
     }
   };
