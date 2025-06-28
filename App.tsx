@@ -92,6 +92,40 @@ function AppContent(): React.JSX.Element {
       try {
         const setupDone = await setupPlayer();
         setIsPlayerSetupDone(setupDone);
+
+        // setupDone이 true면 바로 큐 동기화 실행
+        if (
+          setupDone &&
+          currentQueue &&
+          currentQueue.length > 0 &&
+          currentIndex !== null
+        ) {
+          const syncTrackPlayerWithPersistedState = async () => {
+            try {
+              await TrackPlayer.reset();
+              await TrackPlayer.add(currentQueue);
+              await TrackPlayer.skip(currentIndex);
+              await TrackPlayer.seekTo(currentPlaybackPosition);
+
+              if (isPlaying) {
+                await TrackPlayer.play();
+              }
+            } catch (e) {
+              console.error('TrackPlayer sync error:', e);
+              dispatch(setIsPlaying(false));
+              dispatch(setCurrentMusic(null));
+              if (activeSource === 'normal') {
+                dispatch(setSearchTrackQueue([]));
+                dispatch(setcurrentSearchTrackIndex(null));
+              } else {
+                dispatch(setPlaylistTrackQueue([]));
+                dispatch(setCureentPlaylistTrackIndex(null));
+              }
+              dispatch(setCurrentPlaybackPosition(0));
+            }
+          };
+          syncTrackPlayerWithPersistedState();
+        }
       } catch (error) {
         console.error('Player initialization error:', error);
         setIsPlayerSetupDone(true);
@@ -99,38 +133,6 @@ function AppContent(): React.JSX.Element {
     };
 
     initPlayer();
-  }, []);
-
-  useEffect(() => {
-    if (!isPlayerSetupDone) return;
-
-    if (currentQueue && currentQueue.length > 0 && currentIndex !== null) {
-      const syncTrackPlayerWithPersistedState = async () => {
-        try {
-          await TrackPlayer.reset();
-          await TrackPlayer.add(currentQueue);
-          await TrackPlayer.skip(currentIndex);
-          await TrackPlayer.seekTo(currentPlaybackPosition);
-
-          if (isPlaying) {
-            await TrackPlayer.play();
-          }
-        } catch (e) {
-          console.error('TrackPlayer sync error:', e);
-          dispatch(setIsPlaying(false));
-          dispatch(setCurrentMusic(null));
-          if (activeSource === 'normal') {
-            dispatch(setSearchTrackQueue([]));
-            dispatch(setcurrentSearchTrackIndex(null));
-          } else {
-            dispatch(setPlaylistTrackQueue([]));
-            dispatch(setCureentPlaylistTrackIndex(null));
-          }
-          dispatch(setCurrentPlaybackPosition(0));
-        }
-      };
-      syncTrackPlayerWithPersistedState();
-    }
   }, []);
 
   useTrackPlayerEvents(
