@@ -27,11 +27,13 @@ const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
   visible,
   holderText,
+  isParentLoading,
   onClose,
   onTrackSelect,
 }) => {
   const [searchText, setSearchText] = useState('');
   const [totalMusic, setTotalMusic] = useState<Track[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const dispatch = useDispatch();
@@ -43,6 +45,7 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
     }
     setSearchText(_textItem);
     dispatch(addRecentSearch(_textItem));
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -61,6 +64,8 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
         setError('알 수 없는 오류가 발생했습니다.');
       }
       setTotalMusic([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -107,17 +112,23 @@ const SearchMusicModal: React.FC<SearchMusicModalProps> = ({
               onChangeText={setSearchText}
               onSubmitEditing={() => handleSearch(searchText)}
             />
-            <FlatList
-              data={totalMusic}
-              renderItem={renderTrackItem}
-              keyExtractor={(item, index) =>
-                item.id.videoId ||
-                item.id.channelId ||
-                item.id.playlistId ||
-                `fallback-${index}`
-              }
-              contentContainerStyle={styles.listContainer}
-            />
+            {isLoading || isParentLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.green_1DB954} />
+              </View>
+            ) : (
+              <FlatList
+                data={totalMusic}
+                renderItem={renderTrackItem}
+                keyExtractor={(item, index) =>
+                  item.id.videoId ||
+                  item.id.channelId ||
+                  item.id.playlistId ||
+                  `fallback-${index}`
+                }
+                contentContainerStyle={styles.listContainer}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -177,6 +188,12 @@ const styles = StyleSheet.create({
   artist: {
     color: colors.gray_808080,
     fontSize: 14,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   error: {
     color: colors.red,

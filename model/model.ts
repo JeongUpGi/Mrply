@@ -141,6 +141,7 @@ export interface ListModalProps {
 export interface SearchMusicModalProps {
   visible: boolean;
   holderText: string;
+  isParentLoading: boolean;
   onClose: () => void;
   onTrackSelect: (track: Track) => void;
 }
