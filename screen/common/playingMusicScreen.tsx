@@ -44,6 +44,7 @@ const PlayingMusicScreen = () => {
   const dispatch = useDispatch();
   const progress = useProgress();
   const actionSheetRef = React.useRef<ActionSheet>(null);
+  const flatListRef = useRef<FlatList>(null);
   const playlists = useSelector(
     (state: RootState) => state.storage.storedPlaylists,
   );
@@ -78,6 +79,22 @@ const PlayingMusicScreen = () => {
     activeSource === 'normal' ? searchTrackQueue : playlistTrackQueue;
   const currentIndex =
     activeSource === 'normal' ? currentSearchTrackIndex : playlistCurrentIndex;
+
+  // 현재 재생 중인 곡의 인덱스가 변경될 때마다 자동 스크롤
+  const ITEM_HEIGHT = 60; // 큐 아이템의 실제 높이(px)
+  useEffect(() => {
+    if (
+      currentIndex !== null &&
+      currentIndex >= 0 &&
+      flatListRef.current &&
+      currentQueue.length > 0
+    ) {
+      flatListRef.current.scrollToIndex({
+        index: currentIndex,
+        animated: true,
+      });
+    }
+  }, [currentIndex, currentQueue.length]);
 
   useFocusEffect(
     useCallback(() => {
@@ -183,10 +200,7 @@ const PlayingMusicScreen = () => {
     } else {
       nextIndex = currentIndex + 1;
     }
-
     await TrackPlayer.skip(nextIndex);
-
-    }
   };
 
   const handlePrevious = async () => {
@@ -200,7 +214,6 @@ const PlayingMusicScreen = () => {
       prevIndex = currentIndex - 1;
     }
     await TrackPlayer.skip(prevIndex);
-
   };
 
   const handleMusicDelete = async (index: number) => {
@@ -516,6 +529,7 @@ const PlayingMusicScreen = () => {
             {activeSource === 'normal' ? '재생 목록' : '플레이리스트'}
           </Text>
           <FlatList
+            ref={flatListRef}
             data={currentQueue}
             renderItem={renderMusicTrackQueue}
             keyExtractor={(item, index) => item.id || `track-${index}`}
@@ -523,6 +537,11 @@ const PlayingMusicScreen = () => {
             style={styles.queueList}
             contentContainerStyle={styles.queueListContent}
             ListEmptyComponent={emptyListRenderItem}
+            getItemLayout={(data, index) => ({
+              length: ITEM_HEIGHT,
+              offset: ITEM_HEIGHT * index,
+              index,
+            })}
           />
         </View>
       </View>
