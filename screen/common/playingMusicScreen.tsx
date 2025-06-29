@@ -216,31 +216,10 @@ const PlayingMusicScreen = () => {
     }
   };
 
-  const deleteMusicTrackRedux = async (index: number) => {
-    await TrackPlayer.remove(index);
-
-    const updatedQueue = [...currentQueue];
-    updatedQueue.splice(index, 1);
-
-    if (activeSource === 'normal') {
-      dispatch(setSearchTrackQueue(updatedQueue));
-      if (
-        currentSearchTrackIndex !== null &&
-        index <= currentSearchTrackIndex
-      ) {
-        dispatch(setcurrentSearchTrackIndex(index));
-      }
-    } else {
-      dispatch(setPlaylistTrackQueue(updatedQueue));
-      if (playlistCurrentIndex !== null && index <= playlistCurrentIndex) {
-        dispatch(setCureentPlaylistTrackIndex(index));
-      }
-    }
-  };
-
   const handleMusicDelete = async (index: number) => {
     try {
       let nextTrackToPlay: Track | null = null;
+      let shouldSkip = false; // trakcPlayer skip 호출 여부 플래그 변수
 
       // 현재 곡을 삭제하는 경우
       if (index === currentIndex) {
@@ -262,15 +241,40 @@ const PlayingMusicScreen = () => {
           // 삭제 후 재생할 트랙 결정 (이전 곡 또는 첫 곡)
           const prevIndex = index === 0 ? 0 : index - 1;
           nextTrackToPlay = currentQueue[prevIndex];
+          shouldSkip = true;
         }
+      } else {
+        const nextIndex =
+          currentIndex! > index ? currentIndex! - 1 : currentIndex!;
+        nextTrackToPlay = currentQueue[nextIndex];
+        shouldSkip = false;
       }
 
-      // Redux에서 트랙 삭제
-      await deleteMusicTrackRedux(index);
+      // TrackPlayer에서 트랙 삭제
+      await TrackPlayer.remove(index);
 
-      // 삭제 후 재생할 트랙이 있다면 TrackPlayer.skip()으로 재생
-      if (nextTrackToPlay) {
-        const nextIndex = currentQueue.findIndex(
+      // 최신 큐로 Redux 동기화
+      const updatedQueue = await TrackPlayer.getQueue();
+      if (activeSource === 'normal') {
+        dispatch(setSearchTrackQueue(updatedQueue));
+        // 인덱스 동기화
+        const newIndex = updatedQueue.findIndex(
+          track => track.id === nextTrackToPlay?.id,
+        );
+        dispatch(setcurrentSearchTrackIndex(newIndex !== -1 ? newIndex : null));
+      } else {
+        dispatch(setPlaylistTrackQueue(updatedQueue));
+        const newIndex = updatedQueue.findIndex(
+          track => track.id === nextTrackToPlay?.id,
+        );
+        dispatch(
+          setCureentPlaylistTrackIndex(newIndex !== -1 ? newIndex : null),
+        );
+      }
+
+      // skip이 필요한 경우에만 TrackPlayer.skip() 호출
+      if (nextTrackToPlay && shouldSkip) {
+        const nextIndex = updatedQueue.findIndex(
           track => track.id === nextTrackToPlay?.id,
         );
         if (nextIndex !== -1) {
