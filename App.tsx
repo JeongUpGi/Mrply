@@ -183,15 +183,9 @@ function AppContent(): React.JSX.Element {
           dispatch(setIsPlayingMusicBarVisible(false));
         }
       } else if (event.type === Event.PlaybackState) {
+        dispatch(setIsPlaying(true));
         // 현재 재생중인 곡 상태 변경 시 (일시 정지 등)
-        if (event.state === State.Playing || event.state === State.Buffering) {
-          //음악 재생, 버퍼링
-          dispatch(setIsPlaying(true));
-        } else if (
-          //음악 정지
-          event.state === State.Paused ||
-          event.state === State.Stopped
-        ) {
+        if (event.state === State.Paused || event.state === State.Stopped) {
           dispatch(setIsPlaying(false));
           // 백그라운드로 이동 시 일시정지 처리되기에 마지막 포지션 redux에 저장
           const currentPlayPosition = await TrackPlayer.getPosition();
