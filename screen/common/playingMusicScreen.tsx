@@ -475,8 +475,12 @@ const PlayingMusicScreen = () => {
           </View>
         )}
 
-        <Text style={styles.titleText}>{currentMusic?.title}</Text>
-        <Text style={styles.artistText}>{currentMusic?.artist}</Text>
+        <Text style={styles.titleText} numberOfLines={2}>
+          {currentMusic?.title}
+        </Text>
+        <Text style={styles.artistText} numberOfLines={1}>
+          {currentMusic?.artist}
+        </Text>
 
         <Slider
           style={styles.progressBarSlider}
