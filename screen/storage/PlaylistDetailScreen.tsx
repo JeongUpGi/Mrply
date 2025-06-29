@@ -24,7 +24,6 @@ import {
   removeMusicFromPlaylist,
 } from '../../store/slices/storageSlice';
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
-import {playAllMusicService} from '../../service/musicService';
 import {
   setActiveSource,
   setCureentPlaylistTrackIndex,
@@ -123,7 +122,6 @@ const PlaylistDetailScreen = () => {
         item => item.id === track.id,
       );
       dispatch(setCureentPlaylistTrackIndex(selectedTrackIndex));
-
       dispatch(setActiveSource('playlist'));
       dispatch(setCurrentPlaylistId(playlistId));
       dispatch(setIsPlayingMusicBarVisible(true));
@@ -159,16 +157,13 @@ const PlaylistDetailScreen = () => {
   const handleTrackSelect = async (track: Track) => {
     try {
       setIsLoading(true);
-      let trackWithUrl = track;
-      if (!track.url) {
-        const {audioPlaybackData} = await getAudioUrlAndData(track);
-        trackWithUrl = {...track, url: audioPlaybackData.url};
-      }
-
       await dispatch(
         addMusicToPlaylist({
           playlistId: route.params.playlistId,
-          track: trackWithUrl,
+          track: {
+            ...track,
+            url: '',
+          },
         }),
       );
       Alert.alert('알림', '플레이리스트에 추가되었습니다.');
