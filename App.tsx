@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {Provider, useSelector, useDispatch} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor, RootState} from './store';
@@ -54,6 +54,10 @@ async function setupPlayer() {
 function AppContent(): React.JSX.Element {
   const [isPlayerSetupDone, setIsPlayerSetupDone] = useState(false);
   const dispatch = useDispatch();
+
+  // 중복 호출 방지를 위한 ref
+  const lastProcessedTrackId = useRef<string | null>(null);
+  const isProcessingTrack = useRef(false);
 
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
@@ -148,6 +152,18 @@ function AppContent(): React.JSX.Element {
         const newTrack = await TrackPlayer.getActiveTrack();
 
         if (newTrack) {
+          // 중복 호출 방지: 같은 트랙이거나 이미 처리 중인 경우 스킵
+          if (
+            lastProcessedTrackId.current === newTrack.id ||
+            isProcessingTrack.current
+          ) {
+            return;
+          }
+
+          // 처리 중 플래그 설정
+          isProcessingTrack.current = true;
+          lastProcessedTrackId.current = newTrack.id;
+
           try {
             dispatch(setCurrentMusic(newTrack));
             dispatch(setIsPlayMusicServiceLoading(true));
@@ -156,6 +172,10 @@ function AppContent(): React.JSX.Element {
             console.error('playMusicService 호출 중 오류:', error);
           } finally {
             dispatch(setIsPlayMusicServiceLoading(false));
+            // 처리 완료 후 플래그 해제
+            setTimeout(() => {
+              isProcessingTrack.current = false;
+            }, 100);
           }
         } else {
           // 현재 트랙이 없으면 뮤직바 숨기기
