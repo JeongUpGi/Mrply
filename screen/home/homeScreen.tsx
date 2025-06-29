@@ -26,7 +26,6 @@ import {
   setIsPlayingMusicBarVisible,
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
-import {playAllMusicService} from '../../service/musicService';
 import {Header} from '../../component/common/Header';
 import {Track} from 'react-native-track-player';
 import TrackPlayer from 'react-native-track-player';
@@ -100,7 +99,8 @@ const HomeScreen = () => {
       dispatch(setcurrentSearchTrackIndex(0));
       dispatch(setActiveSource('normal'));
 
-      await playAllMusicService(tracks[0], null);
+      await TrackPlayer.reset();
+      await TrackPlayer.add(tracks);
 
       navigation.navigate('playingMusicScreen');
     } catch (err: any) {

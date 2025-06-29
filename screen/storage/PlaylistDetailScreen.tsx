@@ -128,8 +128,11 @@ const PlaylistDetailScreen = () => {
       dispatch(setCurrentPlaylistId(playlistId));
       dispatch(setIsPlayingMusicBarVisible(true));
 
-      // 선택된 트랙으로 재생 시작
-      await playAllMusicService(track, playlistId);
+      await TrackPlayer.reset();
+      await TrackPlayer.add(currentPlaylistTrack.tracks);
+      await TrackPlayer.skip(selectedTrackIndex); //여기서는 지정해야 app.tsx에서 newTrack을 제대로 인식
+
+      navigation.navigate('playingMusicScreen');
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(track);
