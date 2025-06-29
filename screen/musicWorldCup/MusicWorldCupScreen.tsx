@@ -170,7 +170,6 @@ const MusicWorldCupScreen = () => {
         await TrackPlayer.skip(newTrackIndex);
         dispatch(setcurrentSearchTrackIndex(newTrackIndex));
 
-        // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
         dispatch(setSearchTrackQueue(newQueue));
       }
 

@@ -36,7 +36,6 @@ export const searchVideos = async (
     }
 
     const data: SearchResponse = await response.json();
-    console.log('response ===> ', data);
 
     // HTML 엔티티 디코딩 처리
     const processedData = {
@@ -50,8 +49,6 @@ export const searchVideos = async (
         },
       })),
     };
-
-    console.log('responseProcessedData ===> ', processedData);
 
     return processedData;
   } catch (error) {
@@ -68,7 +65,6 @@ export const getAudioUrlAndData = async (
       `${BASE_URL}:3000/api/get-youtube-audio?videoId=` + musicItem.id;
 
     const response = await fetch(url);
-    console.log('Backend response status:', response.status);
 
     if (!response.ok) {
       const errorBody = await response.text();
@@ -78,7 +74,6 @@ export const getAudioUrlAndData = async (
     }
 
     const audioData = await response.json();
-    console.log('Received audio data from backend:', audioData);
 
     if (!audioData.audioUrl) {
       throw new Error('Backend response missing audioUrl.');
@@ -127,7 +122,6 @@ export const savePlayLog = async (track: Track): Promise<boolean> => {
     }
 
     const result = await response.json();
-    console.log('Play log saved:', result);
     return true;
   } catch (err) {
     console.error('Failed to log play:', err);
