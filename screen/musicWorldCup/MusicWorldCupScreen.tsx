@@ -5,7 +5,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
   StyleSheet,
 } from 'react-native';
@@ -23,26 +22,20 @@ import TrackPlayer, {
 import {colors} from '../../asset/color/color';
 import {
   convertMusicRankItemToTrack,
+  convertToTrack,
   formatDateTime,
   getRoundFormatTitle,
 } from '../../utils/formatHelpers';
 import {useDispatch} from 'react-redux';
-import {playMusicService} from '../../service/musicService';
+import {useFocusEffect} from '@react-navigation/native';
+import {totalWinnerItem} from '../../model/model';
 import {
   setActiveSource,
   setIsPlaying,
   setIsPlayingMusicBarVisible,
+  setcurrentSearchTrackIndex,
+  setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
-import {useFocusEffect} from '@react-navigation/native';
-import {totalWinnerItem} from '../../model/model';
-
-const dummyTopWinner = {
-  title: '아이유 (IU) - Blueming',
-  artist: '아이유 (IU)',
-  artwork: 'https://i.ytimg.com/vi/D1PvIWdJ8xo/hqdefault.jpg',
-  winCount: 3,
-  lastWin: '2024-06-28',
-};
 
 const MusicWorldCupScreen = () => {
   const [musicList, setMusicList] = useState<any[]>([]);
@@ -159,9 +152,27 @@ const MusicWorldCupScreen = () => {
     if (!totalWinner) return;
     const track = convertMusicRankItemToTrack(totalWinner);
     try {
-      dispatch(setIsPlayingMusicBarVisible(true));
+      setPlayingId(track.id);
       dispatch(setActiveSource('normal'));
-      await playMusicService(track);
+      dispatch(setIsPlayingMusicBarVisible(true));
+
+      // 기존 큐 확인
+      const currentQueue = await TrackPlayer.getQueue();
+      const existingTrackIndex = currentQueue.findIndex(t => t.id === track.id);
+
+      if (existingTrackIndex !== -1) {
+        await TrackPlayer.skip(existingTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
+      } else {
+        await TrackPlayer.add([track]);
+        const newQueue = await TrackPlayer.getQueue();
+        const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
+        await TrackPlayer.skip(newTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
+
+        // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
+        dispatch(setSearchTrackQueue(newQueue));
+      }
 
       const saveLogRes = await savePlayLog(track);
       if (!saveLogRes) {
@@ -177,15 +188,33 @@ const MusicWorldCupScreen = () => {
   };
 
   // 곡 재생 핸들러
-  const handlePlay = async (track: Track) => {
+  const handlePlay = async (track: any) => {
     try {
+      const convertedTrack = convertToTrack(track);
 
-      const trackId = track.id?.videoId || track.id;
+      const trackId = convertedTrack.id;
 
       setPlayingId(trackId);
-
+      dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
-      await playMusicService(track);
+
+      // 기존 큐 확인
+      const currentQueue = await TrackPlayer.getQueue();
+      const hasTrackIndex = currentQueue.findIndex(t => t.id === track.id);
+
+      if (hasTrackIndex !== -1) {
+        await TrackPlayer.skip(hasTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(hasTrackIndex));
+      } else {
+        await TrackPlayer.add([convertedTrack]);
+        const newQueue = await TrackPlayer.getQueue();
+        const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
+        await TrackPlayer.skip(newTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
+
+        // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
+        dispatch(setSearchTrackQueue(newQueue));
+      }
 
       // 이미 재생 중인 곡을 다시 누르면 "정지"
       if (playingId === trackId && playbackState.state === State.Playing) {

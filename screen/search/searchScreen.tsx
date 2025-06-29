@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useCallback} from 'react';
+import React, {useState, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {
   SafeAreaView,
@@ -12,7 +12,6 @@ import {
   Alert,
   ListRenderItem,
   Switch,
-  ActivityIndicator,
   Keyboard,
 } from 'react-native';
 
@@ -25,10 +24,10 @@ import {
 } from '../../store/slices/recentSearchSlice';
 import {RootState} from '../../store';
 
-import {playMusicService} from '../../service/musicService';
 import {
   setActiveSource,
-  setIsPlayingMusicBarVisible,
+  setSearchTrackQueue,
+  setcurrentSearchTrackIndex,
 } from '../../store/slices/playMusicSlice';
 import TrackPlayer, {Track} from 'react-native-track-player';
 import {convertToTrack} from '../../utils/formatHelpers';
@@ -117,9 +116,25 @@ const SearchScreen = () => {
   const startMusic = async (item: Track) => {
     try {
       setError(null);
-      dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
-      await playMusicService(item);
+
+      // 기존 큐 확인
+      const currentQueue = await TrackPlayer.getQueue();
+      const existingTrackIndex = currentQueue.findIndex(t => t.id === item.id);
+
+      if (existingTrackIndex !== -1) {
+        await TrackPlayer.skip(existingTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
+      } else {
+        await TrackPlayer.add([item]);
+        const newQueue = await TrackPlayer.getQueue();
+        const newTrackIndex = newQueue.findIndex(t => t.id === item.id);
+        await TrackPlayer.skip(newTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
+
+        // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
+        dispatch(setSearchTrackQueue(newQueue));
+      }
 
       // 음악 재생 로그 저장
       const saveLogRes = await savePlayLog(item);

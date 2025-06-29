@@ -4,7 +4,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor, RootState} from './store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
-import {View, ActivityIndicator, StyleSheet, AppState} from 'react-native';
+import {View, ActivityIndicator, StyleSheet} from 'react-native';
 import RootStackNavigator from './navigator/Routes';
 import TrackPlayer, {
   Event,
@@ -20,9 +20,11 @@ import {
   setcurrentSearchTrackIndex,
   setPlaylistTrackQueue,
   setCureentPlaylistTrackIndex,
+  setIsPlayingMusicBarVisible,
   setIsPlayMusicServiceLoading,
 } from './store/slices/playMusicSlice';
 import {colors} from './asset/color/color';
+import {playMusicService} from './service/musicService';
 
 // 앱 최초 업로드 시 TrackPlayer 초기 설정
 async function setupPlayer() {
@@ -76,6 +78,9 @@ function AppContent(): React.JSX.Element {
   );
   const isPlayingMusicBarVisible = useSelector(
     (state: RootState) => state.playMusic.isPlayingMusicBarVisible,
+  );
+  const isPlayMusicServiceLoading = useSelector(
+    (state: RootState) => state.playMusic.isPlayMusicServiceLoading,
   );
   const currentPlaybackPosition = useSelector(
     (state: RootState) => state.playMusic.currentPlaybackPosition,
@@ -140,31 +145,22 @@ function AppContent(): React.JSX.Element {
     [Event.PlaybackTrackChanged, Event.PlaybackState],
     async event => {
       if (event.type === Event.PlaybackTrackChanged) {
-        const newIndex = await TrackPlayer.getActiveTrackIndex();
         const newTrack = await TrackPlayer.getActiveTrack();
-        const currentQueue = await TrackPlayer.getQueue();
-
-        // 현재 활성 소스(검색 or 플레이리스트) 에 따라 보여지는 재생목록 업데이트
-        if (activeSource === 'normal') {
-          dispatch(setSearchTrackQueue(currentQueue));
-          dispatch(
-            setcurrentSearchTrackIndex(
-              newIndex !== undefined ? newIndex : null,
-            ),
-          );
-        } else {
-          dispatch(setPlaylistTrackQueue(currentQueue));
-          dispatch(
-            setCureentPlaylistTrackIndex(
-              newIndex !== undefined ? newIndex : null,
-            ),
-          );
-        }
 
         if (newTrack) {
-          dispatch(setCurrentMusic(newTrack));
+          try {
+            dispatch(setCurrentMusic(newTrack));
             dispatch(setIsPlayMusicServiceLoading(true));
+            await playMusicService(newTrack);
+          } catch (error) {
+            console.error('playMusicService 호출 중 오류:', error);
+          } finally {
             dispatch(setIsPlayMusicServiceLoading(false));
+          }
+        } else {
+          // 현재 트랙이 없으면 뮤직바 숨기기
+          dispatch(setCurrentMusic(null));
+          dispatch(setIsPlayingMusicBarVisible(false));
         }
       } else if (event.type === Event.PlaybackState) {
         // 현재 재생중인 곡 상태 변경 시 (일시 정지 등)
@@ -204,11 +200,13 @@ function AppContent(): React.JSX.Element {
     <SafeAreaProvider>
       <NavigationContainer>
         <RootStackNavigator />
-        {currentMusic && isPlayingMusicBarVisible && (
-          <View style={styles.playingMusicBarContainer}>
-            <PlayingMusicBar />
-          </View>
-        )}
+        {currentMusic &&
+          isPlayingMusicBarVisible &&
+          !isPlayMusicServiceLoading && (
+            <View style={styles.playingMusicBarContainer}>
+              <PlayingMusicBar />
+            </View>
+          )}
         {isPlayMusicServiceLoading && (
           <View style={styles.globalLoadingContainer}>
             <ActivityIndicator size="large" color={colors.green_1DB954} />

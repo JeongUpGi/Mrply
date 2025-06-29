@@ -8,13 +8,8 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
-import {
-  getAudioUrlAndData,
-  getMusicRank,
-  savePlayLog,
-} from '../../network/network';
+import {getMusicRank} from '../../network/network';
 import {useDispatch} from 'react-redux';
 import {
   NavigationProp,
@@ -27,17 +22,14 @@ import {colors} from '../../asset/color/color';
 import {convertMusicRankItemToTrack} from '../../utils/formatHelpers';
 import {
   setActiveSource,
-  setCurrentPlaylistId,
   setcurrentSearchTrackIndex,
   setIsPlayingMusicBarVisible,
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
-import {
-  playAllMusicService,
-  playMusicService,
-} from '../../service/musicService';
+import {playAllMusicService} from '../../service/musicService';
 import {Header} from '../../component/common/Header';
 import {Track} from 'react-native-track-player';
+import TrackPlayer from 'react-native-track-player';
 
 const HomeScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
@@ -50,7 +42,6 @@ const HomeScreen = () => {
   const fetchRank = useCallback(async () => {
     try {
       const resData = await getMusicRank();
-      console.log('resData ===> ', resData);
       setMusicRank(resData);
     } catch (err) {
       if (err instanceof Error) {
@@ -73,17 +64,21 @@ const HomeScreen = () => {
     try {
       dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
-      await playMusicService(track);
 
-      // 음악 재생 로그 저장
-      const saveLogRes = await savePlayLog(track);
-      if (!saveLogRes) {
-        Alert.alert(
-          '재생 기록 저장 실패',
-          '음악 재생 로그 저장에 실패했습니다.',
-        );
+      // 기존 큐 확인
+      const currentQueue = await TrackPlayer.getQueue();
+      const existingTrackIndex = currentQueue.findIndex(t => t.id === track.id);
+
+      if (existingTrackIndex !== -1) {
+        await TrackPlayer.skip(existingTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
       } else {
-        await fetchRank();
+        await TrackPlayer.add([track]);
+        const newQueue = await TrackPlayer.getQueue();
+        const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
+        await TrackPlayer.skip(newTrackIndex);
+        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
+        dispatch(setSearchTrackQueue(newQueue));
       }
     } catch (err: any) {
       console.error('음악 재생 오류:', err);

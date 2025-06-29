@@ -11,6 +11,7 @@ import {
   setCurrentPlaylistId,
 } from '../store/slices/playMusicSlice';
 import {getValidAudioUrl} from '../utils/validateAudioUrl';
+import {savePlayLog} from '../network/network';
 
 /**
  * 음악 재생을 시작하는 서비스 함수 (백엔드와 통신한 오디오 파일을 통해 track을 play하는 서비스 함수)
@@ -24,6 +25,8 @@ export async function playMusicService(item: Track): Promise<void> {
   }
 
   try {
+    const currentState = store.getState();
+
     const audioUrl = await getValidAudioUrl(item);
 
     const itemWithAudioUrl: Track = {
@@ -44,19 +47,42 @@ export async function playMusicService(item: Track): Promise<void> {
       if (!existingTrack.url || existingTrack.url === '') {
         const newQueue = [...trackQueue];
         newQueue[hasTrackIndex] = itemWithAudioUrl;
-        await TrackPlayer.reset();
-        await TrackPlayer.add(newQueue);
+        await TrackPlayer.remove(hasTrackIndex);
+        await TrackPlayer.add(itemWithAudioUrl, hasTrackIndex);
       }
+      // TrackPlayer 큐에 있으면 해당 인덱스로 이동
       await TrackPlayer.skip(hasTrackIndex);
       await TrackPlayer.play();
       store.dispatch(setIsPlaying(true));
-      store.dispatch(setCurrentMusic(existingTrack));
+      await savePlayLog(itemWithAudioUrl);
+
+      // Redux 큐 갱신 추가
+      const finalQueue = await TrackPlayer.getQueue();
+      const finalCurrentTrackIndex = await TrackPlayer.getActiveTrackIndex();
+
+      if (currentState.playMusic.activeSource === 'normal') {
+        store.dispatch(setSearchTrackQueue(finalQueue));
+        store.dispatch(
+          setcurrentSearchTrackIndex(
+            finalCurrentTrackIndex !== undefined
+              ? finalCurrentTrackIndex
+              : null,
+          ),
+        );
+      } else {
+        store.dispatch(setPlaylistTrackQueue(finalQueue));
+        store.dispatch(
+          setCureentPlaylistTrackIndex(
+            finalCurrentTrackIndex !== undefined
+              ? finalCurrentTrackIndex
+              : null,
+          ),
+        );
+      }
       return;
     }
 
-    const currentState = store.getState();
-
-    // source에 따른 queue구분
+    // source에 따른 queue구분 (탭 change와 같은 플레이 루트가 있기에 구분)
     const targetQueue =
       currentState.playMusic.activeSource === 'playlist'
         ? currentState.playMusic.playlistTrackQueue
@@ -69,11 +95,10 @@ export async function playMusicService(item: Track): Promise<void> {
     if (targetIndex !== -1) {
       await TrackPlayer.skip(targetIndex);
     } else {
-      // 2. 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
+      // 트랙이 큐에 없다면 큐에 추가하고 추가된 트랙으로
       await TrackPlayer.add([itemWithAudioUrl]);
-      let currentQueue = await TrackPlayer.getQueue();
-
-      const newTrackIndex = currentQueue.findIndex(
+      const newQueue = await TrackPlayer.getQueue();
+      const newTrackIndex = newQueue.findIndex(
         track => track.id === itemWithAudioUrl.id,
       );
       await TrackPlayer.skip(newTrackIndex);
@@ -89,20 +114,29 @@ export async function playMusicService(item: Track): Promise<void> {
       await TrackPlayer.play();
     }
 
-    store.dispatch(setCurrentMusic(itemWithAudioUrl));
     store.dispatch(setIsPlaying(true));
+    await savePlayLog(itemWithAudioUrl);
 
     // redux 최신화
     const finalQueue = await TrackPlayer.getQueue();
     const finalCurrentTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
     // 현재 소스(검색 or 플레이리스트)에 따라 큐 업데이트
-    store.dispatch(setSearchTrackQueue(finalQueue));
-    store.dispatch(
-      setcurrentSearchTrackIndex(
-        finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
-      ),
-    );
+    if (currentState.playMusic.activeSource === 'normal') {
+      store.dispatch(setSearchTrackQueue(finalQueue));
+      store.dispatch(
+        setcurrentSearchTrackIndex(
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+        ),
+      );
+    } else {
+      store.dispatch(setPlaylistTrackQueue(finalQueue));
+      store.dispatch(
+        setCureentPlaylistTrackIndex(
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+        ),
+      );
+    }
   } catch (err: unknown) {
     console.error('Error in playbackService (startPlayback):', err);
     if (err instanceof Error) {
@@ -192,14 +226,14 @@ export async function playAllMusicService(
       store.dispatch(setSearchTrackQueue(finalQueue));
       store.dispatch(
         setcurrentSearchTrackIndex(
-          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : 0,
         ),
       );
     } else {
       store.dispatch(setPlaylistTrackQueue(finalQueue));
       store.dispatch(
         setCureentPlaylistTrackIndex(
-          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : null,
+          finalCurrentTrackIndex !== undefined ? finalCurrentTrackIndex : 0,
         ),
       );
     }

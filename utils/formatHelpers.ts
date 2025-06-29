@@ -19,13 +19,13 @@ export const formatTime = (seconds: number | undefined) => {
 };
 
 // 유투브 api 통해서 받아온 data들 TrackPlayer에 맞게 데이터 변환하는 함수
-export const convertToTrack = (searchItem: SearchResultMusicItem): Track => {
+export const convertToTrack = (item: SearchResultMusicItem): Track => {
   return {
-    id: searchItem.id.videoId || '',
+    id: item.id.videoId || item.id || '',
     url: '',
-    title: searchItem.snippet.title,
-    artist: searchItem.snippet.channelTitle,
-    artwork: searchItem.snippet.thumbnails.medium.url,
+    title: item.snippet.title,
+    artist: item.snippet.channelTitle,
+    artwork: item.snippet.thumbnails.medium.url,
   };
 };
 
