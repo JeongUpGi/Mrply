@@ -26,9 +26,7 @@ import {
   setIsPlayingMusicBarVisible,
   setIsPlaying,
   setSearchTrackQueue,
-  setcurrentSearchTrackIndex,
   setPlaylistTrackQueue,
-  setCureentPlaylistTrackIndex,
   setActiveSource,
 } from '../../store/slices/playMusicSlice';
 import {colors} from '../../asset/color/color';
@@ -188,11 +186,6 @@ const PlayingMusicScreen = () => {
 
     await TrackPlayer.skip(nextIndex);
 
-    // Redux 상태 업데이트
-    if (activeSource === 'normal') {
-      dispatch(setcurrentSearchTrackIndex(nextIndex));
-    } else {
-      dispatch(setCureentPlaylistTrackIndex(nextIndex));
     }
   };
 
@@ -208,12 +201,6 @@ const PlayingMusicScreen = () => {
     }
     await TrackPlayer.skip(prevIndex);
 
-    // Redux 상태 업데이트
-    if (activeSource === 'normal') {
-      dispatch(setcurrentSearchTrackIndex(prevIndex));
-    } else {
-      dispatch(setCureentPlaylistTrackIndex(prevIndex));
-    }
   };
 
   const handleMusicDelete = async (index: number) => {
@@ -230,10 +217,8 @@ const PlayingMusicScreen = () => {
           dispatch(setIsPlayingMusicBarVisible(false));
           if (activeSource === 'normal') {
             dispatch(setSearchTrackQueue([]));
-            dispatch(setcurrentSearchTrackIndex(null));
           } else {
             dispatch(setPlaylistTrackQueue([]));
-            dispatch(setCureentPlaylistTrackIndex(null));
           }
           navigation.goBack();
           return;
@@ -257,19 +242,8 @@ const PlayingMusicScreen = () => {
       const updatedQueue = await TrackPlayer.getQueue();
       if (activeSource === 'normal') {
         dispatch(setSearchTrackQueue(updatedQueue));
-        // 인덱스 동기화
-        const newIndex = updatedQueue.findIndex(
-          track => track.id === nextTrackToPlay?.id,
-        );
-        dispatch(setcurrentSearchTrackIndex(newIndex !== -1 ? newIndex : null));
       } else {
         dispatch(setPlaylistTrackQueue(updatedQueue));
-        const newIndex = updatedQueue.findIndex(
-          track => track.id === nextTrackToPlay?.id,
-        );
-        dispatch(
-          setCureentPlaylistTrackIndex(newIndex !== -1 ? newIndex : null),
-        );
       }
 
       // skip이 필요한 경우에만 TrackPlayer.skip() 호출

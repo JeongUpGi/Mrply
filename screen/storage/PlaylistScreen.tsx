@@ -20,7 +20,6 @@ import {RootStackParamList} from '../../model/model';
 import {formatDate} from '../../utils/formatHelpers';
 import TrackPlayer from 'react-native-track-player';
 import {
-  setCureentPlaylistTrackIndex,
   setCurrentMusic,
   setCurrentPlaylistId,
   setIsPlaying,
@@ -67,7 +66,6 @@ const PlaylistScreen = () => {
             dispatch(setIsPlayingMusicBarVisible(false));
             dispatch(setCurrentPlaylistId(null));
             dispatch(setPlaylistTrackQueue([]));
-            dispatch(setCureentPlaylistTrackIndex(null));
           }
 
           dispatch(removePlaylist(playlistId));

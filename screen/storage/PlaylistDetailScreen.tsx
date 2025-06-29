@@ -26,7 +26,6 @@ import {
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
 import {
   setActiveSource,
-  setCureentPlaylistTrackIndex,
   setCurrentMusic,
   setCurrentPlaylistId,
   setIsPlaying,
@@ -35,7 +34,7 @@ import {
 } from '../../store/slices/playMusicSlice';
 import {NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
-import {getAudioUrlAndData, savePlayLog} from '../../network/network';
+import {savePlayLog} from '../../network/network';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -94,14 +93,12 @@ const PlaylistDetailScreen = () => {
               dispatch(setCurrentMusic(firstTrack));
               dispatch(setIsPlaying(true));
               dispatch(setPlaylistTrackQueue(updatedTracks));
-              dispatch(setCureentPlaylistTrackIndex(0));
             } else {
               // 남은 곡이 없으면 재생 멈춤 및 상태 초기화
               await TrackPlayer.reset();
               dispatch(setCurrentMusic(null));
               dispatch(setIsPlaying(false));
               dispatch(setPlaylistTrackQueue([]));
-              dispatch(setCureentPlaylistTrackIndex(null));
             }
           } else {
             // 재생 중인 곡이 삭제된 곡이 아니면, 큐만 갱신
@@ -121,7 +118,6 @@ const PlaylistDetailScreen = () => {
       const selectedTrackIndex = currentPlaylistTrack.tracks.findIndex(
         item => item.id === track.id,
       );
-      dispatch(setCureentPlaylistTrackIndex(selectedTrackIndex));
       dispatch(setActiveSource('playlist'));
       dispatch(setCurrentPlaylistId(playlistId));
       dispatch(setIsPlayingMusicBarVisible(true));

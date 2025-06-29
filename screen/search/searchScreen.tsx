@@ -27,7 +27,6 @@ import {RootState} from '../../store';
 import {
   setActiveSource,
   setSearchTrackQueue,
-  setcurrentSearchTrackIndex,
 } from '../../store/slices/playMusicSlice';
 import TrackPlayer, {Track} from 'react-native-track-player';
 import {convertToTrack} from '../../utils/formatHelpers';
@@ -124,13 +123,11 @@ const SearchScreen = () => {
 
       if (existingTrackIndex !== -1) {
         await TrackPlayer.skip(existingTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
       } else {
         await TrackPlayer.add([item]);
         const newQueue = await TrackPlayer.getQueue();
         const newTrackIndex = newQueue.findIndex(t => t.id === item.id);
         await TrackPlayer.skip(newTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
 
         // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
         dispatch(setSearchTrackQueue(newQueue));

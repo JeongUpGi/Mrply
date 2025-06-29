@@ -17,9 +17,7 @@ import {
   setIsPlaying,
   setCurrentPlaybackPosition,
   setSearchTrackQueue,
-  setcurrentSearchTrackIndex,
   setPlaylistTrackQueue,
-  setCureentPlaylistTrackIndex,
   setIsPlayingMusicBarVisible,
   setIsPlayMusicServiceLoading,
 } from './store/slices/playMusicSlice';
@@ -126,10 +124,8 @@ function AppContent(): React.JSX.Element {
               dispatch(setCurrentMusic(null));
               if (activeSource === 'normal') {
                 dispatch(setSearchTrackQueue([]));
-                dispatch(setcurrentSearchTrackIndex(null));
               } else {
                 dispatch(setPlaylistTrackQueue([]));
-                dispatch(setCureentPlaylistTrackIndex(null));
               }
               dispatch(setCurrentPlaybackPosition(0));
             }

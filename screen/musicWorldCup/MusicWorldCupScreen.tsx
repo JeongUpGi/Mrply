@@ -33,7 +33,6 @@ import {
   setActiveSource,
   setIsPlaying,
   setIsPlayingMusicBarVisible,
-  setcurrentSearchTrackIndex,
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
 
@@ -162,13 +161,11 @@ const MusicWorldCupScreen = () => {
 
       if (existingTrackIndex !== -1) {
         await TrackPlayer.skip(existingTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
       } else {
         await TrackPlayer.add([track]);
         const newQueue = await TrackPlayer.getQueue();
         const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
         await TrackPlayer.skip(newTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
 
         dispatch(setSearchTrackQueue(newQueue));
       }
@@ -203,13 +200,11 @@ const MusicWorldCupScreen = () => {
 
       if (hasTrackIndex !== -1) {
         await TrackPlayer.skip(hasTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(hasTrackIndex));
       } else {
         await TrackPlayer.add([convertedTrack]);
         const newQueue = await TrackPlayer.getQueue();
         const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
         await TrackPlayer.skip(newTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
 
         // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
         dispatch(setSearchTrackQueue(newQueue));

@@ -22,7 +22,6 @@ import {colors} from '../../asset/color/color';
 import {convertMusicRankItemToTrack} from '../../utils/formatHelpers';
 import {
   setActiveSource,
-  setcurrentSearchTrackIndex,
   setIsPlayingMusicBarVisible,
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
@@ -70,13 +69,11 @@ const HomeScreen = () => {
 
       if (existingTrackIndex !== -1) {
         await TrackPlayer.skip(existingTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(existingTrackIndex));
       } else {
         await TrackPlayer.add([track]);
         const newQueue = await TrackPlayer.getQueue();
         const newTrackIndex = newQueue.findIndex(t => t.id === track.id);
         await TrackPlayer.skip(newTrackIndex);
-        dispatch(setcurrentSearchTrackIndex(newTrackIndex));
         dispatch(setSearchTrackQueue(newQueue));
       }
     } catch (err: any) {
@@ -96,7 +93,6 @@ const HomeScreen = () => {
       }));
 
       dispatch(setSearchTrackQueue(tracks));
-      dispatch(setcurrentSearchTrackIndex(0));
       dispatch(setActiveSource('normal'));
 
       await TrackPlayer.reset();
