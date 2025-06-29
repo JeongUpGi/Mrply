@@ -26,7 +26,7 @@ import {
   formatDateTime,
   getRoundFormatTitle,
 } from '../../utils/formatHelpers';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import {totalWinnerItem} from '../../model/model';
 import {
@@ -35,6 +35,7 @@ import {
   setIsPlayingMusicBarVisible,
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
+import {RootState} from '../../store';
 
 const MusicWorldCupScreen = () => {
   const [musicList, setMusicList] = useState<any[]>([]);
@@ -43,12 +44,13 @@ const MusicWorldCupScreen = () => {
   const [winners, setWinners] = useState<any[]>([]);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [stage, setStage] = useState(16);
-  const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   const dispatch = useDispatch();
-
   const playbackState = usePlaybackState();
+  const currentMusic = useSelector(
+    (state: RootState) => state.playMusic.currentMusic,
+  );
 
   const fetchTotalWinner = useCallback(async () => {
     try {
@@ -151,7 +153,6 @@ const MusicWorldCupScreen = () => {
     if (!totalWinner) return;
     const track = convertMusicRankItemToTrack(totalWinner);
     try {
-      setPlayingId(track.id);
       dispatch(setActiveSource('normal'));
       dispatch(setIsPlayingMusicBarVisible(true));
 
@@ -187,16 +188,31 @@ const MusicWorldCupScreen = () => {
   const handlePlay = async (track: any) => {
     try {
       const convertedTrack = convertToTrack(track);
-
       const trackId = convertedTrack.id;
 
-      setPlayingId(trackId);
       dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
 
-      // 기존 큐 확인
+      // 기조 큐 확인
       const currentQueue = await TrackPlayer.getQueue();
       const hasTrackIndex = currentQueue.findIndex(t => t.id === track.id);
+
+      // 이미 재생 중인 곡을 다시 누르면 "정지"
+      if (
+        currentMusic?.id === trackId &&
+        playbackState.state === State.Playing
+      ) {
+        await TrackPlayer.pause();
+        dispatch(setIsPlaying(false));
+        return;
+      }
+
+      // 이미 큐에 있고 Paused 상태라면 play만!
+      if (hasTrackIndex !== -1 && playbackState.state === State.Paused) {
+        await TrackPlayer.play();
+        dispatch(setIsPlaying(true));
+        return;
+      }
 
       if (hasTrackIndex !== -1) {
         await TrackPlayer.skip(hasTrackIndex);
@@ -208,13 +224,6 @@ const MusicWorldCupScreen = () => {
 
         // Redux 큐도 업데이트하여 playMusicService에서 중복 추가 방지
         dispatch(setSearchTrackQueue(newQueue));
-      }
-
-      // 이미 재생 중인 곡을 다시 누르면 "정지"
-      if (playingId === trackId && playbackState.state === State.Playing) {
-        await TrackPlayer.pause();
-        dispatch(setIsPlaying(false));
-        return;
       }
     } catch (err) {
       Alert.alert('재생 오류', '음악을 재생할 수 없습니다.');
@@ -343,44 +352,43 @@ const MusicWorldCupScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.pairContainer}>
-        {pair.map((track, idx) => (
-          <TouchableOpacity
-            key={`${track.id?.videoId || track.id}_${idx}`}
-            style={[
-              styles.musicCard,
-              selectedIdx === idx && styles.selectedMusicCard,
-            ]}
-            activeOpacity={0.85}
-            onPress={() => handleSelect(track, idx)}>
-            <Image
-              source={{uri: track.snippet?.thumbnails?.medium?.url}}
-              style={styles.thumbnailImage}
-            />
-            <Text style={styles.msuicCardTitle} numberOfLines={2}>
-              {track.snippet?.title}
-            </Text>
-            <Text style={styles.musicCardArtist} numberOfLines={1}>
-              {track.snippet?.channelTitle}
-            </Text>
+        {pair.map((track, idx) => {
+          const isCurrentTrackPlaying =
+            currentMusic?.id === track.id &&
+            playbackState.state === State.Playing;
+          return (
             <TouchableOpacity
+              key={`${track.id?.videoId || track.id}_${idx}`}
               style={[
-                styles.playButton,
-                playingId === (track.id?.videoId || track.id) &&
-                playbackState.state === State.Playing
-                  ? styles.playingButton
-                  : null,
+                styles.musicCard,
+                selectedIdx === idx && styles.selectedMusicCard,
               ]}
-              onPress={() => handlePlay(track)}
-              activeOpacity={0.7}>
-              <Text style={styles.playButtonText}>
-                {playingId === (track.id?.videoId || track.id) &&
-                playbackState.state === State.Playing
-                  ? '정지'
-                  : '재생'}
+              activeOpacity={0.85}
+              onPress={() => handleSelect(track, idx)}>
+              <Image
+                source={{uri: track.snippet?.thumbnails?.medium?.url}}
+                style={styles.thumbnailImage}
+              />
+              <Text style={styles.msuicCardTitle} numberOfLines={2}>
+                {track.snippet?.title}
               </Text>
+              <Text style={styles.musicCardArtist} numberOfLines={1}>
+                {track.snippet?.channelTitle}
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.playButton,
+                  isCurrentTrackPlaying ? styles.playingButton : null,
+                ]}
+                onPress={() => handlePlay(track)}
+                activeOpacity={0.7}>
+                <Text style={styles.playButtonText}>
+                  {isCurrentTrackPlaying ? '정지' : '재생'}
+                </Text>
+              </TouchableOpacity>
             </TouchableOpacity>
-          </TouchableOpacity>
-        ))}
+          );
+        })}
       </View>
     </SafeAreaView>
   );
