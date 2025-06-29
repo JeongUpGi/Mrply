@@ -41,7 +41,6 @@ import {Track} from 'react-native-track-player';
 
 const HomeScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -72,7 +71,6 @@ const HomeScreen = () => {
   const handlePressMusic = async (item: MusicRankItem) => {
     const track = convertMusicRankItemToTrack(item);
     try {
-      setIsLoading(true);
       dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
       await playMusicService(track);
@@ -90,14 +88,11 @@ const HomeScreen = () => {
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handlePressAllPlayMusic = async () => {
     try {
-      setIsLoading(true);
       const tracks: Track[] = musicRank.map(item => ({
         id: item.video_id,
         title: item.title,
@@ -116,8 +111,6 @@ const HomeScreen = () => {
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -186,11 +179,6 @@ const HomeScreen = () => {
         renderItem={renderRankItem}
         contentContainerStyle={styles.rankList}
       />
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -285,12 +273,6 @@ const styles = StyleSheet.create({
   musicArtist: {
     fontSize: 14,
     color: colors.gray_808080,
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

@@ -45,7 +45,6 @@ import {playMusicService} from '../../service/musicService';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
@@ -163,7 +162,6 @@ const PlayingMusicScreen = () => {
         return;
       }
 
-      setIsLoading(true);
       dispatch(setActiveSource(source));
 
       // 해당 소스의 큐와 인덱스 가져오기
@@ -193,8 +191,6 @@ const PlayingMusicScreen = () => {
       }
     } catch (error) {
       console.error('탭 전환 중 오류 발생:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -210,7 +206,6 @@ const PlayingMusicScreen = () => {
   };
 
   const handleNext = async () => {
-    setIsLoading(true);
     if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
       return;
 
@@ -224,11 +219,9 @@ const PlayingMusicScreen = () => {
     if (nextTrack) {
       await playMusicService(nextTrack);
     }
-    setIsLoading(false);
   };
 
   const handlePrevious = async () => {
-    setIsLoading(true);
     if (!currentQueue || currentQueue.length === 0 || currentIndex === null)
       return;
 
@@ -242,7 +235,6 @@ const PlayingMusicScreen = () => {
     if (prevTrack) {
       await playMusicService(prevTrack);
     }
-    setIsLoading(false);
   };
 
   const deleteMusicTrackRedux = async (index: number) => {
@@ -269,7 +261,6 @@ const PlayingMusicScreen = () => {
 
   const handleMusicDelete = async (index: number) => {
     try {
-      setIsLoading(true);
 
       let nextTrackToPlay: Track | null = null;
 
@@ -289,7 +280,6 @@ const PlayingMusicScreen = () => {
             dispatch(setCureentPlaylistTrackIndex(null));
           }
           navigation.goBack();
-          setIsLoading(false);
           return;
         } else {
           // 삭제 후 재생할 트랙 결정 (이전 곡 또는 첫 곡)
@@ -307,8 +297,6 @@ const PlayingMusicScreen = () => {
       }
     } catch (error) {
       console.error('삭제 도중 오류 발생', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -631,12 +619,6 @@ const PlayingMusicScreen = () => {
           }}
         />
       )}
-
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -863,13 +845,6 @@ const styles = StyleSheet.create({
   },
   emptyListText: {
     color: colors.gray_c0c0c0,
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

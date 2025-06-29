@@ -40,7 +40,6 @@ import {getAudioUrlAndData, savePlayLog} from '../../network/network';
 
 const PlaylistDetailScreen = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -115,7 +114,6 @@ const PlaylistDetailScreen = () => {
 
   const handlePlayPlaylist = async (track: Track) => {
     try {
-      setIsLoading(true);
       // 플레이리스트의 모든 트랙을 Redux에 설정
       dispatch(setPlaylistTrackQueue(currentPlaylistTrack.tracks));
 
@@ -148,14 +146,11 @@ const PlaylistDetailScreen = () => {
         '재생 오류',
         error.message || '음악 재생 중 오류가 발생했습니다.',
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleTrackSelect = async (track: Track) => {
     try {
-      setIsLoading(true);
       let trackWithUrl = track;
       if (!track.url) {
         const {audioPlaybackData} = await getAudioUrlAndData(track);
@@ -175,8 +170,6 @@ const PlaylistDetailScreen = () => {
         '오류',
         error.message || '플레이리스트에 곡을 추가하는 중 오류가 발생했습니다.',
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -213,7 +206,6 @@ const PlaylistDetailScreen = () => {
       <SearchMusicModal
         visible={isSearchModalVisible}
         holderText="아티스트, 노래"
-        isParentLoading={isLoading}
         onClose={() => setIsSearchModalVisible(false)}
         onTrackSelect={handleTrackSelect}
       />
@@ -240,11 +232,6 @@ const PlaylistDetailScreen = () => {
           </TouchableOpacity>
         }
       />
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -339,13 +326,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20, // 상단 여백
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

@@ -39,7 +39,6 @@ const SearchScreen = () => {
   const [isOfficial, setIsOfficial] = useState(false);
   const [totalMusic, setTotalMusic] = useState<Track[]>([]);
   const [officialMusic, setOfficialMusic] = useState<Track[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -79,7 +78,6 @@ const SearchScreen = () => {
 
     setSearchText(_textItem);
     dispatch(addRecentSearch(_textItem));
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -109,7 +107,6 @@ const SearchScreen = () => {
       setOfficialMusic([]);
     } finally {
       Keyboard.dismiss();
-      setIsLoading(false);
     }
   };
 
@@ -119,7 +116,6 @@ const SearchScreen = () => {
 
   const startMusic = async (item: Track) => {
     try {
-      setIsLoading(true);
       setError(null);
       dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
@@ -136,8 +132,6 @@ const SearchScreen = () => {
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -250,11 +244,6 @@ const SearchScreen = () => {
           />
         )}
       </View>
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -316,13 +305,6 @@ const styles = StyleSheet.create({
   artist: {
     fontSize: 14,
     color: colors.gray_a9a9a9,
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   error: {
     color: colors.red,

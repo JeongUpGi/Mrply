@@ -20,6 +20,7 @@ import {
   setcurrentSearchTrackIndex,
   setPlaylistTrackQueue,
   setCureentPlaylistTrackIndex,
+  setIsPlayMusicServiceLoading,
 } from './store/slices/playMusicSlice';
 import {colors} from './asset/color/color';
 
@@ -162,6 +163,8 @@ function AppContent(): React.JSX.Element {
 
         if (newTrack) {
           dispatch(setCurrentMusic(newTrack));
+            dispatch(setIsPlayMusicServiceLoading(true));
+            dispatch(setIsPlayMusicServiceLoading(false));
         }
       } else if (event.type === Event.PlaybackState) {
         // 현재 재생중인 곡 상태 변경 시 (일시 정지 등)
@@ -206,6 +209,11 @@ function AppContent(): React.JSX.Element {
             <PlayingMusicBar />
           </View>
         )}
+        {isPlayMusicServiceLoading && (
+          <View style={styles.globalLoadingContainer}>
+            <ActivityIndicator size="large" color={colors.green_1DB954} />
+          </View>
+        )}
       </NavigationContainer>
     </SafeAreaProvider>
   );
@@ -233,6 +241,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  globalLoadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
 });
 

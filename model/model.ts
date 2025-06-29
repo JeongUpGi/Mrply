@@ -105,6 +105,7 @@ export interface MusicPlayerState {
   currentPlaylistId: string | null;
   activeSource: 'normal' | 'playlist';
   currentPlaybackPosition: number; // 음악 재 실행시 구간 값
+  isPlayMusicServiceLoading: boolean; // playMusicService 로딩 상태
 }
 
 export interface StoredPlaylist {
@@ -140,7 +141,6 @@ export interface ListModalProps {
 export interface SearchMusicModalProps {
   visible: boolean;
   holderText: string;
-  isParentLoading: boolean;
   onClose: () => void;
   onTrackSelect: (track: Track) => void;
 }

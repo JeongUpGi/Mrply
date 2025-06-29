@@ -51,7 +51,6 @@ const MusicWorldCupScreen = () => {
   const [winners, setWinners] = useState<any[]>([]);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [stage, setStage] = useState(16);
-  const [isLoading, setIsLoading] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
@@ -80,7 +79,6 @@ const MusicWorldCupScreen = () => {
 
   useEffect(() => {
     const fetchRandomMusic = async () => {
-      setIsLoading(true);
       try {
         const data = await getRandomMusic(16);
         setMusicList(data);
@@ -91,8 +89,6 @@ const MusicWorldCupScreen = () => {
         setSelectedIdx(null);
       } catch (err) {
         Alert.alert('에러', '랜덤 음악을 불러오지 못했습니다.');
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchRandomMusic();
@@ -130,7 +126,6 @@ const MusicWorldCupScreen = () => {
           text: '확인',
           style: 'destructive',
           onPress: async () => {
-            setIsLoading(true);
             try {
               const data = await getRandomMusic(16);
               setMusicList(data);
@@ -141,8 +136,6 @@ const MusicWorldCupScreen = () => {
               setSelectedIdx(null);
             } catch (err) {
               Alert.alert('에러', '랜덤 음악을 불러오지 못했습니다.');
-            } finally {
-              setIsLoading(false);
             }
           },
         },
@@ -166,7 +159,6 @@ const MusicWorldCupScreen = () => {
     if (!totalWinner) return;
     const track = convertMusicRankItemToTrack(totalWinner);
     try {
-      setIsLoading(true);
       dispatch(setIsPlayingMusicBarVisible(true));
       dispatch(setActiveSource('normal'));
       await playMusicService(track);
@@ -181,15 +173,12 @@ const MusicWorldCupScreen = () => {
     } catch (err: any) {
       console.error('음악 재생 오류:', err);
       Alert.alert('음악 재생 오류', err.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // 곡 재생 핸들러
   const handlePlay = async (track: Track) => {
     try {
-      setIsLoading(true);
 
       const trackId = track.id?.videoId || track.id;
 
@@ -202,13 +191,10 @@ const MusicWorldCupScreen = () => {
       if (playingId === trackId && playbackState.state === State.Playing) {
         await TrackPlayer.pause();
         dispatch(setIsPlaying(false));
-        setIsLoading(false);
         return;
       }
     } catch (err) {
       Alert.alert('재생 오류', '음악을 재생할 수 없습니다.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -373,11 +359,6 @@ const MusicWorldCupScreen = () => {
           </TouchableOpacity>
         ))}
       </View>
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.green_1DB954} />
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -515,13 +496,6 @@ const styles = StyleSheet.create({
     color: colors.gray_a9a9a9,
     fontSize: 18,
     fontWeight: 'normal',
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
   },
   topWinnerCard: {
     padding: 16,

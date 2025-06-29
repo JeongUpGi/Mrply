@@ -20,6 +20,8 @@ const initialState: MusicPlayerState = {
   activeSource: 'normal',
 
   currentPlaybackPosition: 0,
+
+  isPlayMusicServiceLoading: false,
 };
 
 const playMusicSlice = createSlice({
@@ -69,6 +71,9 @@ const playMusicSlice = createSlice({
     setCurrentPlaybackPosition: (state, action: PayloadAction<number>) => {
       state.currentPlaybackPosition = action.payload;
     },
+    setIsPlayMusicServiceLoading: (state, action: PayloadAction<boolean>) => {
+      state.isPlayMusicServiceLoading = action.payload;
+    },
   },
 });
 
@@ -83,5 +88,6 @@ export const {
   setCurrentPlaylistId,
   setActiveSource,
   setCurrentPlaybackPosition,
+  setIsPlayMusicServiceLoading,
 } = playMusicSlice.actions;
 export default playMusicSlice.reducer;
