@@ -11,7 +11,6 @@ import {
   ActionSheetIOS,
   Platform,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
@@ -39,6 +38,7 @@ import {formatTime} from '../../utils/formatHelpers';
 
 const PlayingMusicScreen = () => {
   const [isPlaylistModalVisible, setIsPlaylistModalVisible] = useState(false);
+  const [itemHeights, setItemHeights] = useState<number[]>([]);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
@@ -81,20 +81,21 @@ const PlayingMusicScreen = () => {
     activeSource === 'normal' ? currentSearchTrackIndex : playlistCurrentIndex;
 
   // 현재 재생 중인 곡의 인덱스가 변경될 때마다 자동 스크롤
-  const ITEM_HEIGHT = 60; // 큐 아이템의 실제 높이(px)
   useEffect(() => {
     if (
       currentIndex !== null &&
       currentIndex >= 0 &&
-      flatListRef.current &&
-      currentQueue.length > 0
+      currentIndex < currentQueue.length &&
+      itemHeights.length === currentQueue.length
     ) {
-      flatListRef.current.scrollToIndex({
-        index: currentIndex,
-        animated: true,
-      });
+      let sliceIndex =
+        currentIndex === currentQueue.length ? currentIndex + 1 : currentIndex;
+      const offset = itemHeights
+        .slice(0, sliceIndex)
+        .reduce((a, b) => a + b, 0);
+      flatListRef.current?.scrollToOffset({offset, animated: true});
     }
-  }, [currentIndex, currentQueue.length]);
+  }, [currentIndex, itemHeights, currentQueue.length]);
 
   useFocusEffect(
     useCallback(() => {
@@ -107,6 +108,15 @@ const PlayingMusicScreen = () => {
       };
     }, [dispatch]),
   );
+
+  // flatListItem 각 아이템 높이 배열
+  const getListItemHeight = (index: number, height: number) => {
+    setItemHeights(prev => {
+      const newHeights = [...prev];
+      newHeights[index] = height;
+      return newHeights;
+    });
+  };
 
   // 탭 전환 핸들러 - 해당 큐의 현재 인덱스 음악으로 재생
   const handleTabChange = async (source: 'normal' | 'playlist') => {
@@ -371,7 +381,8 @@ const PlayingMusicScreen = () => {
       style={[
         styles.queueListItem,
         item.id === currentMusic?.id ? styles.currentPlayingItem : {},
-      ]}>
+      ]}
+      onLayout={e => getListItemHeight(index, e.nativeEvent.layout.height)}>
       <TouchableOpacity
         style={styles.queueListItemWrapper}
         onPress={() => handleMusicTrackPress(index)}>
@@ -541,11 +552,6 @@ const PlayingMusicScreen = () => {
             style={styles.queueList}
             contentContainerStyle={styles.queueListContent}
             ListEmptyComponent={emptyListRenderItem}
-            getItemLayout={(data, index) => ({
-              length: ITEM_HEIGHT,
-              offset: ITEM_HEIGHT * index,
-              index,
-            })}
           />
         </View>
       </View>
