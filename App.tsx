@@ -7,6 +7,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {View, ActivityIndicator, StyleSheet} from 'react-native';
 import RootStackNavigator from './navigator/Routes';
 import TrackPlayer, {
+  Capability,
   Event,
   useTrackPlayerEvents,
   State,
@@ -29,6 +30,16 @@ async function setupPlayer() {
   let isSetup = false;
   try {
     await TrackPlayer.setupPlayer();
+    await TrackPlayer.updateOptions({
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.Stop,
+      ],
+      compactCapabilities: [Capability.Play, Capability.Pause],
+    });
     isSetup = true;
   } catch (error: unknown) {
     if (error instanceof Error) {
