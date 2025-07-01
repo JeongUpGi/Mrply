@@ -142,7 +142,7 @@ const PlayingMusicScreen = () => {
                       state: {
                         routes: [
                           {
-                            name: 'storageStack',
+                            name: 'playlistStack',
                             state: {
                               routes: [{name: 'playlistScreen'}],
                               index: 0,
@@ -337,7 +337,7 @@ const PlayingMusicScreen = () => {
                   state: {
                     routes: [
                       {
-                        name: 'storageStack',
+                        name: 'playlistStack',
                         state: {
                           routes: [{name: 'playlistScreen'}],
                           index: 0,
@@ -585,7 +585,7 @@ const PlayingMusicScreen = () => {
                     state: {
                       routes: [
                         {
-                          name: 'storageStack',
+                          name: 'playlistStack',
                           state: {
                             routes: [{name: 'playlistScreen'}],
                             index: 0,

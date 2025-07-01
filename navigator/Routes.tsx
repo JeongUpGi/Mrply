@@ -11,11 +11,9 @@ import MusicWorldCupScreen from '../screen/musicWorldCup/MusicWorldCupScreen';
 
 import SearchScreen from '../screen/search/SearchScreen';
 
-import StorageScreen from '../screen/storage/StorageScreen';
+// import StorageScreen from '../screen/storage/StorageScreen';
 import PlaylistScreen from '../screen/storage/PlaylistScreen';
 import PlaylistDetailScreen from '../screen/storage/PlaylistDetailScreen';
-
-import AllMenuScreen from '../screen/allMenu/AllMenuScreen';
 
 import PlayingMusicScreen from '../screen/common/PlayingMusicScreen';
 
@@ -55,27 +53,16 @@ function SearchStack() {
   );
 }
 
-function StorageStack() {
+function PlaylistStack() {
   return (
     <Stack.Navigator
-      initialRouteName="storageScreen"
+      initialRouteName="playlistScreen"
       screenOptions={{headerShown: false}}>
-      <Stack.Screen name="storageScreen" component={StorageScreen} />
       <Stack.Screen name="playlistScreen" component={PlaylistScreen} />
       <Stack.Screen
         name="playlistDetailScreen"
         component={PlaylistDetailScreen}
       />
-    </Stack.Navigator>
-  );
-}
-
-function MenuStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="allMenuScreen"
-      screenOptions={{headerShown: false}}>
-      <Stack.Screen name="allMenuScreen" component={AllMenuScreen} />
     </Stack.Navigator>
   );
 }
@@ -128,8 +115,8 @@ function MainBottomTabs() {
         }}
       />
       <Tab.Screen
-        name="storageStack"
-        component={StorageStack}
+        name="playlistStack"
+        component={PlaylistStack}
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
@@ -137,36 +124,7 @@ function MainBottomTabs() {
               style={{width: size, height: size, tintColor: color}}
             />
           ),
-          tabBarLabel: '보관함',
-        }}
-        listeners={({navigation}) => ({
-          tabPress: e => {
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'storageStack',
-                  state: {
-                    routes: [{name: 'storageScreen'}],
-                    index: 0,
-                  },
-                },
-              ],
-            });
-          },
-        })}
-      />
-      <Tab.Screen
-        name="menuStack"
-        component={MenuStack}
-        options={{
-          tabBarIcon: ({color, size}) => (
-            <Image
-              source={require('../asset/images/all_menu.png')}
-              style={{width: size, height: size, tintColor: color}}
-            />
-          ),
-          tabBarLabel: '전체 메뉴',
+          tabBarLabel: '플레이리스트',
         }}
       />
     </Tab.Navigator>
