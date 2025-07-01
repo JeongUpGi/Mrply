@@ -4,7 +4,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor, RootState} from './store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
-import {View, ActivityIndicator, StyleSheet} from 'react-native';
+import {View, ActivityIndicator, StyleSheet, AppState} from 'react-native';
 import RootStackNavigator from './navigator/Routes';
 import TrackPlayer, {
   Capability,
@@ -126,10 +126,6 @@ function AppContent(): React.JSX.Element {
               await TrackPlayer.add(currentQueue);
               await TrackPlayer.skip(currentIndex);
               await TrackPlayer.seekTo(currentPlaybackPosition);
-
-              if (isPlaying) {
-                await TrackPlayer.play();
-              }
             } catch (e) {
               console.error('TrackPlayer sync error:', e);
               dispatch(setIsPlaying(false));
@@ -151,6 +147,22 @@ function AppContent(): React.JSX.Element {
     };
 
     initPlayer();
+
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'inactive' || nextAppState === 'background') {
+        // 앱이 백그라운드로 가거나 종료될 때
+        dispatch(setIsPlaying(false));
+      }
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   useTrackPlayerEvents(
