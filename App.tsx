@@ -107,6 +107,7 @@ function AppContent(): React.JSX.Element {
 
   // 플레이어 셋업 함수
   useEffect(() => {
+    dispatch(setIsPlayMusicServiceLoading(false));
     const initPlayer = async () => {
       try {
         const setupDone = await setupPlayer();
@@ -176,6 +177,7 @@ function AppContent(): React.JSX.Element {
             dispatch(setIsPlayMusicServiceLoading(true));
             await playMusicService(newTrack);
           } catch (error) {
+            dispatch(setIsPlayMusicServiceLoading(false));
             console.error('playMusicService 호출 중 오류:', error);
           } finally {
             dispatch(setIsPlayMusicServiceLoading(false));
