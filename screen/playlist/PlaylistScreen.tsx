@@ -33,7 +33,7 @@ const PlaylistScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [playlistTitle, setPlaylistTitle] = useState('');
   const storedPlaylists = useSelector(
-    (state: RootState) => state.storage.storedPlaylists,
+    (state: RootState) => state.playlist.storedPlaylists,
   );
 
   const dispatch = useDispatch();
