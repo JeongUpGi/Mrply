@@ -8,7 +8,7 @@ import TrackPlayer, {Track} from 'react-native-track-player';
 import {decodeHtmlEntities} from '../utils/formatHelpers';
 
 const YOUTUBE_URL = 'https://www.googleapis.com/youtube/v3';
-const BASE_URL = 'http://172.30.1.59'; //url 추후 수정
+const BASE_URL = 'http://172.30.1.58'; //url 추후 수정
 
 const BACKSERVER_URL = 'http://3.137.72.97'; //url 추후 수정
 
@@ -106,7 +106,7 @@ export const getAudioUrlAndData = async (
 
 export const savePlayLog = async (track: Track): Promise<boolean> => {
   try {
-    const response = await fetch(`${BASE_URL}:3000/api/save-play-log`, {
+    const response = await fetch(`${BACKSERVER_URL}:3000/api/save-play-log`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -131,7 +131,7 @@ export const savePlayLog = async (track: Track): Promise<boolean> => {
 
 export const getMusicRank = async () => {
   try {
-    const response = await fetch(`${BASE_URL}:3000/api/get-music-rank`);
+    const response = await fetch(`${BACKSERVER_URL}:3000/api/get-music-rank`);
 
     const data = await response.json();
     return data;
@@ -143,7 +143,7 @@ export const getMusicRank = async () => {
 
 export const saveWinLog = async (track: Track): Promise<boolean> => {
   try {
-    const response = await fetch(`${BASE_URL}:3000/api/save-win-log`, {
+    const response = await fetch(`${BACKSERVER_URL}:3000/api/save-win-log`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -167,7 +167,7 @@ export const saveWinLog = async (track: Track): Promise<boolean> => {
 
 export const getTotalWinner = async () => {
   try {
-    const response = await fetch(`${BASE_URL}:3000/api/get-total-winner`);
+    const response = await fetch(`${BACKSERVER_URL}:3000/api/get-total-winner`);
 
     const data = await response.json();
     return data;
