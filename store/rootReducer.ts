@@ -1,12 +1,12 @@
 import {combineReducers} from '@reduxjs/toolkit';
 import recentSearchReducer from './slices/recentSearchSlice';
 import playMusicReducer from './slices/playMusicSlice';
-import storageReducer from './slices/storageSlice';
+import playlistReducer from './slices/playlistSlice';
 
 const rootReducer = combineReducers({
   recentSearches: recentSearchReducer,
   playMusic: playMusicReducer,
-  storage: storageReducer,
+  playlist: playlistReducer,
 });
 
 export default rootReducer;

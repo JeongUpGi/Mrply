@@ -1,12 +1,12 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {StorageState, StoredPlaylist} from '../../model/model';
+import {PlaylistState, StoredPlaylist} from '../../model/model';
 import TrackPlayer, {Track} from 'react-native-track-player';
 
-const initialState: StorageState = {
+const initialState: PlaylistState = {
   storedPlaylists: [],
 };
 
-const storageSlice = createSlice({
+const playlistSlice = createSlice({
   name: 'storage',
   initialState,
   reducers: {
@@ -80,6 +80,6 @@ export const {
   addMusicToPlaylist,
   removePlaylist,
   removeMusicFromPlaylist,
-} = storageSlice.actions;
+} = playlistSlice.actions;
 
-export default storageSlice.reducer;
+export default playlistSlice.reducer;

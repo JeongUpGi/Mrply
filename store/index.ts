@@ -7,7 +7,7 @@ import rootReducer from './rootReducer';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['recentSearches', 'playMusic', 'storage'], //영구저장
+  whitelist: ['recentSearches', 'playMusic', 'playlist'], //영구저장
   blacklist: [''], //영구저장 x
 };
 

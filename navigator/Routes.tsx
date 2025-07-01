@@ -11,9 +11,8 @@ import MusicWorldCupScreen from '../screen/musicWorldCup/MusicWorldCupScreen';
 
 import SearchScreen from '../screen/search/SearchScreen';
 
-// import StorageScreen from '../screen/storage/StorageScreen';
-import PlaylistScreen from '../screen/storage/PlaylistScreen';
-import PlaylistDetailScreen from '../screen/storage/PlaylistDetailScreen';
+import PlaylistScreen from '../screen/playlist/PlaylistScreen';
+import PlaylistDetailScreen from '../screen/playlist/PlaylistDetailScreen';
 
 import PlayingMusicScreen from '../screen/common/PlayingMusicScreen';
 

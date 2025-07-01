@@ -22,7 +22,7 @@ import {Header} from '../../component/common/Header';
 import {
   addMusicToPlaylist,
   removeMusicFromPlaylist,
-} from '../../store/slices/storageSlice';
+} from '../../store/slices/playlistSlice';
 import SearchMusicModal from '../../component/modal/SearchMusicModal';
 import {
   setActiveSource,
@@ -48,7 +48,7 @@ const PlaylistDetailScreen = () => {
   const {playlistId} = route.params as {playlistId: string};
 
   const currentPlaylistTrack = useSelector((state: RootState) =>
-    state.storage.storedPlaylists.find(p => p.id === playlistId),
+    state.playlist.storedPlaylists.find(p => p.id === playlistId),
   );
 
   if (!currentPlaylistTrack) {
@@ -77,7 +77,7 @@ const PlaylistDetailScreen = () => {
 
           const updatedPlaylist = store
             .getState()
-            .storage.storedPlaylists.find(p => p.id === playlistId);
+            .playlist.storedPlaylists.find(p => p.id === playlistId);
           const updatedTracks = updatedPlaylist ? updatedPlaylist.tracks : [];
 
           const currentMusic = store.getState().playMusic.currentMusic;

@@ -33,7 +33,7 @@ import {Header} from '../../component/common/Header';
 import ActionSheet from 'react-native-actionsheet';
 import {RootStackParamList, StoredPlaylist} from '../../model/model';
 import ListModal from '../../component/modal/ListModal';
-import {addMusicToPlaylist} from '../../store/slices/storageSlice';
+import {addMusicToPlaylist} from '../../store/slices/playlistSlice';
 import {formatTime} from '../../utils/formatHelpers';
 
 const PlayingMusicScreen = () => {
@@ -46,7 +46,7 @@ const PlayingMusicScreen = () => {
   const actionSheetRef = React.useRef<ActionSheet>(null);
   const flatListRef = useRef<FlatList>(null);
   const playlists = useSelector(
-    (state: RootState) => state.storage.storedPlaylists,
+    (state: RootState) => state.playlist.storedPlaylists,
   );
 
   const currentMusic = useSelector(

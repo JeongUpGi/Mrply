@@ -14,7 +14,7 @@ import {RootState, store} from '../../store';
 import {colors} from '../../asset/color/color';
 import {Header} from '../../component/common/Header';
 import TextInputModal from '../../component/modal/TextInputModal';
-import {addPlaylist, removePlaylist} from '../../store/slices/storageSlice';
+import {addPlaylist, removePlaylist} from '../../store/slices/playlistSlice';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
 import {formatDate} from '../../utils/formatHelpers';

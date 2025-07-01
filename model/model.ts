@@ -8,7 +8,6 @@ export type RootStackParamList = {
   musicWorldCupScreen: undefined;
   allMenuScreen: undefined;
   searchScreen: undefined;
-  storageScreen: undefined;
   playlistScreen: undefined;
   playlistDetailScreen: {
     playlistId: string;
@@ -116,7 +115,7 @@ export interface StoredPlaylist {
   updatedAt: number;
 }
 
-export interface StorageState {
+export interface PlaylistState {
   storedPlaylists: StoredPlaylist[];
 }
 
