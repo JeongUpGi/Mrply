@@ -28,6 +28,7 @@ import {
 import {Header} from '../../component/common/Header';
 import {Track} from 'react-native-track-player';
 import TrackPlayer from 'react-native-track-player';
+import {usePlayingMusicBarHeight} from '../../contexts/PlayingMusicBarHeightContext';
 
 const HomeScreen = () => {
   const [musicRank, setMusicRank] = useState<MusicRankItem[]>([]);
@@ -35,6 +36,7 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const {musicBarHeight} = usePlayingMusicBarHeight();
   const firstMusic = musicRank[0]; // 1등 음악
 
   const fetchRank = useCallback(async () => {
@@ -131,7 +133,7 @@ const HomeScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {marginBottom: musicBarHeight}]}>
       <Header.leftTitleRightComponentHeader
         title="MrPly 탑 100"
         titleStyle={styles.header}

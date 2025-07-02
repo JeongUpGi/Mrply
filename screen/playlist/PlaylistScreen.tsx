@@ -26,8 +26,10 @@ import {
   setIsPlayingMusicBarVisible,
   setPlaylistTrackQueue,
 } from '../../store/slices/playMusicSlice';
+import {usePlayingMusicBarHeight} from '../../contexts/PlayingMusicBarHeightContext';
 
 const PlaylistScreen = () => {
+  const {musicBarHeight} = usePlayingMusicBarHeight();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -110,7 +112,7 @@ const PlaylistScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {marginBottom: musicBarHeight}]}>
       <Header.leftTitleRightIcon
         title="플레이리스트"
         titleStyle={styles.title}

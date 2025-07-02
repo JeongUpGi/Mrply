@@ -24,6 +24,10 @@ import {
 } from './store/slices/playMusicSlice';
 import {colors} from './asset/color/color';
 import {playMusicService} from './service/musicService';
+import {
+  PlayingMusicBarHeightProvider,
+  usePlayingMusicBarHeight,
+} from './contexts/PlayingMusicBarHeightContext';
 
 // 앱 최초 업로드 시 TrackPlayer 초기 설정
 async function setupPlayer() {
@@ -62,6 +66,8 @@ async function setupPlayer() {
 // Provider 마운트 후 redux상태를 가져오기 위해 따로 구분해서 렌더링
 function AppContent(): React.JSX.Element {
   const [isPlayerSetupDone, setIsPlayerSetupDone] = useState(false);
+  const {setMusicBarHeight} = usePlayingMusicBarHeight();
+
   const dispatch = useDispatch();
 
   // 중복 호출 방지를 위한 ref
@@ -165,6 +171,17 @@ function AppContent(): React.JSX.Element {
     };
   }, []);
 
+  useEffect(() => {
+    if (
+      !currentMusic ||
+      !isPlayingMusicBarVisible ||
+      isPlayMusicServiceLoading
+    ) {
+      setMusicBarHeight(0);
+    }
+    // 의존성 배열에 관련 상태 추가
+  }, [currentMusic, isPlayingMusicBarVisible, isPlayMusicServiceLoading]);
+
   useTrackPlayerEvents(
     [Event.PlaybackTrackChanged, Event.PlaybackState],
     async event => {
@@ -238,7 +255,9 @@ function AppContent(): React.JSX.Element {
         {currentMusic &&
           isPlayingMusicBarVisible &&
           !isPlayMusicServiceLoading && (
-            <View style={styles.playingMusicBarContainer}>
+            <View
+              style={styles.playingMusicBarContainer}
+              onLayout={e => setMusicBarHeight(e.nativeEvent.layout.height)}>
               <PlayingMusicBar />
             </View>
           )}
@@ -256,7 +275,9 @@ function App(): React.JSX.Element {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <AppContent />
+        <PlayingMusicBarHeightProvider>
+          <AppContent />
+        </PlayingMusicBarHeightProvider>
       </PersistGate>
     </Provider>
   );

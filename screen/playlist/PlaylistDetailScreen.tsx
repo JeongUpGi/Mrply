@@ -35,8 +35,10 @@ import {
 import {NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../model/model';
 import {savePlayLog} from '../../network/network';
+import {usePlayingMusicBarHeight} from '../../contexts/PlayingMusicBarHeightContext';
 
 const PlaylistDetailScreen = () => {
+  const {musicBarHeight} = usePlayingMusicBarHeight();
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -199,7 +201,7 @@ const PlaylistDetailScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {marginBottom: musicBarHeight}]}>
       <Header.leftTitleRightIcon
         title={currentPlaylistTrack.title}
         titleStyle={styles.title}

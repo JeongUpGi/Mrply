@@ -36,8 +36,11 @@ import {
   setSearchTrackQueue,
 } from '../../store/slices/playMusicSlice';
 import {RootState} from '../../store';
+import {usePlayingMusicBarHeight} from '../../contexts/PlayingMusicBarHeightContext';
 
 const MusicWorldCupScreen = () => {
+  const {musicBarHeight} = usePlayingMusicBarHeight();
+
   const [musicList, setMusicList] = useState<any[]>([]);
   const [roundTracks, setRoundTracks] = useState<any[]>([]);
   const [totalWinner, setTotalWinner] = useState<totalWinnerItem>();
@@ -319,7 +322,7 @@ const MusicWorldCupScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {marginBottom: musicBarHeight}]}>
       <TopWinnerMusicCard />
       <View style={styles.headerContainer}>
         <View style={{flex: 1}} />

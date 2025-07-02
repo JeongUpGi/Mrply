@@ -30,8 +30,10 @@ import {
 } from '../../store/slices/playMusicSlice';
 import TrackPlayer, {Track} from 'react-native-track-player';
 import {convertToTrack} from '../../utils/formatHelpers';
+import {usePlayingMusicBarHeight} from '../../contexts/PlayingMusicBarHeightContext';
 
 const SearchScreen = () => {
+  const {musicBarHeight} = usePlayingMusicBarHeight();
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [isOfficial, setIsOfficial] = useState(false);
@@ -189,7 +191,7 @@ const SearchScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {marginBottom: musicBarHeight}]}>
       <View style={{flex: 1, marginHorizontal: 30}}>
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
