@@ -28,6 +28,7 @@ import {
   PlayingMusicBarHeightProvider,
   usePlayingMusicBarHeight,
 } from './contexts/PlayingMusicBarHeightContext';
+import SplashScreen from 'react-native-splash-screen';
 
 // 앱 최초 업로드 시 TrackPlayer 초기 설정
 async function setupPlayer() {
@@ -169,6 +170,14 @@ function AppContent(): React.JSX.Element {
     return () => {
       subscription.remove();
     };
+  }, []);
+
+  useEffect(() => {
+    try {
+      SplashScreen.hide();
+    } catch (e) {
+      console.error('SplashScreen.hide() error:', e);
+    }
   }, []);
 
   useEffect(() => {
