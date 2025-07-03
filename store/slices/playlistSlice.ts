@@ -7,7 +7,7 @@ const initialState: PlaylistState = {
 };
 
 const playlistSlice = createSlice({
-  name: 'storage',
+  name: 'playlist',
   initialState,
   reducers: {
     //플레이리스트 추가 액션
