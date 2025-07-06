@@ -164,7 +164,16 @@ function AppContent(): React.JSX.Element {
 
     const subscription = AppState.addEventListener(
       'change',
-      handleAppStateChange,
+      async nextAppState => {
+        if (nextAppState === 'active') {
+          const playbackState = await TrackPlayer.getPlaybackState();
+          if (playbackState.state === State.Playing) {
+            dispatch(setIsPlaying(true));
+          } else {
+            dispatch(setIsPlaying(false));
+          }
+        }
+      },
     );
 
     return () => {
