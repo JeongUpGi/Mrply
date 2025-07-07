@@ -1,5 +1,6 @@
 # Mrply
-음악 순위를 통해 추천받는 음악 스트리밍 프로젝트
+음악 순위를 통해 추천받는 음악 스트리밍 프로젝트  
+👉 [Mrply 프로젝트 상세 노션 바로가기](https://giup.notion.site/MrPly-2275de3867b18008a000cacda4f07c3d?source=copy_link)
 
 ## 프로젝트 폴더/파일 구조
 - [`App.tsx`](./App.tsx)
