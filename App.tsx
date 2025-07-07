@@ -78,9 +78,6 @@ function AppContent(): React.JSX.Element {
   const currentMusic = useSelector(
     (state: RootState) => state.playMusic.currentMusic,
   );
-  const isPlaying = useSelector(
-    (state: RootState) => state.playMusic.isPlaying,
-  );
   const searchTrackQueue = useSelector(
     (state: RootState) => state.playMusic.searchTrackQueue,
   );
@@ -154,13 +151,6 @@ function AppContent(): React.JSX.Element {
     };
 
     initPlayer();
-
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'inactive' || nextAppState === 'background') {
-        // 앱이 백그라운드로 가거나 종료될 때
-        dispatch(setIsPlaying(false));
-      }
-    };
 
     const subscription = AppState.addEventListener(
       'change',
