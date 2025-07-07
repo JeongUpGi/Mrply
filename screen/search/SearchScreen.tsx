@@ -36,9 +36,7 @@ const SearchScreen = () => {
   const {musicBarHeight} = usePlayingMusicBarHeight();
   const [searchText, setSearchText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
-  const [isOfficial, setIsOfficial] = useState(false);
   const [totalMusic, setTotalMusic] = useState<Track[]>([]);
-  const [officialMusic, setOfficialMusic] = useState<Track[]>([]);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -66,10 +64,6 @@ const SearchScreen = () => {
     }
   };
 
-  const handleToggleChange = (newValue: boolean) => {
-    setIsOfficial(newValue);
-  };
-
   const handleSearch = async (_textItem?: string) => {
     if (!_textItem) {
       Alert.alert('검색어를 입력해주세요.');
@@ -85,17 +79,10 @@ const SearchScreen = () => {
       if (data && data.items) {
         const tracks = data.items.map(convertToTrack);
         setTotalMusic(tracks);
-
-        const officialTracks = data.items
-          .filter(item => item.snippet.title.toLowerCase().includes('official'))
-          .map(convertToTrack);
-        setOfficialMusic(officialTracks);
-
         handleInputBlur();
       } else {
         setError('검색 결과 구조가 예상과 다릅니다.');
         setTotalMusic([]);
-        setOfficialMusic([]);
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -104,7 +91,6 @@ const SearchScreen = () => {
         setError('알 수 없는 오류가 발생했습니다.');
       }
       setTotalMusic([]);
-      setOfficialMusic([]);
     } finally {
       Keyboard.dismiss();
     }
@@ -220,12 +206,6 @@ const SearchScreen = () => {
           )}
         </View>
 
-        <View style={styles.toggleContainer}>
-          <Text style={styles.toggleText}>official만 보기</Text>
-          <View style={{width: 5}} />
-          <Switch value={isOfficial} onValueChange={handleToggleChange} />
-        </View>
-
         {inputFocused && recentSearches.length > 0 && (
           <View style={styles.recentSearchesContainer}>
             <Text style={styles.recentSearchesTitle}>최근 검색어</Text>
@@ -245,7 +225,7 @@ const SearchScreen = () => {
 
         {!inputFocused && (
           <FlatList
-            data={isOfficial ? officialMusic : totalMusic}
+            data={totalMusic}
             style={styles.musicListContainer}
             keyExtractor={(item, index) =>
               item.id.videoId ||
@@ -326,15 +306,8 @@ const styles = StyleSheet.create({
   toggleText: {
     color: colors.black,
   },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: 10,
-    marginBottom: 10,
-  },
   recentSearchesContainer: {
-    marginTop: 10,
+    marginTop: 30,
   },
   recentSearchesItemWrapper: {
     flexDirection: 'row',
