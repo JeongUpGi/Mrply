@@ -85,8 +85,7 @@ const PlayingMusicScreen = () => {
     if (
       currentIndex !== null &&
       currentIndex >= 0 &&
-      currentIndex < currentQueue.length &&
-      itemHeights.length === currentQueue.length
+      currentIndex < currentQueue.length
     ) {
       let sliceIndex =
         currentIndex === currentQueue.length ? currentIndex + 1 : currentIndex;
